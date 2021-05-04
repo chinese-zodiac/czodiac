@@ -40,15 +40,16 @@ pragma solidity ^0.8.4;
 
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../interfaces/IUniswapV2Router02.sol";
 import "../interfaces/IUniswapV2Pair.sol";
 import "../interfaces/IUniswapV2Factory.sol";
 
-contract SPLIT is Context, IERC20, Ownable {
+//TODO: Add snapshots
+contract Czodiac is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -82,7 +83,7 @@ contract SPLIT is Context, IERC20, Ownable {
     address[] private _excluded;
    
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _total;
+    uint256 private _tTotal;
     uint256 private _rTotal;
     uint256 private _tFeeTotal;
     uint256 private _tBurnTotal;
@@ -102,42 +103,77 @@ contract SPLIT is Context, IERC20, Ownable {
     
     //00.20%
     uint256 private constant _devRewardBasis = 20;
+
+    uint256 private constant _swapBasisRate = 80000;
     
     //tracks the total amount of token rewarded to liquidity providers
     uint256 public totalLiquidityProviderRewards;
+
+    address private immutable uniswapV2Pair;
+    IERC20 private immutable prevCzodiac;
+    IERC20 private nextCzodiac;
     
-    IUniswapV2Router02 private immutable uniswapV2Router;
-    address public immutable uniswapV2Pair;
-    
-    uint256 private minTokensBeforeReward = 10;
+    uint256 private minTokensBeforeReward = 10 * 10**18;
+
+    uint256 public immutable swapStartTimestamp;
+    uint256 public immutable swapEndTimestamp;
 
     event LPRewards(uint256 tokenAmount);
+    event Creation(IUniswapV2Router02 _uniswapV2Router, IERC20 _prevCzodiac, string _name, string _symbol, uint256 _totalSupply, uint256 _swapStartTimestamp, uint256 _swapEndTimestamp);
+    event Swap(address receiver, uint256 amountBurned, uint256 amountMinted);
 
-    constructor (IUniswapV2Router02 _uniswapV2Router, string memory _name, string memory _symbol, uint _totalSupply) {
-        //TODO: add swap, proper distribution
-        _tTotal = 8 * 10**12 * 10**18;
-        _rTotal = (MAX - (MAX % _tTotal));
+    constructor (IUniswapV2Router02 _uniswapV2Router, IERC20 _prevCzodiac, string memory _name, string memory _symbol, uint256 _swapStartTimestamp, uint256 _swapEndTimestamp) {
         name = _name;
         symbol = _symbol;
-        _rOwned[_msgSender()] = _rTotal;
+        prevCzodiac = _prevCzodiac;
+        swapStartTimestamp = _swapStartTimestamp;
+        swapEndTimestamp = _swapEndTimestamp;
+        
+        if(address(_prevCzodiac) == address(0)) {
+            _tTotal = 8 * 10*9 * 10**18;
+            _rTotal = (MAX - (MAX % _tTotal));
+            _rOwned[_msgSender()] = _rTotal;
+        } else {
+            _tTotal = _prevCzodiac.totalSupply().mul(10000).div(_swapBasisRate);
+            _rTotal = (MAX - (MAX % _tTotal));
+            _rOwned[address(this)] = _rTotal;
+        }
 
          // Create a uniswap pair for this new token
-        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
+        address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
-
-        // set the rest of the contract variables
-        uniswapV2Router = _uniswapV2Router;
+        uniswapV2Pair = _uniswapV2Pair;
         
-        //exclude owner and this contract from fee
+        //exclude owner, contract, burn address, vitalik from fee & rewards
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
+        _isExcludedFromFee[address(0)] = true;    
+        _isExcludedFromFee[address(0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B)] = true;
+
+        excludeFromReward(owner());
+        excludeFromReward(address(this));
+        excludeFromReward(address(0));
+        excludeFromReward(address(0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B));
+        excludeFromReward(_uniswapV2Pair);
         
-        emit Transfer(address(0), _msgSender(), _tTotal);
+        emit Creation(_uniswapV2Router, _prevCzodiac, _name, _symbol, _tTotal, _swapStartTimestamp, _swapEndTimestamp);
+    }
+
+    function swap() external {
+        require(address(prevCzodiac) != address(0), "CzodiacToken: No previous czodiac");
+        require(block.timestamp >= swapStartTimestamp, "CzodiacToken: Swap not yet open");
+        require(block.timestamp <= swapEndTimestamp, "CzodiacToken: Swap closed");
+        uint256 amountToBurn = prevCzodiac.balanceOf(_msgSender());
+        uint256 amountToMint = amountToBurn.mul(10000).div(_swapBasisRate);
+        prevCzodiac.transferFrom(_msgSender(), address(0), amountToBurn);
+        transfer(_msgSender(), amountToMint);
+        emit Swap(_msgSender(), amountToBurn, amountToMint);
     }
 
     function totalSupply() public view override returns (uint256) {
         return _tTotal;
     }
+
 
     function balanceOf(address account) public view override returns (uint256) {
         if (_isExcluded[account]) return _tOwned[account];
@@ -160,7 +196,8 @@ contract SPLIT is Context, IERC20, Ownable {
 
     function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        if(sender != address(nextCzodiac))
+            _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
 
@@ -212,7 +249,6 @@ contract SPLIT is Context, IERC20, Ownable {
     }
 
     function excludeFromReward(address account) public onlyOwner() {
-        // require(account != 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, 'We can not exclude Uniswap router.');
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
@@ -247,8 +283,6 @@ contract SPLIT is Context, IERC20, Ownable {
         address to,
         uint256 amount
     ) private {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
 
         // is the token balance of this contract address over the min number of
@@ -430,11 +464,15 @@ contract SPLIT is Context, IERC20, Ownable {
         return _isExcludedFromFee[account];
     }
     
-    function excludeFromFee(address account) public onlyOwner {
+    function excludeFromFee(address account) external onlyOwner {
         _isExcludedFromFee[account] = true;
     }
     
-    function includeInFee(address account) public onlyOwner {
+    function includeInFee(address account) external onlyOwner {
         _isExcludedFromFee[account] = false;
+    }
+
+    function setNextCzodiact(IERC20 _nextCzodiac) external onlyOwner {
+        nextCzodiac = _nextCzodiac;
     }
 }
