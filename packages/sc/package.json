@@ -15,6 +15,7 @@
     "ethers": "^5.1.4",
     "hardhat": "^2.2.1",
     "solc": "^0.8.4",
+    "solhint": "^3.3.4",
     "solidity-coverage": "^0.7.16"
   }
 }
