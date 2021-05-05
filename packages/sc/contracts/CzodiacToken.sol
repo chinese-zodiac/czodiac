@@ -92,14 +92,14 @@ contract Czodiac is Context, IERC20, Ownable {
     string public symbol;
     uint8 public constant decimals = 18;
     
-    //00.50%
-    uint256 private constant _holderRewardBasis = 50;
-    
-    //00.00%
-    uint256 private constant _burnBasis = 0;
+    //01.00%
+    uint256 private constant _holderRewardBasis = 100;
     
     //00.30%
-    uint256 private constant _lpRewardBasis = 30;
+    uint256 private constant _burnBasis = 30;
+    
+    //00.50%
+    uint256 private constant _lpRewardBasis = 50;
     
     //00.20%
     uint256 private constant _devRewardBasis = 20;
