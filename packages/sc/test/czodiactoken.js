@@ -42,10 +42,10 @@ describe("CZodiacToken", function() {
     const ownerBalance = await czodiacToken1.balanceOf(ownerAddress.address);
     expect(contractBalance).to.equal(0, "Contract should hold 0 tokens.");
     expect(ownerBalance).to.equal(totalSupply, "Owner should hold full supply.");
-    expect(totalSupply).to.equal(parseEther("8000000000"),"Total supply should be 8 billion * 10**18.");
+    expect(totalSupply).to.equal(parseEther("8000000000000"),"Total supply should be 8 trillion * 10**18.");
   });
   it("Should not send rewards until fees enabled", async function() {
-    const amountToTransfer = parseEther("1000000000");
+    const amountToTransfer = parseEther("1000000000000");
     await czodiacToken1.transfer(transferAddress1.address,amountToTransfer);
     await czodiacToken1.connect(transferAddress1).transfer(transferAddress2.address,amountToTransfer);
     await czodiacToken1.connect(transferAddress2).transfer(ownerAddress.address,amountToTransfer);
@@ -53,14 +53,14 @@ describe("CZodiacToken", function() {
     const transfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
     const transfer2Balance = await czodiacToken1.balanceOf(transferAddress2.address);
     const totalSupply = await czodiacToken1.totalSupply();
-    expect(totalSupply).to.equal(parseEther("8000000000"),"Total supply should be 8 billion * 10**18.");
+    expect(totalSupply).to.equal(parseEther("8000000000000"),"Total supply should be 8 trillion * 10**18.");
     expect(ownerBalance).to.equal(totalSupply, "Owner should hold full supply.");
     expect(transfer1Balance).to.equal(0, "Transfer1 address should hold 0 tokens.");
     expect(transfer2Balance).to.equal(0, "Transfer2 address should hold 0 tokens.");
   });
   it("Should send rewards & burn on transfer to non fee exempt", async function() {
     await czodiacToken1.setGlobalRewardsEnabled(true);
-    const amountToTransfer = parseEther("1000000000");
+    const amountToTransfer = parseEther("1000000000000");
     await czodiacToken1.transfer(transferAddress1.address,amountToTransfer);
     await czodiacToken1.connect(transferAddress1).transfer(transferAddress2.address,amountToTransfer.div("2"));
     const totalSupply = await czodiacToken1.totalSupply();
@@ -69,7 +69,7 @@ describe("CZodiacToken", function() {
     const transfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
     const transfer2Balance = await czodiacToken1.balanceOf(transferAddress2.address);
 
-    const initialTotalSupply = parseEther("8000000000")
+    const initialTotalSupply = parseEther("8000000000000")
     const totalTax = amountToTransfer.div("2").mul("200").div("10000");
     const holderRewards = amountToTransfer.div("2").mul("100").div("10000");
     const lpRewards = amountToTransfer.div("2").mul("50").div("10000");
@@ -82,7 +82,7 @@ describe("CZodiacToken", function() {
 
     expect(contractBalance).to.equal(0, "Contract should hold 0 tokens.");
     expect(ownerBalance).to.equal(initialTotalSupply.sub(amountToTransfer).add(devRewards), "Owner should hold full supply minus transfer amount plus dev rewards.");
-    expect(totalSupply).to.equal(initialTotalSupply.sub(burnAmount),"Total supply should be 8 billion minus 0.3% burn.");  
+    expect(totalSupply).to.equal(initialTotalSupply.sub(burnAmount),"Total supply should be 8 trillion minus 0.3% burn.");  
     expect(transfer1Balance).to.equal(amountToTransfer.div("2").add(transfer1HolderRewards), "Transfer1 account should have half the transfer amount plus its portion of the 0.5% reward.");
     expect(transfer2Balance).to.equal(receivedAmount.add(transfer2HolderRewards), "Transfer2 account should have half the transfer amount minus 2% fees plus its portion of the 0.5% holder reward.");
   });
