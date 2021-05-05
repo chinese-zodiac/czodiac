@@ -112,8 +112,6 @@ contract Czodiac is Context, IERC20, Ownable {
     address private immutable uniswapV2Pair;
     IERC20 private immutable prevCzodiac;
     IERC20 private nextCzodiac;
-    
-    uint256 private minTokensBeforeReward = 10 * 10**18;
 
     uint256 public immutable swapStartTimestamp;
     uint256 public immutable swapEndTimestamp;
@@ -283,19 +281,6 @@ contract Czodiac is Context, IERC20, Ownable {
         uint256 amount
     ) private {
         require(amount > 0, "Transfer amount must be greater than zero");
-
-        // is the token balance of this contract address over the min number of
-        // tokens that we need to initiate a swap + liquidity lock?
-        // also, don't get caught in a circular liquidity event.
-        // also, don't swap & liquify if sender is uniswap pair.
-        uint256 contractTokenBalance = balanceOf(address(this));
-        bool overMinTokenBalance = contractTokenBalance >= minTokensBeforeReward;
-        if (
-            overMinTokenBalance
-        ) {
-            //distribute rewards
-            _rewardLiquidityProviders(contractTokenBalance);
-        }
         
         //indicates if fee should be deducted from transfer
         bool takeFee = true;
@@ -416,9 +401,13 @@ contract Czodiac is Context, IERC20, Ownable {
         
         //take lp providers reward
         uint256 rLiquidity = tLiquidity.mul(currentRate);
-        _rOwned[address(this)] = _rOwned[address(this)].add(rLiquidity);
-        if(_isExcluded[address(this)])
-            _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
+        uint256 initialLPTokens = balanceOf(address(uniswapV2Pair));
+        _rOwned[address(uniswapV2Pair)] = _rOwned[address(uniswapV2Pair)].add(rLiquidity);
+        if(_isExcluded[address(uniswapV2Pair)])
+            _tOwned[address(uniswapV2Pair)] = _tOwned[address(uniswapV2Pair)].add(tLiquidity);
+        IUniswapV2Pair(uniswapV2Pair).sync();
+        uint256 finalLPTokens = balanceOf(address(uniswapV2Pair));
+        emit LPRewards(finalLPTokens.sub(initialLPTokens));
         
         //take dev rewards
         uint256 rDevRewards = tDevRewards.mul(currentRate);
@@ -426,15 +415,6 @@ contract Czodiac is Context, IERC20, Ownable {
         if(_isExcluded[owner()])
             _tOwned[owner()] = _tOwned[owner()].add(tDevRewards);
     }
-    
-    function _rewardLiquidityProviders(uint256 liquidityRewards) private {
-        // avoid fee calling _tokenTransfer with false
-        _tokenTransfer(address(this), uniswapV2Pair, liquidityRewards,false);
-        IUniswapV2Pair(uniswapV2Pair).sync();
-        totalLiquidityProviderRewards = totalLiquidityProviderRewards.add(liquidityRewards);
-        emit LPRewards(liquidityRewards);
-    }
-
     function _swap(address swapper) private {
         require(address(prevCzodiac) != address(0), "CzodiacToken: No previous czodiac");
         require(block.timestamp >= swapStartTimestamp, "CzodiacToken: Swap not yet open");
