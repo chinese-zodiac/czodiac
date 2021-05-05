@@ -84,8 +84,6 @@ contract CZodiacToken is Context, IERC20, Ownable {
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal;
     uint256 private _rTotal;
-    uint256 private _tFeeTotal;
-    uint256 private _tBurnTotal;
 
     string public name;
     string public symbol;
@@ -117,9 +115,12 @@ contract CZodiacToken is Context, IERC20, Ownable {
     uint256 public immutable swapStartTimestamp;
     uint256 public immutable swapEndTimestamp;
 
-    event LPRewards(uint256 tokenAmount);
+    event HolderRewardsEvent(uint256 tokenAmount);
+    event LPRewardsEvent(uint256 tokenAmount);
+    event DevRewardsEvent(uint256 tokenAmount);
+    event BurnEvent(uint256 tokenAmount);
     event Creation(IUniswapV2Router02 _uniswapV2Router, IERC20 _prevCzodiac, string _name, string _symbol, uint256 _totalSupply, uint256 _swapStartTimestamp, uint256 _swapEndTimestamp);
-    event Swap(address receiver, uint256 amountBurned, uint256 amountMinted);
+    event Swap(address _swapper, uint256 _amountToBurn, uint256 _amountToMint);
 
     constructor (IUniswapV2Router02 _uniswapV2Router, IERC20 _prevCzodiac, string memory _name, string memory _symbol, uint256 _swapStartTimestamp, uint256 _swapEndTimestamp) {
         name = _name;
@@ -217,21 +218,13 @@ contract CZodiacToken is Context, IERC20, Ownable {
         return _isExcluded[account];
     }
 
-    function totalFees() public view returns (uint256) {
-        return _tFeeTotal;
-    }
-    
-    function totalBurn() public view returns (uint256) {
-        return _tBurnTotal;
-    }
-
     function deliver(uint256 tAmount) public {
         address sender = _msgSender();
         require(!_isExcluded[sender], "Excluded addresses cannot call this function");
          (,RValues memory values) = _getValues(tAmount, true);
         _rOwned[sender] = _rOwned[sender].sub(values.rAmount);
         _rTotal = _rTotal.sub(values.rAmount);
-        _tFeeTotal = _tFeeTotal.add(tAmount);
+        emit HolderRewardsEvent(tAmount);
     }
 
     function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
@@ -297,6 +290,8 @@ contract CZodiacToken is Context, IERC20, Ownable {
         
         //transfer amount, it will take tax, burn, liquidity fee
         _tokenTransfer(from,to,amount,takeFee);
+        //Transfer is a burn
+        if(to==address(0)) emit BurnEvent(amount);
     }
 
     //this method is responsible for taking all fee, if takeFee is true
@@ -356,9 +351,9 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
     function _reflectFee(uint256 rFee, uint256 rBurn, uint256 tFee, uint256 tBurn) private {
         _rTotal = _rTotal.sub(rFee).sub(rBurn);
-        _tFeeTotal = _tFeeTotal.add(tFee);
-        _tBurnTotal = _tBurnTotal.add(tBurn);
         _tTotal = _tTotal.sub(tBurn);
+        emit HolderRewardsEvent(tFee);
+        emit BurnEvent(tBurn);
     }
     
     function _getValues(uint256 tAmount, bool takeFee) private view returns (TValues memory tValues, RValues memory rValues) {
@@ -401,7 +396,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         return (rSupply, tSupply);
     }
     
-    function _takeLpAndDevRewards(uint256 tLiquidity,uint256 tDevRewards) private {
+    function _takeLpAndDevRewards(uint256 tLiquidity, uint256 tDevRewards) private {
         uint256 currentRate =  _getRate();
         
         //take lp providers reward
@@ -412,13 +407,16 @@ contract CZodiacToken is Context, IERC20, Ownable {
             _tOwned[address(uniswapV2Pair)] = _tOwned[address(uniswapV2Pair)].add(tLiquidity);
         IUniswapV2Pair(uniswapV2Pair).sync();
         uint256 finalLPTokens = balanceOf(address(uniswapV2Pair));
-        emit LPRewards(finalLPTokens.sub(initialLPTokens));
+        emit LPRewardsEvent(finalLPTokens.sub(initialLPTokens));
         
         //take dev rewards
         uint256 rDevRewards = tDevRewards.mul(currentRate);
+        uint256 initialDevTokens = balanceOf(owner());
         _rOwned[owner()] = _rOwned[owner()].add(rDevRewards);
         if(_isExcluded[owner()])
             _tOwned[owner()] = _tOwned[owner()].add(tDevRewards);
+        uint256 finalDevTokens = balanceOf(owner());
+        emit DevRewardsEvent(finalDevTokens.sub(initialDevTokens));
     }
     function _swap(address swapper) private {
         require(address(prevCzodiac) != address(0), "CzodiacToken: No previous czodiac");
