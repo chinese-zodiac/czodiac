@@ -90,6 +90,8 @@ contract CZodiacToken is Context, IERC20, Ownable {
     string public name;
     string public symbol;
     uint8 public constant decimals = 18;
+
+    bool public globalRewardsEnabled;
     
     //01.00%
     uint256 private constant _holderRewardBasis = 100;
@@ -140,6 +142,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
         uniswapV2Pair = _uniswapV2Pair;
+        
+        //WARNING: Rewards will be sent to the LP pool from the lpRewards! These can be taken by anyone.
+        // Do not enable global rewards until the liquidity has been added.
+        globalRewardsEnabled = false;
         
         //exclude owner, contract, burn address, vitalik from fee & rewards
         _isExcludedFromFee[owner()] = true;
@@ -284,8 +290,8 @@ contract CZodiacToken is Context, IERC20, Ownable {
         //indicates if fee should be deducted from transfer
         bool takeFee = true;
         
-        //if any account belongs to _isExcludedFromFee account then remove the fee
-        if(_isExcludedFromFee[from] || _isExcludedFromFee[to]){
+        // if global fees disabled, or if any account belongs to _isExcludedFromFee account then remove the fee
+        if(_isExcludedFromFee[from] || _isExcludedFromFee[to] || !globalRewardsEnabled){
             takeFee = false;
         }
         
@@ -463,5 +469,9 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
     function setNextCzodiact(IERC20 _nextCzodiac) external onlyOwner {
         nextCzodiac = _nextCzodiac;
+    }
+
+    function setGlobalRewardsEnabled(bool _globalRewardsEnabled) external onlyOwner {
+        globalRewardsEnabled = _globalRewardsEnabled;
     }
 }
