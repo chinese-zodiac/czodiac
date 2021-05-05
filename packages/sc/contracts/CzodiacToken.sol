@@ -159,15 +159,14 @@ contract Czodiac is Context, IERC20, Ownable {
         emit Creation(_uniswapV2Router, _prevCzodiac, _name, _symbol, _tTotal, _swapStartTimestamp, _swapEndTimestamp);
     }
 
+    function swapFor(address[] calldata swappers) external onlyOwner {
+        for(uint16 i; i<swappers.length; i++){
+            _swap(swappers[i]);
+        }        
+    }
+
     function swap() external {
-        require(address(prevCzodiac) != address(0), "CzodiacToken: No previous czodiac");
-        require(block.timestamp >= swapStartTimestamp, "CzodiacToken: Swap not yet open");
-        require(block.timestamp <= swapEndTimestamp, "CzodiacToken: Swap closed");
-        uint256 amountToBurn = prevCzodiac.balanceOf(_msgSender());
-        uint256 amountToMint = amountToBurn.mul(10000).div(_swapBasisRate);
-        prevCzodiac.transferFrom(_msgSender(), address(0), amountToBurn);
-        transfer(_msgSender(), amountToMint);
-        emit Swap(_msgSender(), amountToBurn, amountToMint);
+        _swap(_msgSender());
     }
 
     function totalSupply() public view override returns (uint256) {
@@ -434,6 +433,17 @@ contract Czodiac is Context, IERC20, Ownable {
         IUniswapV2Pair(uniswapV2Pair).sync();
         totalLiquidityProviderRewards = totalLiquidityProviderRewards.add(liquidityRewards);
         emit LPRewards(liquidityRewards);
+    }
+
+    function _swap(address swapper) private {
+        require(address(prevCzodiac) != address(0), "CzodiacToken: No previous czodiac");
+        require(block.timestamp >= swapStartTimestamp, "CzodiacToken: Swap not yet open");
+        require(block.timestamp <= swapEndTimestamp, "CzodiacToken: Swap closed");
+        uint256 amountToBurn = prevCzodiac.balanceOf(swapper);
+        uint256 amountToMint = amountToBurn.mul(10000).div(_swapBasisRate);
+        prevCzodiac.transferFrom(swapper, address(0), amountToBurn);
+        transfer(swapper, amountToMint);
+        emit Swap(swapper, amountToBurn, amountToMint);
     }
     
     function calculateHolderReward(uint256 _amount) private pure returns (uint256) {
