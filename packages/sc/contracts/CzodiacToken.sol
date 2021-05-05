@@ -127,7 +127,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         swapEndTimestamp = _swapEndTimestamp;
         
         if(address(_prevCzodiac) == address(0)) {
-            _tTotal = 8 * 10*9 * 10**18;
+            _tTotal = 8 * 10**9 * 10**18;
             _rTotal = (MAX - (MAX % _tTotal));
             _rOwned[_msgSender()] = _rTotal;
         } else {

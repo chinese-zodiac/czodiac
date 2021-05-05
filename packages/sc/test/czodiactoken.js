@@ -15,8 +15,12 @@ const { parseEther } = ethers.utils;
 describe("CZodiacToken", function() {
 
   let czodiacToken1, czodiacToken2, czodiacToken3;
+  let uniswapPair;
+  let ownerAddress, traderAddress, transferAddress;
 
   before(async function() {
+    [ownerAddress, traderAddress, transferAddress1, transferAddress2] = await ethers.getSigners();
+
     await time.advanceBlock();
     const now = await time.latest()
 
@@ -30,9 +34,41 @@ describe("CZodiacToken", function() {
       now.add(time.duration.days(30)).toNumber()//uint256 _swapEndTimestamp
     );
     await czodiacToken1.deployed();
-  })
+    uniswapPair = await czodiacToken1.uniswapV2Pair();
+  });
+  it("Should correctly distribute the token", async function() {
+    const totalSupply = await czodiacToken1.totalSupply();
+    const contractBalance = await czodiacToken1.balanceOf(czodiacToken1.address);
+    const ownerBalance = await czodiacToken1.balanceOf(ownerAddress.address);
+    expect(contractBalance).to.equal(0, "Contract should hold 0 tokens.");
+    expect(ownerBalance).to.equal(totalSupply, "Owner should hold full supply.");
+    expect(totalSupply).to.equal(parseEther("8000000000"),"Total supply should be 8 billion * 10**18.");
+  });
+  it("Should send rewards & burn on transfer to non fee exempt", async function() {
+    const amountToTransfer = parseEther("1000000000");
+    await czodiacToken1.transfer(transferAddress1.address,amountToTransfer);
+    await czodiacToken1.connect(transferAddress1).transfer(transferAddress2.address,amountToTransfer.div("2"));
+    const totalSupply = await czodiacToken1.totalSupply();
+    const contractBalance = await czodiacToken1.balanceOf(czodiacToken1.address);
+    const ownerBalance = await czodiacToken1.balanceOf(ownerAddress.address);
+    const transfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
+    const transfer2Balance = await czodiacToken1.balanceOf(transferAddress2.address);
 
-  it("Should return the new greeting once it's changed", function() {
-    expect(0).to.equal(0)
+    const initialTotalSupply = parseEther("8000000000")
+    const totalTax = amountToTransfer.div("2").mul("200").div("10000");
+    const holderRewards = amountToTransfer.div("2").mul("100").div("10000");
+    const lpRewards = amountToTransfer.div("2").mul("50").div("10000");
+    const burnAmount = amountToTransfer.div("2").mul("30").div("10000");
+    const devRewards = amountToTransfer.div("2").mul("20").div("10000");
+    const receivedAmount =  amountToTransfer.div("2").sub(totalTax);
+
+    const transfer1HolderRewards = holderRewards.mul(amountToTransfer.div("2")).div(amountToTransfer.div("2").add(receivedAmount));
+    const transfer2HolderRewards = holderRewards.mul(receivedAmount).div(amountToTransfer.div("2").add(receivedAmount));
+
+    expect(contractBalance).to.equal(0, "Contract should hold 0 tokens.");
+    expect(ownerBalance).to.equal(initialTotalSupply.sub(amountToTransfer).add(devRewards), "Owner should hold full supply minus transfer amount plus dev rewards.");
+    expect(totalSupply).to.equal(initialTotalSupply.sub(burnAmount),"Total supply should be 8 billion minus 0.3% burn.");  
+    expect(transfer1Balance).to.equal(amountToTransfer.div("2").add(transfer1HolderRewards), "Transfer1 account should have half the transfer amount plus its portion of the 0.5% reward.");
+    expect(transfer2Balance).to.equal(receivedAmount.add(transfer2HolderRewards), "Transfer2 account should have half the transfer amount minus 2% fees plus its portion of the 0.5% holder reward.");
   });
 });
