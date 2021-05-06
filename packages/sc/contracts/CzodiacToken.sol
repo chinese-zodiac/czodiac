@@ -38,6 +38,7 @@ Credit to reflect.finance, split.network, bubbadefi.finance
 */
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -199,7 +200,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
     function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
-        if(sender != address(nextCzodiac))
+        if(_msgSender() != address(nextCzodiac))
             _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
@@ -289,9 +290,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         }
         
         //transfer amount, it will take tax, burn, liquidity fee
-        _tokenTransfer(from,to,amount,takeFee);
-        //Transfer is a burn
-        if(to==address(0)) emit BurnEvent(amount);
+        _tokenTransfer(from,to,amount,takeFee);  
     }
 
     //this method is responsible for taking all fee, if takeFee is true
@@ -423,9 +422,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         require(block.timestamp >= swapStartTimestamp, "CzodiacToken: Swap not yet open");
         require(block.timestamp <= swapEndTimestamp, "CzodiacToken: Swap closed");
         uint256 amountToBurn = prevCzodiac.balanceOf(swapper);
+        require(amountToBurn > 0, "CzodiacToken: No tokens to swap from previous contract" );
         uint256 amountToMint = amountToBurn.mul(10000).div(_swapBasisRate);
-        prevCzodiac.transferFrom(swapper, address(0), amountToBurn);
-        transfer(swapper, amountToMint);
+        prevCzodiac.transferFrom(swapper, address(this), amountToBurn);
+        _transfer(address(this), swapper, amountToMint);
         emit Swap(swapper, amountToBurn, amountToMint);
     }
     
@@ -465,7 +465,8 @@ contract CZodiacToken is Context, IERC20, Ownable {
         _isExcludedFromFee[account] = false;
     }
 
-    function setNextCzodiact(IERC20 _nextCzodiac) external onlyOwner {
+    function setNextCzodiac(IERC20 _nextCzodiac) external onlyOwner {
+        _isExcludedFromFee[address(_nextCzodiac)];
         nextCzodiac = _nextCzodiac;
     }
 
