@@ -30,7 +30,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${networkConfig.rpcKey}`
+        url: `https://bsc-dataseed.binance.org`
       }
     },
     rinkeby: {
