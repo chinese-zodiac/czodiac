@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
-// Authored by Plastic Fingers
+// Authored by Plastic Digits
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -20,17 +21,17 @@ contract LockedSale is Context, Ownable {
     uint256 public maxPurchase;
     uint256 public maxSaleSize;
     uint256 public tokensForSale;
-    
+
     IERC20 token;
-    
+
     uint256 public totalBuyers;
     uint256 public totalPurchases;
 
     mapping(address => bool) isWhitelisted;
-    mapping(address => uint) deposits;
-    mapping(address => uint) buyerIndex;
+    mapping(address => uint256) deposits;
+    mapping(address => uint256) buyerIndex;
     address[] public buyers;
-    
+
     uint256 public distributedCount;
 
     event SetState(
@@ -69,12 +70,11 @@ contract LockedSale is Context, Ownable {
         );
     }
 
-    receive () external payable {
+    receive() external payable {
         _deposit(_msgSender());
     }
 
-    function setState
-    (
+    function setState(
         uint256 _startTime,
         uint256 _endTime,
         uint256 _unlockTimestamp,
@@ -85,8 +85,14 @@ contract LockedSale is Context, Ownable {
         IERC20 _token
     ) public onlyOwner {
         require(_startTime < _endTime, "LockedSale: Start must be before end.");
-        require(_endTime < _unlockTimestamp, "LockedSale: Unlock must be after end.");
-        require(_minPurchase < _maxPurchase, "LockedSale: Minimum purchase must be less than or equal to maximum purchase.");
+        require(
+            _endTime < _unlockTimestamp,
+            "LockedSale: Unlock must be after end."
+        );
+        require(
+            _minPurchase < _maxPurchase,
+            "LockedSale: Minimum purchase must be less than or equal to maximum purchase."
+        );
 
         startTime = _startTime;
         endTime = _endTime;
@@ -108,17 +114,21 @@ contract LockedSale is Context, Ownable {
         );
     }
 
-    function getState() external returns (
-        uint256 _startTime,
-        uint256 _endTime,
-        uint256 _unlockTimestamp,
-        uint256 _minPurchase,
-        uint256 _maxPurchase,
-        uint256 _tokensForSale,
-        IERC20 _token,    
-        uint256 _totalBuyers,
-        uint256 _totalPurchases
-    ) {
+    function getState()
+        external
+        view
+        returns (
+            uint256 _startTime,
+            uint256 _endTime,
+            uint256 _unlockTimestamp,
+            uint256 _minPurchase,
+            uint256 _maxPurchase,
+            uint256 _tokensForSale,
+            IERC20 _token,
+            uint256 _totalBuyers,
+            uint256 _totalPurchases
+        )
+    {
         _startTime = startTime;
         _endTime = endTime;
         _unlockTimestamp = unlockTimestamp;
@@ -131,14 +141,14 @@ contract LockedSale is Context, Ownable {
     }
 
     function whitelist(address[] calldata _buyers) external onlyOwner {
-        for(uint256 i = 0; i<_buyers.length; i++){
+        for (uint256 i = 0; i < _buyers.length; i++) {
             isWhitelisted[_buyers[i]] = true;
             emit Whitelist(_buyers[i]);
         }
     }
 
     function unwhitelist(address[] calldata _buyers) external onlyOwner {
-        for(uint256 i = 0; i<_buyers.length; i++){
+        for (uint256 i = 0; i < _buyers.length; i++) {
             isWhitelisted[_buyers[i]] = false;
             emit Unwhitelist(_buyers[i]);
         }
@@ -152,31 +162,44 @@ contract LockedSale is Context, Ownable {
         _deposit(_buyer);
     }
 
-    function distribute(uint _count) external onlyOwner {
-        if(_count.add(distributedCount) > buyers.length) {
+    function distribute(uint256 _count) external onlyOwner {
+        if (_count.add(distributedCount) > buyers.length) {
             _count = buyers.length.sub(distributedCount);
         }
         uint256 rateWad = tokensForSale.mul(10**18).div(totalPurchases);
-        for(uint256 i = distributedCount; i < distributedCount.add(_count); i++) {
+        for (
+            uint256 i = distributedCount;
+            i < distributedCount.add(_count);
+            i++
+        ) {
             _distribute(i, rateWad);
         }
         distributedCount = distributedCount.add(_count);
     }
 
-    function _distribute(uint _index, uint _rateWad) internal {
+    function _distribute(uint256 _index, uint256 _rateWad) internal {
         address account = buyers[_index];
-        token.safeTransfer(account, deposits[account].mul(_rateWad).div(10**18));
+        token.safeTransfer(
+            account,
+            deposits[account].mul(_rateWad).div(10**18)
+        );
     }
 
     function _deposit(address _buyer) internal {
         require(isWhitelisted[_buyer], "LockedSale: Buyer is not whitelisted");
         require(block.timestamp >= startTime, "LockedSale: Sale not yet open.");
         require(block.timestamp <= endTime, "LockedSale: Sale has closed.");
-        if(buyerIndex[_buyer] == 0) buyers.push(_buyer);
+        if (buyerIndex[_buyer] == 0) buyers.push(_buyer);
         deposits[_buyer] = deposits[_buyer].add(msg.value);
         totalPurchases = totalPurchases.add(msg.value);
-        require(deposits[_buyer] <= maxPurchase, "LockedSale: Cannot buy more than maxPurchase.");
-        require(totalPurchases <= maxSaleSize, "LockedSale: Cannot buy more than maxSaleSize.");
+        require(
+            deposits[_buyer] <= maxPurchase,
+            "LockedSale: Cannot buy more than maxPurchase."
+        );
+        require(
+            totalPurchases <= maxSaleSize,
+            "LockedSale: Cannot buy more than maxSaleSize."
+        );
         emit Deposit(_buyer, msg.value);
     }
 }
