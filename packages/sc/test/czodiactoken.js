@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-// Authored by Plastic Fingers
+// Authored by Plastic Digital
 // If you read this, know that I love you even if your mom doesnt <3
 const chai = require('chai');
 const { solidity } = require("ethereum-waffle");
@@ -19,7 +19,7 @@ describe("CZodiacToken", function() {
 
   let czodiacToken1, czodiacToken2, czodiacToken3;
   let uniswapPairAddress;
-  let ownerAddress, traderAddress, transferAddress;
+  let ownerAddress, traderAddress, transferAddress1, transferAddress2;
 
   before(async function() {
     [ownerAddress, traderAddress, transferAddress1, transferAddress2] = await ethers.getSigners();
