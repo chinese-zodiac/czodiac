@@ -1,0 +1,62 @@
+.header {
+  position: relative;
+  height: 95px;
+  .title {
+    display: inline-block;
+    margin: 20px;
+    margin-top: 12px;
+    vertical-align: middle;
+  }
+  .controls {
+    .wallet {
+      border-radius: 0 0 0 20px;
+      display: inline-block;
+      border-left: solid;
+      border-bottom: solid;
+      border-radius: 0 0 0 20px;
+      width: 150px;
+      height: 55px;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      .connect {
+        border: none;
+        border-radius: 0 0 0 20px;
+        width: 100%;
+        height: 100%;
+      }
+      .info {
+        width: 100%;
+        height: 100%;
+        padding: 5px 20px;
+        font-size: 0.8em;
+        .account,
+        .network {
+          display: block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+    .color-mode {
+      position: absolute;
+      top: 55px;
+      right: 0px;
+      border-radius: 0 0 0 20px;
+      border-left: solid;
+      background-color: none;
+      border-bottom: solid;
+    }
+    .network-picker {
+      position: absolute;
+      top: 0px;
+      right: 147px;
+      padding: 10px;
+      font-size: 0.8em;
+      border-radius: 0 0 0px 20px;
+      border: solid;
+      border-top: none;
+    }
+  }
+}
