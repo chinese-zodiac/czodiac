@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-// Authored by Plastic Digital
+// Authored by Plastic Digits
 // If you read this, know that I love you even if your mom doesnt <3
 const chai = require('chai');
 const { solidity } = require("ethereum-waffle");
@@ -52,6 +52,8 @@ describe("LockedSale", function() {
             czodiacToken.address//IERC20 _token
         );
         await lockedSale.deployed();
+        await czodiacToken.excludeFromReward(lockedSale.address);
+        await czodiacToken.excludeFromFee(lockedSale.address);
         await czodiacToken.transfer(lockedSale.address,totalSupply.div(2))
     });
         
@@ -156,5 +158,28 @@ describe("LockedSale", function() {
             to:lockedSale.address,
             value:parseEther("0.1")
         })).to.be.revertedWith("LockedSale: Sale has closed.");
+    });
+
+    it("Withdraw should send bnb to owner for liquidity", async function() {
+        const initialBalance = await ownerAddress.getBalance();
+        await lockedSale.withdraw();
+        const finalBalance = await ownerAddress.getBalance();
+
+        const purchases = await lockedSale.totalPurchases();
+        expect(finalBalance.sub(initialBalance)).to.be.within(purchases.sub(parseEther("0.001")),purchases.add(parseEther("0.001")));
+    });
+
+    it("Distribute should send tokens to buyers", async function() {
+        await lockedSale.distribute(2);
+        const buyer1Deposits = await lockedSale.deposits(buyer1Address.address);
+        const buyer2Deposits = await lockedSale.deposits(buyer2Address.address);
+        const buyer1Tokens = await czodiacToken.balanceOf(buyer1Address.address);
+        const buyer2Tokens = await czodiacToken.balanceOf(buyer2Address.address);
+
+        const maxSaleSize = await lockedSale.maxSaleSize();
+        const tokensForSale = await lockedSale.tokensForSale();
+
+        expect(buyer1Deposits.mul(tokensForSale).div(maxSaleSize)).to.equal(buyer1Tokens);
+        expect(buyer2Deposits.mul(tokensForSale).div(maxSaleSize)).to.equal(buyer2Tokens);
     });
 })

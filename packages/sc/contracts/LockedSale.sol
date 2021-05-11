@@ -169,7 +169,7 @@ contract LockedSale is Context, Ownable {
     }
 
     function withdrawToken(IERC20 _token) external onlyOwner {
-        _token.transfer(owner(), _token.balanceOf(owner()));
+        _token.transfer(owner(), _token.balanceOf(address(this)));
     }
 
     function _distribute(uint256 _index, uint256 _rateWad) internal {
