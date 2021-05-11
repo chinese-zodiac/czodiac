@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter, Route } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
+import theme from "./theme";
 import Home from "./pages/Home";
 import Sale from "./pages/Sale";
 import reportWebVitals from "./reportWebVitals";
@@ -16,16 +17,17 @@ import {
 import "./styles/index.scss";
 
 const dappConfig = {
-  readOnlyChainId: CHAINS.BSCTestnet,
+  readOnlyChainId: CHAINS.BSC,
   readOnlyUrls: RPC_URLS,
   supportedChains: SUPPORT_CHAINS,
   multicallAddresses: MUTICALL_ADDRESSES,
 };
 
 ReactDOM.render(
-  <ChakraProvider>
+  <ChakraProvider theme={theme}>
     <HashRouter>
       <DAppProvider config={dappConfig}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Route exact path="/" component={Home} />
         <Route path="/sale" component={Sale} />
       </DAppProvider>

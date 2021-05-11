@@ -1,11 +1,12 @@
-import { NavLink } from "react-router-dom";
+import Header from "../../components/Header";
 
 function Home() {
   return (<>
-      <main>
-          Home Page
-      </main>
-    </>);
+    <Header />
+    <main>
+        Home Page
+    </main>
+</>);
 }
 
 export default Home;
