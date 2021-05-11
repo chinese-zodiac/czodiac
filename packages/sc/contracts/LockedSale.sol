@@ -16,7 +16,6 @@ contract LockedSale is Context, Ownable {
 
     uint256 public startTime;
     uint256 public endTime;
-    uint256 public unlockTimestamp;
     uint256 public minPurchase;
     uint256 public maxPurchase;
     uint256 public maxSaleSize;
@@ -27,9 +26,9 @@ contract LockedSale is Context, Ownable {
     uint256 public totalBuyers;
     uint256 public totalPurchases;
 
-    mapping(address => bool) isWhitelisted;
-    mapping(address => uint256) deposits;
-    mapping(address => uint256) buyerIndex;
+    mapping(address => bool) public isWhitelisted;
+    mapping(address => uint256) public deposits;
+    mapping(address => uint256) public buyerIndex;
     address[] public buyers;
 
     uint256 public distributedCount;
@@ -37,7 +36,6 @@ contract LockedSale is Context, Ownable {
     event SetState(
         uint256 _startTime,
         uint256 _endTime,
-        uint256 _unlockTimestamp,
         uint256 _minPurchase,
         uint256 _maxPurchase,
         uint256 _tokensForSale,
@@ -51,7 +49,6 @@ contract LockedSale is Context, Ownable {
     constructor(
         uint256 _startTime,
         uint256 _endTime,
-        uint256 _unlockTimestamp,
         uint256 _minPurchase,
         uint256 _maxPurchase,
         uint256 _tokensForSale,
@@ -61,7 +58,6 @@ contract LockedSale is Context, Ownable {
         setState(
             _startTime,
             _endTime,
-            _unlockTimestamp,
             _minPurchase,
             _maxPurchase,
             _tokensForSale,
@@ -77,7 +73,6 @@ contract LockedSale is Context, Ownable {
     function setState(
         uint256 _startTime,
         uint256 _endTime,
-        uint256 _unlockTimestamp,
         uint256 _minPurchase,
         uint256 _maxPurchase,
         uint256 _tokensForSale,
@@ -86,17 +81,12 @@ contract LockedSale is Context, Ownable {
     ) public onlyOwner {
         require(_startTime < _endTime, "LockedSale: Start must be before end.");
         require(
-            _endTime < _unlockTimestamp,
-            "LockedSale: Unlock must be after end."
-        );
-        require(
             _minPurchase < _maxPurchase,
             "LockedSale: Minimum purchase must be less than or equal to maximum purchase."
         );
 
         startTime = _startTime;
         endTime = _endTime;
-        unlockTimestamp = _unlockTimestamp;
         minPurchase = _minPurchase;
         maxPurchase = _maxPurchase;
         tokensForSale = _tokensForSale;
@@ -106,7 +96,6 @@ contract LockedSale is Context, Ownable {
         emit SetState(
             _startTime,
             _endTime,
-            _unlockTimestamp,
             _minPurchase,
             _maxPurchase,
             _tokensForSale,
@@ -120,7 +109,6 @@ contract LockedSale is Context, Ownable {
         returns (
             uint256 _startTime,
             uint256 _endTime,
-            uint256 _unlockTimestamp,
             uint256 _minPurchase,
             uint256 _maxPurchase,
             uint256 _tokensForSale,
@@ -131,7 +119,6 @@ contract LockedSale is Context, Ownable {
     {
         _startTime = startTime;
         _endTime = endTime;
-        _unlockTimestamp = unlockTimestamp;
         _minPurchase = minPurchase;
         _maxPurchase = maxPurchase;
         _tokensForSale = tokensForSale;
@@ -166,7 +153,7 @@ contract LockedSale is Context, Ownable {
         if (_count.add(distributedCount) > buyers.length) {
             _count = buyers.length.sub(distributedCount);
         }
-        uint256 rateWad = tokensForSale.mul(10**18).div(totalPurchases);
+        uint256 rateWad = tokensForSale.mul(10**18).div(maxSaleSize);
         for (
             uint256 i = distributedCount;
             i < distributedCount.add(_count);
@@ -175,6 +162,14 @@ contract LockedSale is Context, Ownable {
             _distribute(i, rateWad);
         }
         distributedCount = distributedCount.add(_count);
+    }
+
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+
+    function withdrawToken(IERC20 _token) external onlyOwner {
+        _token.transfer(owner(), _token.balanceOf(owner()));
     }
 
     function _distribute(uint256 _index, uint256 _rateWad) internal {
@@ -189,7 +184,15 @@ contract LockedSale is Context, Ownable {
         require(isWhitelisted[_buyer], "LockedSale: Buyer is not whitelisted");
         require(block.timestamp >= startTime, "LockedSale: Sale not yet open.");
         require(block.timestamp <= endTime, "LockedSale: Sale has closed.");
-        if (buyerIndex[_buyer] == 0) buyers.push(_buyer);
+        require(
+            msg.value >= minPurchase && msg.value > 0,
+            "LockedSale: Cannot buy less than minPurchase."
+        );
+        if (deposits[_buyer] == 0) {
+            buyers.push(_buyer);
+            buyerIndex[_buyer] = totalBuyers;
+            totalBuyers = totalBuyers.add(1);
+        }
         deposits[_buyer] = deposits[_buyer].add(msg.value);
         totalPurchases = totalPurchases.add(msg.value);
         require(
