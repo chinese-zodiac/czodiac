@@ -1,0 +1,116 @@
+{
+    "background": {
+      "color": {
+        "value": "transparent"
+      },
+      "position": "50% 50%",
+      "repeat": "no-repeat",
+      "size": "cover"
+    },
+    "fullScreen": {
+      "enable": true,
+      "zIndex": 1
+    },
+    "interactivity": {
+      "events": {
+        "onClick": {
+          "enable": true,
+          "mode": "push"
+        },
+        "onHover": {
+          "mode": "grab",
+          "parallax": {
+            "enable": false,
+            "force": 60
+          }
+        }
+      },
+      "modes": {
+        "bubble": {
+          "distance": 400,
+          "duration": 2,
+          "opacity": 0.8,
+          "size": 40
+        },
+        "grab": {
+          "distance": 400
+        }
+      }
+    },
+    "particles": {
+      "color": {
+        "value": "#EB2214",
+        "animation": {
+          "h": {
+            "count": 25,
+            "offset": 1,
+            "speed": 0,
+            "sync": false
+          }
+        }
+      },
+      "links": {
+        "color": {
+          "value": "#FF9E00"
+        },
+        "distance": 150,
+        "enable": true,
+        "opacity": 0.4
+      },
+      "move": {
+        "attract": {
+          "rotate": {
+            "x": 600,
+            "y": 1200
+          }
+        },
+        "enable": true,
+        "path": {},
+        "outModes": {
+          "bottom": "out",
+          "left": "out",
+          "right": "out",
+          "top": "out"
+        },
+        "trail": {
+          "enable": false,
+          "length": 5
+        }
+      },
+      "number": {
+        "density": {
+          "enable": true,
+          "factor": 1200
+        }
+      },
+      "opacity": {
+        "random": {
+          "enable": true
+        },
+        "value": {
+          "min": 0.1,
+          "max": 0.5
+        },
+        "animation": {
+          "enable": true,
+          "speed": 1,
+          "minimumValue": 0.1
+        }
+      },
+      "size": {
+        "random": {
+          "enable": true
+        },
+        "value": {
+          "min": 0.1,
+          "max": 10
+        },
+        "animation": {
+          "count": 5,
+          "enable": true,
+          "speed": 1,
+          "minimumValue": 0.1
+        }
+      }
+    }
+  }

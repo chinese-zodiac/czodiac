@@ -1,9 +1,11 @@
-import React from "react";
-import { Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
+import React, {useEffect, useState} from "react";
+import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
 import useLockedSale from "../../hooks/useLockedSale";
 import { FiExternalLink, FiCheck } from "react-icons/fi";
-import { SimpleGrid } from "@chakra-ui/react"
+import { SimpleGrid } from "@chakra-ui/react";
+import Particles from "react-tsparticles";
+import particleConfigBase from "./particleConfig";
 import "./index.scss";
 
 
@@ -12,11 +14,26 @@ function Sale() {
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = React.useState("1.53");
 
+  const [particleConfig, setParticleConfig] = useState(particleConfigBase);
+/*
+  const [particlesBgColor] = useColorModeValue(
+    "#000000",
+    "#ffffff"
+  )
+
+  useEffect(()=>{
+    let newConfig = particleConfigBase;
+    newConfig.background.color.value = particlesBgColor;
+    setParticleConfig(newConfig)
+    console.log(newConfig)
+  },[particlesBgColor])
+*/
   const maxBNB = 2;
 
   return (<>
+    <Particles id="tsparticles" options={particleConfig} />
     <Header />
-    <Box as="main" className="both-center sale-page">
+    <Box as="main" className="horizontal-center sale-page">
       <Heading mt="100px">Initial Liquidity Sale</Heading>
       <Text className="explanation">
       The Sale runs from the start countdown to the end countdown.
