@@ -68,10 +68,10 @@ function BackgroundLines() {
       // ctx.lineCap = 'round';
     }
     function getColor( x ) {
-      
-      return 'hsl(hue, 84%, 30%)'.replace(
+      const val = (x / w * 360 + frame) % 100;
+      return 'hsl(hue, 100%, 50%)'.replace(
           'hue', 
-            ((x / w * 360 + frame) % 8)
+          val >= 50 ? val - 50 : 50 - val
       );
     }
     function anim() {
