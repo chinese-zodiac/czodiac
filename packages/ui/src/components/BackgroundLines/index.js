@@ -69,8 +69,9 @@ function BackgroundLines() {
     }
     function getColor( x ) {
       
-      return 'hsl( hue, 80%, 50% )'.replace(
-          'hue', x / w * 360 + frame
+      return 'hsl(hue, 84%, 30%)'.replace(
+          'hue', 
+            ((x / w * 360 + frame) % 8)
       );
     }
     function anim() {
