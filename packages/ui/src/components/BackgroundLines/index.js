@@ -6,13 +6,13 @@ import "./index.scss";
 function BackgroundLines() {
 
     const vignetteColor = useColorModeValue(
-        "radial-gradient(circle, var(--chakra-colors-gray-200) 20%, transparent 50%)", 
+        "radial-gradient(circle, var(--chakra-colors-gray-100) 20%, transparent 50%)", 
         "radial-gradient(circle, var(--chakra-colors-gray-800) 20%, transparent 50%)"
     );
 
     const canvasBackground = useColorModeValue(
-      "rgb(199, 199, 193, 0.1)", 
-      "rgb(54, 54, 48, 0.1)"
+      "rgb(221, 221, 217, 0.15)", 
+      "rgb(54, 54, 48, 0.15)"
     );
 
     useEffect(()=>{
