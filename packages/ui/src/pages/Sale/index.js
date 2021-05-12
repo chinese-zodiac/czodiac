@@ -14,8 +14,8 @@ function Sale() {
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = React.useState("1.53");
   const vignetteColor = useColorModeValue(
-    "radial-gradient(circle, var(--chakra-colors-gray-100) 20%, transparent 100%)", 
-    "radial-gradient(circle, var(--chakra-colors-gray-900) 20%, transparent 100%)"
+    "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
+    "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"
   );
 
   const maxBNB = 2;
