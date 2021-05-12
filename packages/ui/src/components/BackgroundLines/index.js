@@ -6,16 +6,17 @@ import "./index.scss";
 function BackgroundLines() {
 
     const vignetteColor = useColorModeValue(
-        "radial-gradient(circle, var(--chakra-colors-gray-100) 0%, transparent 150%)", 
-        "radial-gradient(circle, var(--chakra-colors-gray-800) 20%, transparent)"
+        "radial-gradient(circle, var(--chakra-colors-gray-200) 20%, transparent 50%)", 
+        "radial-gradient(circle, var(--chakra-colors-gray-800) 20%, transparent 50%)"
     );
 
     const canvasBackground = useColorModeValue(
-        "var(--chakra-colors-gray-100)", 
-        "var(--chakra-colors-gray-800)"
+      "rgb(199, 199, 193, 0.1)", 
+      "rgb(54, 54, 48, 0.1)"
     );
 
     useEffect(()=>{
+      let stopAnim = false;
         let c = document.getElementById("c");
         var w = c.width = window.innerWidth,
         h = c.height = window.innerHeight,
@@ -73,15 +74,16 @@ function BackgroundLines() {
       );
     }
     function anim() {
-      
-      window.requestAnimationFrame( anim );
+      if(!stopAnim)
+        window.requestAnimationFrame( anim );
       
       ++frame;
       
       ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(0,0,0,.02)';
+      ctx.fillStyle = canvasBackground;
       ctx.fillRect( 0, 0, w, h );
       ctx.shadowBlur = .5;
+      ctx.fillStyle = 'rgba(0,0,0,.02)';
       
       for( var i = 0; i < lines.length; ++i ) 
         
@@ -174,16 +176,21 @@ function BackgroundLines() {
     init();
     anim();
     
-    window.addEventListener( 'resize', function() {
-      
+    const resizeListener = function() {
       w = c.width = window.innerWidth;
       h = c.height = window.innerHeight;
       starter.x = w / 2;
       starter.y = h / 2;
       
       init();
-    } )
-    },[])
+    }
+    window.addEventListener( 'resize', resizeListener );
+
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+      stopAnim = true;
+    }
+    },[canvasBackground])
     return (<>
         <canvas id="c" style={{background:canvasBackground}}></canvas>
         <Box id="canvas-cover" bg={vignetteColor} />
