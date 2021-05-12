@@ -1,7 +1,7 @@
 .sale-page {
   text-align: center;
   width: 90vw;
-  max-width: 720px;
+  max-width: 730px;
   .bnbInput {
     max-width: 120px;
     display: inline-block;
@@ -12,5 +12,15 @@
     margin: 10px;
     position: relative;
     top: 6px;
+  }
+  .stats {
+    text-align: right;
+    margin: 10px;
+    & > * {
+      padding: 0 5px;
+    }
+    & > *:nth-child(even) {
+      text-align: left;
+    }
   }
 }
