@@ -5,7 +5,7 @@ import useLockedSale from "../../hooks/useLockedSale";
 import { FiExternalLink, FiCheck } from "react-icons/fi";
 import { SimpleGrid } from "@chakra-ui/react";
 import Particles from "react-tsparticles";
-import particleConfigBase from "./particleConfig";
+import particleConfig from "./particleConfig";
 import "./index.scss";
 
 
@@ -13,25 +13,16 @@ function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = React.useState("1.53");
+  const vignetteColor = useColorModeValue(
+    "radial-gradient(circle, var(--chakra-colors-gray-100) 20%, transparent 100%)", 
+    "radial-gradient(circle, var(--chakra-colors-gray-900) 20%, transparent 100%)"
+  );
 
-  const [particleConfig, setParticleConfig] = useState(particleConfigBase);
-/*
-  const [particlesBgColor] = useColorModeValue(
-    "#000000",
-    "#ffffff"
-  )
-
-  useEffect(()=>{
-    let newConfig = particleConfigBase;
-    newConfig.background.color.value = particlesBgColor;
-    setParticleConfig(newConfig)
-    console.log(newConfig)
-  },[particlesBgColor])
-*/
   const maxBNB = 2;
 
   return (<>
     <Particles id="tsparticles" options={particleConfig} />
+    <Box id="tsparticles-cover" bg={vignetteColor} />
     <Header />
     <Box as="main" className="horizontal-center sale-page">
       <Heading mt="100px">Initial Liquidity Sale</Heading>
