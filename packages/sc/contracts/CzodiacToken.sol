@@ -38,8 +38,6 @@ Credit to reflect.finance, split.network, bubbadefi.finance
 */
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -167,18 +165,14 @@ contract CZodiacToken is Context, IERC20, Ownable {
         // Do not enable global rewards until the liquidity has been added.
         globalRewardsEnabled = false;
 
-        //exclude owner, contract, burn address, vitalik from fee & rewards
+        //exclude owner, contract, burn address from fee & rewards
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
         _isExcludedFromFee[address(0)] = true;
-        _isExcludedFromFee[
-            address(0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B)
-        ] = true;
 
         excludeFromReward(owner());
         excludeFromReward(address(this));
         excludeFromReward(address(0));
-        excludeFromReward(address(0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B));
         excludeFromReward(_uniswapV2Pair);
 
         emit Creation(
@@ -663,5 +657,9 @@ contract CZodiacToken is Context, IERC20, Ownable {
         onlyOwner
     {
         globalRewardsEnabled = _globalRewardsEnabled;
+    }
+
+    function withdrawToken(IERC20 _token) external onlyOwner {
+        _token.transfer(owner(), _token.balanceOf(address(this)));
     }
 }

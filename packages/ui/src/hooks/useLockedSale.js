@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-function useLockedSale() {
+function useLockedSale(chainId) {
     const [lockedSaleState, setLockedSaleState] = useState({
-
+        
     })
 
     return lockedSaleState

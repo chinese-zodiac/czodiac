@@ -23,6 +23,8 @@ function Sale() {
   console.log(chainId)
 
   const maxBNB = 2;
+  
+  const defaultChain = CHAINS.BSCTestnet;
 
   return (<>
     <Particles id="tsparticles" options={particleConfig} />
@@ -65,7 +67,7 @@ function Sale() {
       <Heading as="h2" size="md">Sale Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Network:</Text>
-        <Text>{chainId === CHAINS.BSC ? CHAIN_LABELS[chainId] : CHAIN_LABELS[CHAINS.BSCTestnet] }</Text>
+        <Text>{chainId === CHAINS.BSC ? CHAIN_LABELS[chainId] : CHAIN_LABELS[defaultChain] }</Text>
         <Text>Total Buyers:</Text>
         <Text>{0}</Text>
         <Text>Total Purchases:</Text>
@@ -81,8 +83,12 @@ function Sale() {
         <Text>Sale Size:</Text>
         <Text>2T OxZodiac</Text>
         <Text>Sale Cap:</Text>
-        <Text>100 BNB</Text>     
-        <Text>Token:</Text>
+        <Text>100 BNB</Text>
+        <Text>Token Address:</Text>
+        <Link isExternal color="orange.700" 
+          href="https://etherscan.io">0x0000...
+        </Link>
+        <Text>Sale Address:</Text>
         <Link isExternal color="orange.700" 
           href="https://etherscan.io">0x0000...
         </Link>

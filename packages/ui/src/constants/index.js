@@ -51,3 +51,13 @@ export const MUTICALL_ADDRESSES = {
   [CHAINS.BSCTestnet]: "0x6e5bb1a5ad6f68a8d7d6a5e47750ec15773d6042",
   [CHAINS.xDai]: "0xb5b692a88bdfc81ca69dcb1d924f59f0413a602a"
 };
+
+export const CZODIAC_ADDRESSES = {
+  OxZodiac: {
+    [CHAINS.BSCTestnet]: "0x87a2Dc76284758ddfAc64D097e483fA1e620E006",
+  }
+}
+
+export const LOCKEDSALE_ADDRESSES = {
+  [CHAINS.BSCTestnet]: "0x0F0ae6e171b3b16C4F86048299e4ae2977d18C75",
+}

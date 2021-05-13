@@ -57,7 +57,15 @@ module.exports = {
       url: `https://bsc-dataseed.binance.org`,
       accounts: [networkConfig.ethKey],
       gasMultiplier: 1.2,
+    },
+    bscTestnet: {
+      url: `https://data-seed-prebsc-1-s2.binance.org:8545`,
+      accounts: [networkConfig.ethKey],
+      gasMultiplier: 1.2,
     }
+  },
+  etherscan: {
+    apiKey: networkConfig.etherscanKey
   }
 };
 
