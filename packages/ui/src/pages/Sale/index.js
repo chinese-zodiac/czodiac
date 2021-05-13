@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from "react";
+import { useEthers } from "@usedapp/core";
+import { CHAIN_LABELS, CHAINS } from "../../constants";
 import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
 import useLockedSale from "../../hooks/useLockedSale";
@@ -13,10 +15,12 @@ function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = React.useState("1.5");
+  const { account, chainId } = useEthers();
   const vignetteColor = useColorModeValue(
     "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
     "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"
   );
+  console.log(chainId)
 
   const maxBNB = 2;
 
@@ -60,6 +64,8 @@ function Sale() {
       <hr />
       <Heading as="h2" size="md">Sale Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
+        <Text>Network:</Text>
+        <Text>{chainId === CHAINS.BSC ? CHAIN_LABELS[chainId] : CHAIN_LABELS[CHAINS.BSCTestnet] }</Text>
         <Text>Total Buyers:</Text>
         <Text>{0}</Text>
         <Text>Total Purchases:</Text>
