@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from "react";
 import { useEthers } from "@usedapp/core";
-import { CHAIN_LABELS, CHAINS } from "../../constants";
+import { CHAIN_LABELS, BLOCK_EXPLORERS } from "../../constants";
 import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
 import useLockedSale from "../../hooks/useLockedSale";
-import { FiExternalLink, FiCheck } from "react-icons/fi";
+import { FiExternalLink, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { SimpleGrid } from "@chakra-ui/react";
 import Particles from "react-tsparticles";
 import particleConfig from "./particleConfig";
+import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 
 
@@ -15,16 +16,30 @@ function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = React.useState("1.5");
-  const { account, chainId } = useEthers();
   const vignetteColor = useColorModeValue(
     "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
     "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"
   );
-  console.log(chainId)
 
   const maxBNB = 2;
-  
-  const defaultChain = CHAINS.BSCTestnet;
+
+  const {
+    saleChainId,
+    whitelistStatus,
+    spendings,
+    receipts,
+    totalBuyers,
+    totalSpendings,
+    rate,
+    startTimestamp,
+    endTimestamp,
+    saleSize,
+    saleCap,
+    tokenAddress,
+    saleAddress,
+    maxPurchase,
+    minPurchase
+  } = useLockedSale();
 
   return (<>
     <Particles id="tsparticles" options={particleConfig} />
@@ -57,23 +72,28 @@ function Sale() {
       <Heading as="h2" size="md">Your Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Whitelist Status:</Text>
-        <Text><Icon color="green.700" as={FiCheck} /></Text>
+        <Text>
+          {whitelistStatus ?
+            (<Icon color="orange.700" as={FiCheckCircle} />) :
+            (<Icon color="red.700" as={FiXCircle} />)
+            
+}   </Text>
         <Text>Spendings:</Text>
-        <Text>{0} BNB</Text>
-        <Text>OxZodiac:</Text>
-        <Text>{0} OxZodiac</Text>
+        <Text>{weiToFixed(spendings)} BNB</Text>
+        <Text>Receipts:</Text>
+        <Text>{weiToShortString(receipts)} OxZodiac</Text>
       </SimpleGrid>
       <hr />
       <Heading as="h2" size="md">Sale Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Network:</Text>
-        <Text>{chainId === CHAINS.BSC ? CHAIN_LABELS[chainId] : CHAIN_LABELS[defaultChain] }</Text>
+        <Text>{CHAIN_LABELS[saleChainId]}</Text>
         <Text>Total Buyers:</Text>
-        <Text>{0}</Text>
-        <Text>Total Purchases:</Text>
-        <Text>{0} BNB</Text>
+        <Text>{weiToFixed(totalBuyers,2)}</Text>
+        <Text>Total Spendings:</Text>
+        <Text>{weiToFixed(totalSpendings,2)} BNB</Text>
         <Text>Rate:</Text>
-        <Text>20B OxZodiac/BNB</Text>
+        <Text>{toShortString(rate,2)} OxZodiac/BNB</Text>
         <Text>Opening Date:</Text>
         <Text>TBD</Text>
         <Text>Closing Date:</Text>
@@ -81,16 +101,20 @@ function Sale() {
         <Text>Unlock Date:</Text>
         <Text>TBD</Text>
         <Text>Sale Size:</Text>
-        <Text>2T OxZodiac</Text>
+        <Text>{weiToShortString(saleSize,2)} OxZodiac</Text>
         <Text>Sale Cap:</Text>
-        <Text>100 BNB</Text>
+        <Text>{weiToFixed(saleCap,2)} BNB</Text>
         <Text>Token Address:</Text>
-        <Link isExternal color="orange.700" 
-          href="https://etherscan.io">0x0000...
+        <Link isExternal color="orange.700"  fontFamily="monospace"
+          href={`${BLOCK_EXPLORERS[saleChainId]}/token/${tokenAddress}`}>{tokenAddress}
         </Link>
         <Text>Sale Address:</Text>
+        <Link isExternal color="orange.700"  fontFamily="monospace"
+          href={`${BLOCK_EXPLORERS[saleChainId]}/token/${saleAddress}`}>{saleAddress}
+        </Link>
+        <Text>Swap Link:</Text>
         <Link isExternal color="orange.700" 
-          href="https://etherscan.io">0x0000...
+          href={`https://pancakeswap.info/token/${tokenAddress}`}>pancakeswap.info
         </Link>
       </SimpleGrid>
       <hr />

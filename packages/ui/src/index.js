@@ -24,7 +24,7 @@ const webFontConfig = {
 };
 
 const dappConfig = {
-  readOnlyChainId: CHAINS.BSC,
+  readOnlyChainId: CHAINS.BSCTestnet,
   readOnlyUrls: RPC_URLS,
   supportedChains: SUPPORT_CHAINS,
   multicallAddresses: MUTICALL_ADDRESSES,
