@@ -67,12 +67,17 @@ const theme = extendTheme({
             "900": "#0A2911"
           }
         },
+    fonts: {
+      body: "Raleway, system-ui, sans-serif",
+      heading: "Acme, Georgia, serif",
+      mono: "Menlo, monospace",
+    },
     styles: {
         global: (props) => ({
             "html, body": {
                 color: props.colorMode === "dark" ? "orange.400" : "orange.800",
                 bg: props.colorMode === "dark" ? "gray.900" : "gray.100",
-            },
+            }
         })
     }
 });

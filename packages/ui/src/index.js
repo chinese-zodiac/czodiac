@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter, Route } from "react-router-dom";
-import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
+import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
+import WebfontLoader from '@dr-kobros/react-webfont-loader';
 import theme from "./theme";
 import Home from "./pages/Home";
 import Sale from "./pages/Sale";
@@ -16,6 +17,12 @@ import {
 
 import "./styles/index.scss";
 
+const webFontConfig = {
+  google: {
+    families: ['Acme:light,regular,bold,italic','Raleway:light,regular,bold,italic']
+  }
+};
+
 const dappConfig = {
   readOnlyChainId: CHAINS.BSC,
   readOnlyUrls: RPC_URLS,
@@ -24,15 +31,17 @@ const dappConfig = {
 };
 
 ReactDOM.render(
-  <ChakraProvider theme={theme}>
-    <HashRouter>
-      <DAppProvider config={dappConfig}>
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <Route exact path="/" component={Home} />
-        <Route path="/sale" component={Sale} />
-      </DAppProvider>
-    </HashRouter>
-  </ChakraProvider>,
+  <WebfontLoader config={webFontConfig}>
+    <ChakraProvider theme={theme}>
+      <HashRouter>
+        <DAppProvider config={dappConfig}>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+          <Route exact path="/" component={Home} />
+          <Route path="/sale" component={Sale} />
+        </DAppProvider>
+      </HashRouter>
+    </ChakraProvider>
+  </WebfontLoader>,
   document.getElementById("root")
 );
 

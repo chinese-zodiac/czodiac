@@ -12,7 +12,7 @@ import "./index.scss";
 function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
-  const [value, setValue] = React.useState("1.53");
+  const [value, setValue] = React.useState("1.5");
   const vignetteColor = useColorModeValue(
     "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
     "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"

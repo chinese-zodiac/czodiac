@@ -5,6 +5,7 @@
   "homepage": ".",
   "dependencies": {
     "@chakra-ui/react": "^1.6.1",
+    "@dr-kobros/react-webfont-loader": "^8.0.0",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "@makerdao/multicall": "^0.12.0",
