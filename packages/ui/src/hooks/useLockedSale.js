@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction } from "@pdusedapp/core";
-import { CHAINS, CZODIAC_ADDRESSES, LOCKEDSALE_ADDRESSES} from "../constants";
-import {BigNumber, Contract, utils } from "ethers";
+import { LOCKEDSALE_ADDRESSES } from "../constants";
+import { Contract, utils } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
-import czodiacTokenAbi from "../abi/czodiacToken.json";
 import lockedSaleAbi from "../abi/lockedSale.json";
 const {Interface} = utils;
 
@@ -37,47 +36,58 @@ function useLockedSale() {
         send({ value: utils.parseEther(etherAmount) })
     }
 
-    useEffect(()=>{
-        if(!!account)
-            setLockedSaleContract(new Contract(LOCKEDSALE_ADDRESSES[chainId], lockedSaleInterface));
-    },[account])
+    const [calls, setCalls] = useState([]);
 
-    const callResults = useContractCalls([
-        {
-            abi:lockedSaleInterface,
-            address:LOCKEDSALE_ADDRESSES[chainId],
-            method:'getState',
-        },
-        {
-            abi:lockedSaleInterface,
-            address:LOCKEDSALE_ADDRESSES[chainId],
-            method:'maxSaleSize',
-        },
-        ...(account ? [
-            {
+    useEffect(()=>{
+        if(!!account && !!LOCKEDSALE_ADDRESSES[chainId])
+            setLockedSaleContract(new Contract(LOCKEDSALE_ADDRESSES[chainId], lockedSaleInterface));
+    },[account,chainId])
+
+    useEffect(()=>{
+        console.log("Running effect")
+        console.log("Locked sale:",LOCKEDSALE_ADDRESSES[chainId])
+        console.log("Locked sale truthy:",!!LOCKEDSALE_ADDRESSES[chainId])
+        const newCalls = []
+        if(!!LOCKEDSALE_ADDRESSES[chainId]) {
+            newCalls[0] = {
+                abi:lockedSaleInterface,
+                address:LOCKEDSALE_ADDRESSES[chainId],
+                method:'getState',
+            } 
+            newCalls[1] = {
+                abi:lockedSaleInterface,
+                address:LOCKEDSALE_ADDRESSES[chainId],
+                method:'maxSaleSize',
+            }
+        }
+        if(!!LOCKEDSALE_ADDRESSES[chainId] && !!account) {
+            newCalls[2] = {
                 abi:lockedSaleInterface,
                 address:LOCKEDSALE_ADDRESSES[chainId],
                 method:'isWhitelisted',
                 args: [account]
-            },
-            {
+            }
+            newCalls[3] = {
                 abi:lockedSaleInterface,
                 address:LOCKEDSALE_ADDRESSES[chainId],
                 method:'deposits',
                 args: [account]
             }
-        ] :
-        [])
-    ]) ?? [];
+        }
+        setCalls(newCalls)
+    },[account, chainId])
+
+    const callResults = useContractCalls(calls) ?? [];
 
     useDeepCompareEffect(()=>{
-        console.log("updating");
+        console.log("Running deep compare")
         const newLockedSaleState = {...baseSaleState};
         newLockedSaleState.saleChainId = chainId;
-        if(!callResults || callResults.length === 0 || !callResults[0]) {
+        if(!callResults || callResults.length === 0 || !callResults[0] || !LOCKEDSALE_ADDRESSES[chainId]) {
             setLockedSaleState(newLockedSaleState);
             return;
         }
+        console.log("Passed check")
             
         newLockedSaleState.saleAddress = LOCKEDSALE_ADDRESSES[chainId];
 

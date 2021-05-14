@@ -11,7 +11,7 @@ import Particles from "react-tsparticles";
 import particleConfig from "./particleConfig";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
-import {utils, BigNumber} from "ethers";
+import {utils } from "ethers";
 const { parseEther } = utils;
 
 function Sale() {
