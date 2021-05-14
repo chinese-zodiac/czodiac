@@ -63,6 +63,26 @@
       border-radius: 0 0 0px 20px;
       border: solid;
       border-top: none;
+      .network-tooltip {
+        position: relative;
+        margin-left: 5px;
+        &:hover .network-tooltip-text {
+          visibility: visible;
+        }
+        .network-tooltip-text {
+          position: absolute;
+          max-width: 50vw;
+          width: 200px;
+          padding: 10px;
+          padding-left: 15px;
+          top: 14px;
+          left: -185px;
+          white-space: normal;
+          text-align: left;
+          visibility: hidden;
+          border: solid;
+        }
+      }
     }
   }
 }
