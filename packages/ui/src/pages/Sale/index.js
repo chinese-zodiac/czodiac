@@ -88,8 +88,17 @@ function Sale() {
         </NumberInputStepper>
       </NumberInput>
       <Button className="purchaseButton" onClick={()=>{
+        const nowTimestamp = Math.floor(Date.now() / 1000)
         if(!whitelistStatus) {
           alert("Not whitelisted, request on telegram");
+          return;
+        }
+        if(nowTimestamp < startTimestamp) {
+          alert("Sale not yet open.");
+          return;
+        }
+        if(nowTimestamp > endTimestamp) {
+          alert("Sale has closed.");
           return;
         }
         if(parseEther(value.toString()).add(spendings).gt(saleCap)){
