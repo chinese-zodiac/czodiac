@@ -23,10 +23,12 @@ contract LockedSale is Context, Ownable {
 
     IERC20 token;
 
+    bool public whitelistRequired = true;
+
     uint256 public totalBuyers;
     uint256 public totalPurchases;
 
-    mapping(address => bool) public isWhitelisted;
+    mapping(address => bool) public _isWhitelisted;
     mapping(address => uint256) public deposits;
     mapping(address => uint256) public buyerIndex;
     address[] public buyers;
@@ -103,6 +105,15 @@ contract LockedSale is Context, Ownable {
         );
     }
 
+    function setWhitelistRequired(bool _value) external onlyOwner {
+        whitelistRequired = _value;
+    }
+
+    function isWhitelisted(address _buyer) public view returns (bool) {
+        if (!whitelistRequired) return true;
+        return _isWhitelisted[_buyer];
+    }
+
     function getState()
         external
         view
@@ -129,14 +140,14 @@ contract LockedSale is Context, Ownable {
 
     function whitelist(address[] calldata _buyers) external onlyOwner {
         for (uint256 i = 0; i < _buyers.length; i++) {
-            isWhitelisted[_buyers[i]] = true;
+            _isWhitelisted[_buyers[i]] = true;
             emit Whitelist(_buyers[i]);
         }
     }
 
     function unwhitelist(address[] calldata _buyers) external onlyOwner {
         for (uint256 i = 0; i < _buyers.length; i++) {
-            isWhitelisted[_buyers[i]] = false;
+            _isWhitelisted[_buyers[i]] = false;
             emit Unwhitelist(_buyers[i]);
         }
     }
@@ -181,7 +192,7 @@ contract LockedSale is Context, Ownable {
     }
 
     function _deposit(address _buyer) internal {
-        require(isWhitelisted[_buyer], "LockedSale: Buyer is not whitelisted");
+        require(isWhitelisted(_buyer), "LockedSale: Buyer is not whitelisted");
         require(block.timestamp >= startTime, "LockedSale: Sale not yet open.");
         require(block.timestamp <= endTime, "LockedSale: Sale has closed.");
         require(
