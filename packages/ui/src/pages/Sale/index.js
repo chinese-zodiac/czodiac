@@ -176,7 +176,7 @@ function Sale() {
       </SimpleGrid>
       <hr /></>) : (<>
         <hr />
-        <Text>You are not connected to BSC or BSCTestnet. Please use the buttons in the top right corner of the page to connect and/or switch networks.</Text>
+        <Text>You are not connected to BSC or BSCTestnet. Please use the buttons in the top right corner of the page to connect and/or switch networks. If the buttons do not work for your wallet, you may need to add the network manually.</Text>
         <hr />
       </>)}
     </Box>
