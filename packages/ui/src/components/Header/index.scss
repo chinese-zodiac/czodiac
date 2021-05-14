@@ -2,6 +2,10 @@
   position: relative;
   height: 95px;
   z-index: 1;
+  .version {
+    margin-left: 20px;
+    font-family: monospace;
+  }
   .title {
     display: inline-block;
     margin: 20px;

@@ -43,6 +43,7 @@ function Header() {
                     </Button>
                 )}
             </div>
+            <Text className="version">v0.0.2</Text>
         </header>
     )
 }

@@ -11,20 +11,18 @@ import particleConfig from "./particleConfig";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 
+const maxBNB = 2;
+const format = (val) => `${val} BNB`;
+const parse = (val) => val.replace(/^\$/, "");
 
 function Sale() {
-  const format = (val) => `${val} BNB`;
-  const parse = (val) => val.replace(/^\$/, "");
-  const [value, setValue] = React.useState("1.5");
+  const [value, setValue] = useState("1.5");
   const vignetteColor = useColorModeValue(
     "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
     "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"
   );
-
-  const maxBNB = 2;
-
+  const {account, chainId} = useEthers();
   const {
-    saleChainId,
     whitelistStatus,
     spendings,
     receipts,
@@ -39,7 +37,7 @@ function Sale() {
     saleAddress,
     maxPurchase,
     minPurchase
-  } = useLockedSale();
+  } = useLockedSale(account, chainId);
 
   return (<>
     <Particles id="tsparticles" options={particleConfig} />
@@ -58,7 +56,7 @@ function Sale() {
       <b> USA citizens, residents, agents etc are excluded.</b>
       </Text>
       <NumberInput 
-        onChange={(valueString) => setValue(parse(valueString))}
+        onChange={(valueString) => ()=>{setValue(parse(valueString));}}
         value={format(value)}
         className="bnbInput" defaultValue={1} precision={1} step={0.1} min={0.1} max={maxBNB}>
         <NumberInputField />
@@ -87,7 +85,7 @@ function Sale() {
       <Heading as="h2" size="md">Sale Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Network:</Text>
-        <Text>{CHAIN_LABELS[saleChainId]}</Text>
+        <Text>{CHAIN_LABELS[chainId]}</Text>
         <Text>Total Buyers:</Text>
         <Text>{weiToFixed(totalBuyers,2)}</Text>
         <Text>Total Spendings:</Text>
@@ -106,11 +104,11 @@ function Sale() {
         <Text>{weiToFixed(saleCap,2)} BNB</Text>
         <Text>Token Address:</Text>
         <Link isExternal color="orange.700"  fontFamily="monospace"
-          href={`${BLOCK_EXPLORERS[saleChainId]}/token/${tokenAddress}`}>{tokenAddress}
+          href={`${BLOCK_EXPLORERS[chainId]}/token/${tokenAddress}`}>{tokenAddress}
         </Link>
         <Text>Sale Address:</Text>
         <Link isExternal color="orange.700"  fontFamily="monospace"
-          href={`${BLOCK_EXPLORERS[saleChainId]}/token/${saleAddress}`}>{saleAddress}
+          href={`${BLOCK_EXPLORERS[chainId]}/token/${saleAddress}`}>{saleAddress}
         </Link>
         <Text>Swap Link:</Text>
         <Link isExternal color="orange.700" 
