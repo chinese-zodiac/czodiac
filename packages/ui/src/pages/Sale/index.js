@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { useEthers } from "@usedapp/core";
+import { useEthers } from "@pdusedapp/core";
 import { CHAIN_LABELS, BLOCK_EXPLORERS, CHAINS } from "../../constants";
 import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";

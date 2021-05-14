@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useEthers, useContractCalls, useContractFunction } from "@usedapp/core";
+import { useEthers, useContractCalls, useContractFunction } from "@pdusedapp/core";
 import { CHAINS, CZODIAC_ADDRESSES, LOCKEDSALE_ADDRESSES} from "../constants";
 import {BigNumber, Contract, utils } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";

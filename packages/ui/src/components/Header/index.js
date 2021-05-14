@@ -1,5 +1,5 @@
 import React from "react";
-import { useEthers } from "@usedapp/core";
+import { useEthers } from "@pdusedapp/core";
 import { useColorMode, Button, Heading, Text, Box, Icon } from "@chakra-ui/react";
 import { FiSun, FiMoon, FiCornerDownRight } from "react-icons/fi";
 import { CHAIN_LABELS, CHAINS } from "../../constants";
@@ -43,7 +43,7 @@ function Header() {
                     </Button>
                 )}
             </div>
-            <Text className="version">v0.0.2</Text>
+            <Text className="version">v0.0.3</Text>
         </header>
     )
 }

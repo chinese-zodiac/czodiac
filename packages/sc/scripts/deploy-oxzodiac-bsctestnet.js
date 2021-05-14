@@ -25,11 +25,11 @@ async function main() {
 
   const LockedSale = await hre.ethers.getContractFactory("LockedSale");
   const lockedSale = await LockedSale.deploy(
-    1620882000,//uint256 _startTime,
-    1620968400,//uint256 _endTime,
+    1620975600,//uint256 _startTime,
+    1621062000,//uint256 _endTime,
     parseEther("0.1"),//uint256 _minPurchase,
     parseEther("2"),//uint256 _maxPurchase,
-    totalSupply.div(2),//uint256 _tokensForSale,
+    totalSupply.div(4),//uint256 _tokensForSale,
     parseEther("100"),//uint256 _maxSaleSize,
     cZodiacToken.address//IERC20 _token
   );

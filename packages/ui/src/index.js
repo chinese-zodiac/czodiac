@@ -7,7 +7,7 @@ import theme from "./theme";
 import Home from "./pages/Home";
 import Sale from "./pages/Sale";
 import reportWebVitals from "./reportWebVitals";
-import { DAppProvider } from "@usedapp/core";
+import { DAppProvider } from "@pdusedapp/core";
 import {
   CHAINS,
   MUTICALL_ADDRESSES,

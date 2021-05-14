@@ -1,4 +1,4 @@
-import { ChainId } from "@usedapp/core";
+import { ChainId } from "@pdusedapp/core";
 
 export const CHAINS = {
   ...ChainId,
@@ -54,10 +54,10 @@ export const MUTICALL_ADDRESSES = {
 
 export const CZODIAC_ADDRESSES = {
   OxZodiac: {
-    [CHAINS.BSCTestnet]: "0x87a2Dc76284758ddfAc64D097e483fA1e620E006",
+    [CHAINS.BSCTestnet]: "0xEee665826342D2297CDdA640e8F206Ad2aD0cE7C",
   }
 }
 
 export const LOCKEDSALE_ADDRESSES = {
-  [CHAINS.BSCTestnet]: "0x0F0ae6e171b3b16C4F86048299e4ae2977d18C75",
+  [CHAINS.BSCTestnet]: "0x573D074191fbAC246214d16cEc67544c5CC2aB49",
 }

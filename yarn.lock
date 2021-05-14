@@ -2711,6 +2711,18 @@
     web3 "^1.2.5"
     web3-utils "^1.2.5"
 
+"@pdusedapp/core@^0.3.17":
+  version "0.3.17"
+  resolved "https://registry.yarnpkg.com/@pdusedapp/core/-/core-0.3.17.tgz#bcff1c4efbdfc51532ab55bd03f697340e2c0410"
+  integrity sha512-mi4tSsbniUeissJs2Xe99eyjscXTE5h4NcAnJtxeu0SBidsH4WIy6BR25ggAyLdeLrcuX4hd7Vq90hMuOc2fbg==
+  dependencies:
+    "@types/react" "17.0.1"
+    "@web3-react/core" "6.1.1"
+    "@web3-react/injected-connector" "6.0.7"
+    "@web3-react/network-connector" "6.1.5"
+    ethers "5.1.4"
+    nanoid "3.1.22"
+
 "@pmmmwh/react-refresh-webpack-plugin@0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.4.3.tgz#1eec460596d200c0236bf195b078a5d1df89b766"
@@ -3662,18 +3674,6 @@
   dependencies:
     "@typescript-eslint/types" "4.23.0"
     eslint-visitor-keys "^2.0.0"
-
-"@usedapp/core@^0.3.16":
-  version "0.3.17"
-  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.3.17.tgz#c1ca5a5899fa32e956675a8eb5600edf861452ec"
-  integrity sha512-oYWKe7dtEBdWwOaDC1baMdj7Zqyk078KyvjFqVsFszEU8Z1cu0f0ioHgMH6IAgI6seeHOvyg/euKKcHz4zfOAg==
-  dependencies:
-    "@types/react" "17.0.1"
-    "@web3-react/core" "6.1.1"
-    "@web3-react/injected-connector" "6.0.7"
-    "@web3-react/network-connector" "6.1.5"
-    ethers "5.1.4"
-    nanoid "3.1.22"
 
 "@web3-react/abstract-connector@^6.0.7":
   version "6.0.7"
