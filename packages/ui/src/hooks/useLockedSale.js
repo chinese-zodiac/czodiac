@@ -6,25 +6,24 @@ import czodiacTokenAbi from "../abi/czodiacToken.json";
 import lockedSaleAbi from "../abi/lockedSale.json";
 const {Interface} = utils;
 
+const baseSaleState = {
+    whitelistStatus: null,
+    spendings: null,
+    receipts: null,
+    totalBuyers: null,
+    totalSpendings: null,
+    rate: null,
+    startTimestamp: null,
+    endTimestamp: null,
+    saleSize: null,
+    saleCap: null,
+    tokenAddress: null,
+    saleAddress: null,
+    maxPurchase: null,
+    minPurchase: null
+}
+
 function useLockedSale(account, chainId) {
-
-    const baseSaleState = {
-        whitelistStatus: null,
-        spendings: null,
-        receipts: null,
-        totalBuyers: null,
-        totalSpendings: null,
-        rate: null,
-        startTimestamp: null,
-        endTimestamp: null,
-        saleSize: null,
-        saleCap: null,
-        tokenAddress: null,
-        saleAddress: null,
-        maxPurchase: null,
-        minPurchase: null
-    }
-
     const [lockedSaleState, setLockedSaleState] = useState(baseSaleState);
 
     const lockedSaleInterface = new Interface(lockedSaleAbi);
@@ -58,39 +57,38 @@ function useLockedSale(account, chainId) {
 
     useEffect(()=>{
         console.log("updating");
-        const results = [...callResults];
-        const newLockedSaleState = {...baseSaleState};
+        const newLockedSaleState = baseSaleState;
         newLockedSaleState.saleChainId = chainId;
-        if(!results || results.length === 0 || !results[0]) {
+        if(!callResults || callResults.length === 0 || !callResults[0]) {
             setLockedSaleState(newLockedSaleState);
             return;
         }
             
         newLockedSaleState.saleAddress = LOCKEDSALE_ADDRESSES[chainId];
 
-        newLockedSaleState.totalBuyers = results[0]._totalBuyers;
-        newLockedSaleState.totalSpendings = results[0]._totalPurchases;
-        newLockedSaleState.startTimestamp = results[0]._startTime;
-        newLockedSaleState.endTimestamp = results[0]._endTime;
-        newLockedSaleState.saleSize = results[0]._tokensForSale;
-        newLockedSaleState.tokenAddress = results[0]._token;
-        newLockedSaleState.maxPurchase = results[0]._maxPurchase;
-        newLockedSaleState.minPurchase = results[0]._minPurchase;
+        newLockedSaleState.totalBuyers = callResults[0]._totalBuyers;
+        newLockedSaleState.totalSpendings = callResults[0]._totalPurchases;
+        newLockedSaleState.startTimestamp = callResults[0]._startTime;
+        newLockedSaleState.endTimestamp = callResults[0]._endTime;
+        newLockedSaleState.saleSize = callResults[0]._tokensForSale;
+        newLockedSaleState.tokenAddress = callResults[0]._token;
+        newLockedSaleState.maxPurchase = callResults[0]._maxPurchase;
+        newLockedSaleState.minPurchase = callResults[0]._minPurchase;
 
-        newLockedSaleState.saleCap = results[1]._maxSaleSize;
+        newLockedSaleState.saleCap = callResults[1]._maxSaleSize;
 
         //newLockedSaleState.rate =  newLockedSaleState.saleSize.div(newLockedSaleState.saleCap);
         
-        if(!!results[2]) newLockedSaleState.whitelistStatus = results[2][0];
-        if(!!results[3]) {
-            newLockedSaleState.spendings = results[3][0];
+        if(!!callResults[2]) newLockedSaleState.whitelistStatus = callResults[2][0];
+        if(!!callResults[3]) {
+            newLockedSaleState.spendings = callResults[3][0];
             //newLockedSaleState.receipts = newLockedSaleState.spendings.mul(newLockedSaleState.rate) 
         }
         setLockedSaleState(newLockedSaleState);
 
-    },[account,chainId])
+    },[callResults,account,chainId])
 
-    return lockedSaleState
+    return lockedSaleState ?? baseSaleState; 
 }
 
 export default useLockedSale;
