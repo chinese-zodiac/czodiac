@@ -6,7 +6,7 @@ function pad(n, width, z) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 
-export function useCountdown(finalUTC,endMessage) {
+function useCountdown(finalUTC,endMessage) {
     const [value, setValue] = useState(null);
 
     useEffect(()=>{
@@ -39,3 +39,5 @@ export function useCountdown(finalUTC,endMessage) {
 
     return value;
 }
+
+export default useCountdown;
