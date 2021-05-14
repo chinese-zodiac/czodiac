@@ -30,14 +30,17 @@ function useLockedSale() {
     const [lockedSaleState, setLockedSaleState] = useState(baseSaleState);
 
     const lockedSaleInterface = new Interface(lockedSaleAbi);
-    const [lockedSaleContract] = useState(
-        !!LOCKEDSALE_ADDRESSES[chainId] ? 
-        new Contract(LOCKEDSALE_ADDRESSES[chainId], lockedSaleInterface):
+    const [lockedSaleContract, setLockedSaleContract] = useState(
         null);
     const { state, send } = useContractFunction(lockedSaleContract, 'deposit')
     const depositEther = (etherAmount) => {
         send({ value: utils.parseEther(etherAmount) })
     }
+
+    useEffect(()=>{
+        if(!!account)
+            setLockedSaleContract(new Contract(LOCKEDSALE_ADDRESSES[chainId], lockedSaleInterface));
+    },[account])
 
     const callResults = useContractCalls([
         {
@@ -104,7 +107,8 @@ function useLockedSale() {
 
     return {
         ...(lockedSaleState ?? baseSaleState),
-        depositEther: depositEther
+        depositEther: depositEther,
+        depositEtherState: state
     }; 
 }
 

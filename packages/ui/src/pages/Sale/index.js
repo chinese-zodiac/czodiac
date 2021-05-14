@@ -38,7 +38,8 @@ function Sale() {
     saleAddress,
     maxPurchase,
     minPurchase,
-    depositEther
+    depositEther,
+    depositEtherState
   } = useLockedSale();
 
   const [unlockTimestamp, setUnlockTimestamp] = useState(null);
@@ -89,6 +90,10 @@ function Sale() {
       </NumberInput>
       <Button className="purchaseButton" onClick={()=>{
         const nowTimestamp = Math.floor(Date.now() / 1000)
+        if(!account) {
+          alert("Please connect your account.");
+          return;
+        }
         if(!whitelistStatus) {
           alert("Not whitelisted, request on telegram");
           return;
@@ -111,6 +116,11 @@ function Sale() {
         }
         depositEther(value)
       }}>Purchase</Button>
+      <Box>
+        <Text >
+          Tx Status: {depositEtherState.status}
+        </Text>
+      </Box>
       <hr />
       <Heading as="h2" size="md">Your Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
@@ -119,8 +129,8 @@ function Sale() {
           {whitelistStatus ?
             (<Icon color="orange.700" as={FiCheckCircle} />) :
             (<Icon color="red.700" as={FiXCircle} />)
-            
-}   </Text>
+          } 
+        </Text>
         <Text>Spendings:</Text>
         <Text>{weiToFixed(spendings,2)} BNB</Text>
         <Text>Cap:</Text>
