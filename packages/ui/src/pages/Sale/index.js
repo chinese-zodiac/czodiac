@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useEthers } from "@pdusedapp/core";
-import { CHAIN_LABELS, BLOCK_EXPLORERS, CHAINS } from "../../constants";
+import { CHAIN_LABELS, BLOCK_EXPLORERS, CHAINS, LOCKEDSALE_ADDRESSES } from "../../constants";
 import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
 import useLockedSale from "../../hooks/useLockedSale";
@@ -77,7 +77,7 @@ function Sale() {
       <b> USA citizens, residents, agents etc are excluded.</b>
       </Text>
 
-      {(chainId === CHAINS.BSC || (chainId === CHAINS.BSCTestnet && !!account)) ? (<>
+      {((chainId === CHAINS.BSC || (chainId === CHAINS.BSCTestnet && !!account)) && LOCKEDSALE_ADDRESSES[chainId] ) ? (<>
       <NumberInput 
         onChange={(valueString) => setValue(parse(valueString))}
         value={format(value)}
@@ -176,7 +176,12 @@ function Sale() {
       </SimpleGrid>
       <hr /></>) : (<>
         <hr />
-        <Text>You are not connected to BSC or BSCTestnet. Please use the buttons in the top right corner of the page to connect and/or switch networks. If the buttons do not work for your wallet, you may need to add the network manually.</Text>
+        { (!LOCKEDSALE_ADDRESSES[chainId] && (chainId === CHAINS.BSC)) ? (
+          <Text>The BSC Sale is still being prepared. To view your whitelist status and test the dapp, connect to BSC Testnet.</Text>
+        ) : (
+          <Text>You are not connected to BSC or BSCTestnet. Please use the buttons in the top right corner of the page to connect and/or switch networks. If the buttons do not work for your wallet, you may need to add the network manually.</Text>
+        )
+        }
         <hr />
       </>)}
     </Box>
