@@ -125,12 +125,10 @@ function Sale() {
       <Heading as="h2" size="md">Your Stats</Heading>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Whitelist Status:</Text>
-        <Text>
-          {whitelistStatus ?
-            (<Icon color="orange.700" as={FiCheckCircle} />) :
-            (<Icon color="red.700" as={FiXCircle} />)
-          } 
-        </Text>
+        {whitelistStatus ?
+          (<Text color="green.600"><Icon as={FiCheckCircle} /> Whitelist OK</Text>) :
+          (<Text color="red.600"><Icon as={FiXCircle} /> Not Whitelist</Text>)
+        }
         <Text>Spendings:</Text>
         <Text>{weiToFixed(spendings,2)} BNB</Text>
         <Text>Cap:</Text>
