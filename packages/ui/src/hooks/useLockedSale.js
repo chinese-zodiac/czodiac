@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction } from "@pdusedapp/core";
 import { LOCKEDSALE_ADDRESSES } from "../constants";
-import { Contract, utils } from "ethers";
+import { Contract, utils, BigNumber } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import lockedSaleAbi from "../abi/lockedSale.json";
 const {Interface} = utils;
@@ -93,7 +93,7 @@ function useLockedSale() {
 
         newLockedSaleState.totalBuyers = callResults[0]._totalBuyers;
         newLockedSaleState.totalSpendings = callResults[0]._totalPurchases;
-        newLockedSaleState.startTimestamp = callResults[0]._startTime;
+        newLockedSaleState.startTimestamp = callResults[0]._startTime.add(BigNumber.from(60*2.5));
         newLockedSaleState.endTimestamp = callResults[0]._endTime;
         newLockedSaleState.saleSize = callResults[0]._tokensForSale;
         newLockedSaleState.tokenAddress = callResults[0]._token;
