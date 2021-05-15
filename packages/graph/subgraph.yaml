@@ -1,0 +1,44 @@
+specVersion: 0.0.2
+repository: https://github.com/chinese-zodiac/czodiac
+description: For Lucky Portfolio
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: czodiacToken
+    network: bsc
+    source:
+      address: "0x87a2Dc76284758ddfAc64D097e483fA1e620E006"
+      abi: czodiacToken
+      startBlock: 7414830
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - BurnEvent
+        - Creation
+        - DevRewardsEvent
+        - HolderRewardsEvent
+        - LPRewardsEvent
+        - OwnershipTransferred
+        - Swap
+        - Transfer
+      abis:
+        - name: czodiacToken
+          file: ./abis/czodiacToken.json
+      eventHandlers:
+        - event: BurnEvent(uint256)
+          handler: handleBurnEvent
+        - event: DevRewardsEvent(uint256)
+          handler: handleDevRewardsEvent
+        - event: HolderRewardsEvent(uint256)
+          handler: handleHolderRewardsEvent
+        - event: LPRewardsEvent(uint256)
+          handler: handleLPRewardsEvent
+        - event: Swap(address,uint256,uint256)
+          handler: handleSwap
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts

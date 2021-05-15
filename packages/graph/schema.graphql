@@ -1,0 +1,8 @@
+type BlockRewards @entity {
+  id: ID!
+  transferred: BigInt
+  devReward: BigInt
+  lpReward: BigInt
+  holderReward: BigInt
+  burnAmount: BigInt
+}
