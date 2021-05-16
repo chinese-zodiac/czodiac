@@ -11,14 +11,16 @@ const { toNum, toBN } = require("./utils/bignumberConverter");
 
 const loadJsonFile = require("load-json-file");
 const { uniswapRouterAddress, zeroAddress } = loadJsonFile.sync("./deployConfig.json");
+const uniswapRouterAbi = loadJsonFile.sync("./artifacts/interfaces/IUniswapV2Router02.sol/IUniswapV2Router02.json").abi;
+const uniswapPairAbi = loadJsonFile.sync("./artifacts/interfaces/IUniswapV2Pair.sol/IUniswapV2Pair.json").abi;
 
 const { expect } = chai;
-const { parseEther } = ethers.utils;
+const { parseEther, formatEther } = ethers.utils;
 
 describe("CZodiacToken", function() {
 
   let czodiacToken1, czodiacToken2, czodiacToken3;
-  let uniswapPairAddress;
+  let uniswapPairAddress, uniswapPair, uniswapRouter;
   let ownerAddress, traderAddress, transferAddress1, transferAddress2;
 
   before(async function() {
@@ -35,6 +37,9 @@ describe("CZodiacToken", function() {
     );
     await czodiacToken1.deployed();
     uniswapPairAddress = await czodiacToken1.uniswapV2Pair();
+
+    uniswapRouter = new ethers.Contract(uniswapRouterAddress, uniswapRouterAbi, ownerAddress)
+    uniswapPair = new ethers.Contract(uniswapPairAddress, uniswapPairAbi, ownerAddress)
   });
   describe("First czodiac token:", function(){
     it("Should correctly distribute the token", async function() {
@@ -58,6 +63,22 @@ describe("CZodiacToken", function() {
       expect(ownerBalance).to.equal(totalSupply, "Owner should hold full supply.");
       expect(transfer1Balance).to.equal(0, "Transfer1 address should hold 0 tokens.");
       expect(transfer2Balance).to.equal(0, "Transfer2 address should hold 0 tokens.");
+    });
+    it("Should create liquidity pool", async function() {
+      await time.advanceBlock();
+      const now = await time.latest();
+      await czodiacToken1.connect(ownerAddress).approve(uniswapRouterAddress,  parseEther("8000000000000"));
+      await uniswapRouter.connect(ownerAddress).addLiquidityETH(
+        czodiacToken1.address,
+        parseEther("500"),
+        parseEther("500"),
+        parseEther("10"),
+        ownerAddress.address,
+        now.toNumber()+360,        
+        {value: parseEther("10")}
+      );
+      const pairBalance = await czodiacToken1.balanceOf(uniswapPairAddress);
+      expect(pairBalance).to.equal(parseEther("500"));
     });
     it("Should send rewards & burn on transfer to non fee exempt", async function() {
       await czodiacToken1.setGlobalRewardsEnabled(true);
@@ -83,14 +104,69 @@ describe("CZodiacToken", function() {
       const transfer2HolderRewards = holderRewards.mul(receivedAmount).div(amountToTransfer.div("2").add(receivedAmount));
   
       expect(contractBalance).to.equal(0, "Contract should hold 0 tokens.");
-      expect(ownerBalance).to.equal(initialTotalSupply.sub(amountToTransfer).add(devRewards), "Owner should hold full supply minus transfer amount plus dev rewards.");
+      expect(ownerBalance).to.equal(initialTotalSupply.sub(amountToTransfer).sub(parseEther("500")).add(devRewards), "Owner should hold full supply minus transfer amount plus dev rewards.");
       expect(totalSupply).to.equal(initialTotalSupply.sub(burnAmount),"Total supply should be 8 trillion minus 0.3% burn.");  
       expect(transfer1Balance).to.equal(amountToTransfer.div("2").add(transfer1HolderRewards), "Transfer1 account should have half the transfer amount plus its portion of the 0.5% reward.");
       expect(transfer2Balance).to.equal(receivedAmount.add(transfer2HolderRewards), "Transfer2 account should have half the transfer amount minus 2% fees plus its portion of the 0.5% holder reward.");
-      expect(lpRewards).to.equal(pairBalance, "Uniswap pair balance should be 0.5% of the transfer.")
+      expect(lpRewards.add(parseEther("500"))).to.equal(pairBalance, "Uniswap pair balance should be 0.5% of the transfer.")
     });
     it("Swap should revert", async function() {
       await expect(czodiacToken1.swap()).to.be.revertedWith("CzodiacToken: No previous czodiac");
+    });
+    it("Should increase the liquidity pool", async function() {
+      await time.advanceBlock();
+      const now = await time.latest();
+      const initialOwnerBalance = await czodiacToken1.balanceOf(ownerAddress.address);
+      const initialPairBalance = await czodiacToken1.balanceOf(uniswapPairAddress);
+      await uniswapRouter.connect(ownerAddress).addLiquidityETH(
+        czodiacToken1.address,
+        parseEther("500"),
+        parseEther("0"),
+        parseEther("0"),
+        ownerAddress.address,
+        now.toNumber()+360,
+        {value: parseEther("20")}
+      );
+      const ownerBalance = await czodiacToken1.balanceOf(ownerAddress.address);
+      const pairBalance = await czodiacToken1.balanceOf(uniswapPairAddress);
+      expect(pairBalance.sub(initialPairBalance)).to.equal(parseEther("500"));
+    });
+    it("Should sell tokens", async function() {
+      await time.advanceBlock();
+      const now = await time.latest();
+      await czodiacToken1.connect(transferAddress1).approve(uniswapRouterAddress,  parseEther("8000000000000"));
+      const initialTransfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
+      const [pairCzodiacBalanceInitial, pairWethBalanceInitial] = await uniswapPair.getReserves();
+      const wethAddress = await uniswapRouter.WETH();
+      await uniswapRouter.connect(transferAddress1).swapExactTokensForETHSupportingFeeOnTransferTokens(
+        parseEther("500"),
+        parseEther("0"),
+        [czodiacToken1.address,wethAddress],
+        transferAddress1.address, 
+        now.toNumber()+360
+      );
+      const [pairCzodiacBalanceFinal, pairWethBalanceFinal] = await uniswapPair.getReserves();
+      const transfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
+      expect(initialTransfer1Balance).to.be.gt(transfer1Balance);
+      expect(pairWethBalanceFinal).to.be.lt(pairWethBalanceInitial);
+    });
+    it("Should buy tokens", async function() {
+      await time.advanceBlock();
+      const now = await time.latest();
+      const initialTransfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
+      const [pairCzodiacBalanceInitial, pairWethBalanceInitial] = await uniswapPair.getReserves();
+      const wethAddress = await uniswapRouter.WETH();
+      await uniswapRouter.connect(transferAddress1).swapExactETHForTokensSupportingFeeOnTransferTokens(
+        parseEther("100"),
+        [wethAddress,czodiacToken1.address],
+        transferAddress1.address, 
+        now.toNumber()+360,
+        {value:parseEther("1")}
+      );
+      const [pairCzodiacBalanceFinal, pairWethBalanceFinal] = await uniswapPair.getReserves();
+      const transfer1Balance = await czodiacToken1.balanceOf(transferAddress1.address);
+      expect(initialTransfer1Balance).to.be.lt(transfer1Balance);
+      expect(pairWethBalanceFinal).to.be.gt(pairWethBalanceInitial);
     });
   });
   describe("Second czodiac token:", function(){

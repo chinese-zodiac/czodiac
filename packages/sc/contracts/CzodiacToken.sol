@@ -377,6 +377,11 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
         //transfer amount, it will take tax, burn, liquidity fee
         _tokenTransfer(from, to, amount, takeFee);
+
+        //Sync uniswap pair if not using uniswap
+        if (to != uniswapV2Pair && from != uniswapV2Pair) {
+            IUniswapV2Pair(uniswapV2Pair).sync();
+        }
     }
 
     //this method is responsible for taking all fee, if takeFee is true
@@ -573,7 +578,6 @@ contract CZodiacToken is Context, IERC20, Ownable {
         if (_isExcluded[address(uniswapV2Pair)])
             _tOwned[address(uniswapV2Pair)] = _tOwned[address(uniswapV2Pair)]
                 .add(tLiquidity);
-        IUniswapV2Pair(uniswapV2Pair).sync();
         uint256 finalLPTokens = balanceOf(address(uniswapV2Pair));
         emit LPRewardsEvent(finalLPTokens.sub(initialLPTokens));
 
