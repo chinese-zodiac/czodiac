@@ -23,9 +23,7 @@ contract AutoFarm is Context, Ownable {
     IERC20 public czodiac;
     IUniswapV2Router02 public router;
 
-    constructor(IERC20 _czodiac) Ownable() {
-        czodiac = _czodiac;
-    }
+    constructor() Ownable() {}
 
     function setPairs(
         IUniswapV2Pair[] calldata _pairs,

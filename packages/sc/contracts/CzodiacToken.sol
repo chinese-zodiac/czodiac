@@ -161,6 +161,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
         _isExcludedFromFee[address(0)] = true;
+        _isExcludedFromFee[_autoFarm] = true;
 
         excludeFromReward(owner());
         excludeFromReward(address(this));

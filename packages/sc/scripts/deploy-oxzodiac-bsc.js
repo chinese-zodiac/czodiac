@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const loadJsonFile = require("load-json-file");
-const { uniswapRouterAddress, zeroAddress } = loadJsonFile.sync("./deployConfig.json");
+const { uniswapRouterAddress, zeroAddress, luckyAddress } = loadJsonFile.sync("./deployConfig.json");
 
 const {ethers} = hre;
 const { parseEther } = ethers.utils;
@@ -8,10 +8,14 @@ const { parseEther } = ethers.utils;
 
 async function main() {
 
+  const AutoFarm = await ethers.getContractFactory("AutoFarm");
+  const autoFarm = await AutoFarm.deploy();
+  console.log("AutoFarm deployed to:", autoFarm.address);
+
   const CZodiacToken = await ethers.getContractFactory("CZodiacToken");
 
   const cZodiacToken = await CZodiacToken.deploy(
-    uniswapRouterAddress,//IUniswapV2Router02 _uniswapV2Router,
+    autoFarm.address,//IUniswapV2Router02 _uniswapV2Router,
     zeroAddress,//Prev czodiac for swapping
     "OxZodiac",//Name
     "OxZ",//Symbol
@@ -35,12 +39,17 @@ async function main() {
   );
   await lockedSale.deployed();
   console.log("LockedSale deployed to:", lockedSale.address);
-  console.log("Calling methods...");
-
+  console.log("Autofarm...");
+  await autoFarm.setCzodiac(cZodiacToken.address);
+  console.log("Locked address...");
   await cZodiacToken.excludeFromReward(lockedSale.address);
   await cZodiacToken.excludeFromFee(lockedSale.address);
   await cZodiacToken.transfer(lockedSale.address,totalSupply.div(4))
-  console.log("complete")
+  console.log("Lucky Address...");
+  await cZodiacToken.excludeFromReward(luckyAddress);
+  await cZodiacToken.excludeFromFee(luckyAddress);
+  await cZodiacToken.transfer(luckyAddress,totalSupply.div(4))
+  console.log("Complete.")
 }
 
 // We recommend this pattern to be able to use async/await everywhere
