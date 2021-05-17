@@ -1,18 +1,17 @@
 {
-    "name": "graph",
-    "license": "GPL-3.0",
-    "version": "0.1.0",
-    "scripts": {
-      "codegen": "graph codegen",
-      "build": "graph build",
-      "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ chinese-zodiac/czodiac",
-      "create-local": "graph create --node http://localhost:8020/ chinese-zodiac/czodiac",
-      "remove-local": "graph remove --node http://localhost:8020/ chinese-zodiac/czodiac",
-      "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 chinese-zodiac/czodiac"
-    },
-    "dependencies": {
-      "@graphprotocol/graph-cli": "0.20.0",
-      "@graphprotocol/graph-ts": "0.20.0"
-    }
+  "name": "graph",
+  "license": "GPL-3.0",
+  "version": "0.1.0",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ chinese-zodiac/czodiac",
+    "create-local": "graph create --node http://localhost:8020/ chinese-zodiac/czodiac",
+    "remove-local": "graph remove --node http://localhost:8020/ chinese-zodiac/czodiac",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 chinese-zodiac/czodiac"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.20.0",
+    "@graphprotocol/graph-ts": "0.20.0"
   }
-  
+}

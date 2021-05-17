@@ -43,12 +43,15 @@ function Sale() {
   } = useLockedSale();
 
   const [unlockTimestamp, setUnlockTimestamp] = useState(null);
+  const [liqTimestamp, setLiqTimestamp] = useState(null);
   useEffect(()=>{
     setUnlockTimestamp(Number(endTimestamp) + (7*24*60*60));
+    setLiqTimestamp(Number(endTimestamp) + (60*30));
   },[endTimestamp])
   const startTimer = useCountdown(startTimestamp,"Complete");
   const endTimer = useCountdown(endTimestamp,"Complete");
   const unlockTimer = useCountdown(unlockTimestamp,"Complete");
+  const liqTimer = useCountdown(liqTimestamp,"Complete");
 
   function timeDisplay(timestamp,timer) {
     return !!timestamp ? (<>
@@ -155,6 +158,8 @@ function Sale() {
         <Text>{timeDisplay(endTimestamp,endTimer)}</Text>
         <Text>Unlock Date:</Text>
         <Text >{timeDisplay(unlockTimestamp,unlockTimer)}</Text>
+        <Text>Liq+Transfers Enabled:</Text>
+        <Text >{timeDisplay(liqTimestamp,liqTimer)}</Text>
         <Text>Sale Size:</Text>
         <Text>{weiToShortString(saleSize,2)} OxZodiac</Text>
         <Text>Sale Cap:</Text>
