@@ -8,7 +8,7 @@ dataSources:
     name: czodiacToken
     network: bsc
     source:
-      address: "0x87a2Dc76284758ddfAc64D097e483fA1e620E006"
+      address: "0x58A39ceEcC7B5b1497c39fa8e12Dd781C4fAfaFc"
       abi: czodiacToken
       startBlock: 7414830
     mapping:

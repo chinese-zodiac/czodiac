@@ -10,6 +10,7 @@ async function main() {
 
   const AutoFarm = await ethers.getContractFactory("AutoFarm");
   const autoFarm = await AutoFarm.deploy();
+  await autoFarm.deployed();
   console.log("AutoFarm deployed to:", autoFarm.address);
 
   const CZodiacToken = await ethers.getContractFactory("CZodiacToken");
@@ -48,7 +49,7 @@ async function main() {
   console.log("Lucky Address...");
   await cZodiacToken.excludeFromReward(luckyAddress);
   await cZodiacToken.excludeFromFee(luckyAddress);
-  await cZodiacToken.transfer(luckyAddress,totalSupply.div(4))
+  await cZodiacToken.transfer(luckyAddress,totalSupply.div(2))
   console.log("Complete.")
 }
 

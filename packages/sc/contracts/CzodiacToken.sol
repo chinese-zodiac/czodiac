@@ -146,16 +146,15 @@ contract CZodiacToken is Context, IERC20, Ownable {
             _tTotal = 8 * 10**12 * 10**18;
             _rTotal = (MAX - (MAX % _tTotal));
             _rOwned[_msgSender()] = _rTotal;
+            // Do not enable global rewards until the liquidity has been added to prevent low price.
+            // Disable transfers except for owner to allow creation of initial liquidity pools safely.
         } else {
             _tTotal = _prevCzodiac.totalSupply().mul(10000).div(_swapBasisRate);
             _rTotal = (MAX - (MAX % _tTotal));
             _rOwned[address(this)] = _rTotal;
+            areTransfersEnabled = true;
+            globalRewardsEnabled = true;
         }
-
-        // Do not enable global rewards until the liquidity has been added to prevent low price.
-        globalRewardsEnabled = false;
-        // Disable transfers except for owner to allow creation of initial liquidity pools safely.
-        areTransfersEnabled = false;
 
         //exclude owner, contract, burn address from fee & rewards
         _isExcludedFromFee[owner()] = true;

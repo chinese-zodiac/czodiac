@@ -165,7 +165,7 @@ function Sale() {
         </Link>
         <Text>Sale Address:</Text>
         <Link isExternal color="orange.700"  fontFamily="monospace"
-          href={`${BLOCK_EXPLORERS[chainId]}/token/${saleAddress}`}>{saleAddress}
+          href={`${BLOCK_EXPLORERS[chainId]}/address/${saleAddress}`}>{saleAddress}
         </Link>
         <Text>Swap Link:</Text>
         <Link isExternal color="orange.700" 
