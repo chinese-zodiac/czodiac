@@ -43,9 +43,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../interfaces/IUniswapV2Router02.sol";
-import "../interfaces/IUniswapV2Pair.sol";
-import "../interfaces/IUniswapV2Factory.sol";
 
 contract CZodiacToken is Context, IERC20, Ownable {
     using SafeMath for uint256;
@@ -89,6 +86,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
     uint8 public constant decimals = 18;
 
     bool public globalRewardsEnabled;
+    bool public areTransfersEnabled;
 
     //01.00%
     uint256 private constant _holderRewardBasis = 100;
@@ -107,7 +105,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
     //tracks the total amount of token rewarded to liquidity providers
     uint256 public totalLiquidityProviderRewards;
 
-    address public immutable uniswapV2Pair;
+    address public autoFarm;
     IERC20 public immutable prevCzodiac;
     IERC20 public nextCzodiac;
 
@@ -119,7 +117,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
     event DevRewardsEvent(uint256 tokenAmount);
     event BurnEvent(uint256 tokenAmount);
     event Creation(
-        IUniswapV2Router02 _uniswapV2Router,
+        address _autofarm,
         IERC20 _prevCzodiac,
         string _name,
         string _symbol,
@@ -130,7 +128,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
     event Swap(address _swapper, uint256 _amountToBurn, uint256 _amountToMint);
 
     constructor(
-        IUniswapV2Router02 _uniswapV2Router,
+        address _autoFarm,
         IERC20 _prevCzodiac,
         string memory _name,
         string memory _symbol,
@@ -142,6 +140,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         prevCzodiac = _prevCzodiac;
         swapStartTimestamp = _swapStartTimestamp;
         swapEndTimestamp = _swapEndTimestamp;
+        autoFarm = _autoFarm;
 
         if (address(_prevCzodiac) == address(0)) {
             _tTotal = 8 * 10**12 * 10**18;
@@ -153,17 +152,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
             _rOwned[address(this)] = _rTotal;
         }
 
-        // Create a uniswap pair for this new token
-        address _uniswapV2Pair =
-            IUniswapV2Factory(_uniswapV2Router.factory()).createPair(
-                address(this),
-                _uniswapV2Router.WETH()
-            );
-        uniswapV2Pair = _uniswapV2Pair;
-
-        //WARNING: Rewards will be sent to the LP pool from the lpRewards! These can be taken by anyone.
-        // Do not enable global rewards until the liquidity has been added.
+        // Do not enable global rewards until the liquidity has been added to prevent low price.
         globalRewardsEnabled = false;
+        // Disable transfers except for owner to allow creation of initial liquidity pools safely.
+        areTransfersEnabled = false;
 
         //exclude owner, contract, burn address from fee & rewards
         _isExcludedFromFee[owner()] = true;
@@ -173,10 +165,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         excludeFromReward(owner());
         excludeFromReward(address(this));
         excludeFromReward(address(0));
-        excludeFromReward(_uniswapV2Pair);
+        excludeFromReward(_autoFarm);
 
         emit Creation(
-            _uniswapV2Router,
+            _autoFarm,
             _prevCzodiac,
             _name,
             _symbol,
@@ -361,6 +353,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         address to,
         uint256 amount
     ) private {
+        require(
+            areTransfersEnabled || from == owner() || to == owner(),
+            "CZodiac: Transfers not yet enabled"
+        );
         require(amount > 0, "Transfer amount must be greater than zero");
 
         //indicates if fee should be deducted from transfer
@@ -377,11 +373,6 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
         //transfer amount, it will take tax, burn, liquidity fee
         _tokenTransfer(from, to, amount, takeFee);
-
-        //Sync uniswap pair if not using uniswap
-        if (to != uniswapV2Pair && from != uniswapV2Pair) {
-            IUniswapV2Pair(uniswapV2Pair).sync();
-        }
     }
 
     //this method is responsible for taking all fee, if takeFee is true
@@ -571,24 +562,17 @@ contract CZodiacToken is Context, IERC20, Ownable {
 
         //take lp providers reward
         uint256 rLiquidity = tLiquidity.mul(currentRate);
-        uint256 initialLPTokens = balanceOf(address(uniswapV2Pair));
-        _rOwned[address(uniswapV2Pair)] = _rOwned[address(uniswapV2Pair)].add(
-            rLiquidity
-        );
-        if (_isExcluded[address(uniswapV2Pair)])
-            _tOwned[address(uniswapV2Pair)] = _tOwned[address(uniswapV2Pair)]
-                .add(tLiquidity);
-        uint256 finalLPTokens = balanceOf(address(uniswapV2Pair));
-        emit LPRewardsEvent(finalLPTokens.sub(initialLPTokens));
+        _rOwned[autoFarm] = _rOwned[autoFarm].add(rLiquidity);
+        if (_isExcluded[autoFarm])
+            _tOwned[autoFarm] = _tOwned[autoFarm].add(tLiquidity);
+        emit LPRewardsEvent(tLiquidity);
 
         //take dev rewards
         uint256 rDevRewards = tDevRewards.mul(currentRate);
-        uint256 initialDevTokens = balanceOf(owner());
         _rOwned[owner()] = _rOwned[owner()].add(rDevRewards);
         if (_isExcluded[owner()])
             _tOwned[owner()] = _tOwned[owner()].add(tDevRewards);
-        uint256 finalDevTokens = balanceOf(owner());
-        emit DevRewardsEvent(finalDevTokens.sub(initialDevTokens));
+        emit DevRewardsEvent(tDevRewards);
     }
 
     function _swap(address swapper) private {
@@ -661,6 +645,14 @@ contract CZodiacToken is Context, IERC20, Ownable {
         onlyOwner
     {
         globalRewardsEnabled = _globalRewardsEnabled;
+    }
+
+    function setTransfersEnabled(bool _areTransfersEnabled) external onlyOwner {
+        areTransfersEnabled = _areTransfersEnabled;
+    }
+
+    function setAutoFarm(address _autoFarm) external onlyOwner {
+        autoFarm = _autoFarm;
     }
 
     function withdrawToken(IERC20 _token) external onlyOwner {
