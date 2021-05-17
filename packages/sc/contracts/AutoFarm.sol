@@ -67,6 +67,7 @@ contract AutoFarm is Context, Ownable {
                     uint256(totalWeight)
                 )
             );
+            pairs[i].sync();
         }
     }
 

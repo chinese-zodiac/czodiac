@@ -89,16 +89,16 @@ contract CZodiacToken is Context, IERC20, Ownable {
     bool public areTransfersEnabled;
 
     //01.00%
-    uint256 private constant _holderRewardBasis = 100;
+    uint256 private constant _holderRewardBasis = 50;
 
     //00.30%
-    uint256 private constant _burnBasis = 30;
+    uint256 private constant _burnBasis = 20;
 
     //00.50%
-    uint256 private constant _lpRewardBasis = 50;
+    uint256 private constant _lpRewardBasis = 150;
 
     //00.20%
-    uint256 private constant _devRewardBasis = 20;
+    uint256 private constant _devRewardBasis = 30;
 
     uint256 private constant _swapBasisRate = 80000;
 
