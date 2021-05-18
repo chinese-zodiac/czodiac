@@ -3,12 +3,11 @@ import { useEthers } from "@pdusedapp/core";
 import { CHAIN_LABELS, BLOCK_EXPLORERS, CHAINS, LOCKEDSALE_ADDRESSES } from "../../constants";
 import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
+import BackgroundNetwork from "../../components/BackgroundNetwork";
 import useLockedSale from "../../hooks/useLockedSale";
 import useCountdown from "../../hooks/useCountdown";
 import { FiExternalLink, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { SimpleGrid } from "@chakra-ui/react";
-import Particles from "react-tsparticles";
-import particleConfig from "./particleConfig";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 import {utils } from "ethers";
@@ -18,10 +17,6 @@ function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
   const [value, setValue] = useState("1.5");
-  const vignetteColor = useColorModeValue(
-    "radial-gradient(circle, var(--chakra-colors-gray-100) 50%, transparent 100%)", 
-    "radial-gradient(circle, var(--chakra-colors-gray-900) 50%, transparent 100%)"
-  );
   const {account, chainId} = useEthers();
   const {
     whitelistStatus,
@@ -64,8 +59,7 @@ function Sale() {
   }
 
   return (<>
-    <Particles id="tsparticles" options={particleConfig} />
-    <Box id="tsparticles-cover" bg={vignetteColor} />
+    <BackgroundNetwork />
     <Header />
     <Box as="main" className="horizontal-center sale-page">
       <Heading mt="100px">Initial Liquidity Sale</Heading>

@@ -1,0 +1,42 @@
+.section-about {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  position: relative;
+  z-index: 0;
+  background: linear-gradient(-45deg, #e5d21a, #ff9e00, #eb2214, #ff9e00);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  padding: 10vh 0;
+  .header-full {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 120%;
+  }
+  h1,
+  h2,
+  h3 {
+    max-width: 600px;
+    width: 95%;
+  }
+
+  p {
+    max-width: 960px;
+    width: 95%;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

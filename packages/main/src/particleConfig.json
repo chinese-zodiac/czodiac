@@ -1,0 +1,69 @@
+{
+  "background": {
+    "color": {
+      "value": "#5E0E08"
+    },
+    "position": "50% 50%",
+    "repeat": "no-repeat",
+    "size": "cover"
+  },
+  "fullScreen": {
+    "enable": true,
+    "zIndex": 1
+  },
+  "particles": {
+    "color": {
+      "value": [
+        "#8D140C",
+        "#2F0704",
+        "#897E10",
+        "#e55934",
+        "#8D140C"
+      ]
+    },
+    "move": {
+      "direction": "top",
+      "enable": true,
+      "path": {},
+      "outModes": {
+        "bottom": "out",
+        "left": "out",
+        "right": "out",
+        "top": "out"
+      },
+      "speed": 5
+    },
+    "number": {
+      "value": 30
+    },
+    "opacity": {
+      "random": {
+        "enable": true,
+        "minimumValue": 0.4
+      },
+      "value": {
+        "min": 0.4,
+        "max": 0.8
+      },
+      "animation": {
+        "speed": 1,
+        "minimumValue": 0.1
+      }
+    },
+    "size": {
+      "random": {
+        "enable": true,
+        "minimumValue": 300
+      },
+      "value": {
+        "min": 300,
+        "max": 400
+      },
+      "animation": {
+        "enable": true,
+        "speed": 100,
+        "minimumValue": 300
+      }
+    }
+  }
+}
