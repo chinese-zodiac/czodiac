@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Link, Heading, Icon, Button, Image } from "@chakra-ui/react";
+import ZCoin from "../../components/ZCoin";
 import './index.scss';
 
 function Nfts() {
@@ -12,6 +13,7 @@ function Nfts() {
         </Text>
         <br/>
         <Heading>The Chinese Zodiacs</Heading>
+        <ZCoin />
         <div className="dividing-bar" />
       </Box>
     </>)
