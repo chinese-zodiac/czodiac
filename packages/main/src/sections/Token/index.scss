@@ -1,7 +1,22 @@
 .section-token {
-  padding: 10vh 0;
+  padding: 10vh 0px;
   min-height: 100vh;
   background: url("./bg-pattern.jpg");
   background-position-x: center;
   position: relative;
+  & ul,
+  & li,
+  & h2,
+  & p {
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  & img {
+    margin: 0px;
+    max-width: 100%;
+    width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
