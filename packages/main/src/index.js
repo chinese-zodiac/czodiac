@@ -6,7 +6,6 @@ import theme from "./theme";
 import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ParallaxProvider } from 'react-scroll-parallax';
 
 const webFontConfig = {
   google: {
@@ -18,9 +17,7 @@ ReactDOM.render(
     <WebfontLoader config={webFontConfig}>
       <ChakraProvider theme={theme}>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <ParallaxProvider>
           <App />
-        </ParallaxProvider>
       </ChakraProvider>
     </WebfontLoader>,
   document.getElementById('root')

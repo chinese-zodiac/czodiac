@@ -1,9 +1,6 @@
 import React from 'react';
-import DigitalDance from "../../components/DigitalDance";
 import { Box, Text, Link, Heading, Icon, Button, Image } from "@chakra-ui/react";
-import { FiExternalLink } from "react-icons/fi";
 import './index.scss';
-import { Parallax } from 'react-scroll-parallax';
 
 function Nfts() {
     return(<>

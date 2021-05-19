@@ -19,4 +19,28 @@
     margin-left: auto;
     margin-right: auto;
   }
+  & ul {
+    list-style-type: none;
+  }
+  .yieldfield {
+    z-index: 0;
+    background: url("./yield-field.png");
+    background-position-x: center;
+    background-size: cover;
+    padding-top: 140px;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    font-weight: bold;
+    position: relative;
+    color: #ffd28a;
+    h2 {
+      color: #f69993;
+    }
+    p,
+    h2,
+    li {
+      text-shadow: 0 0 4px #1b1b18, 0 0 6px #1b1b18, 0 0 8px #1b1b18,
+        0 0 10px #1b1b18, 0 0 12px #1b1b18;
+    }
+  }
 }
