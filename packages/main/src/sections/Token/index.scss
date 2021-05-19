@@ -1,5 +1,5 @@
 .section-token {
-  padding: 10vh 0px;
+  padding-bottom: 10vh 0px;
   min-height: 100vh;
   background: url("./bg-pattern.jpg");
   background-position-x: center;
@@ -22,6 +22,15 @@
   & ul {
     list-style-type: none;
   }
+  .yieldfield-parallax {
+    background: linear-gradient(
+      0deg,
+      rgba(195, 179, 34, 1) 0%,
+      rgba(34, 193, 195, 1) 85%
+    );
+    padding-top: 5vh;
+    margin-bottom: 80px;
+  }
   .yieldfield {
     z-index: 0;
     background: url("./yield-field.png");
@@ -29,7 +38,7 @@
     background-size: cover;
     padding-top: 140px;
     padding-bottom: 40px;
-    margin-bottom: 40px;
+    margin-bottom: 0px;
     font-weight: bold;
     position: relative;
     color: #ffd28a;

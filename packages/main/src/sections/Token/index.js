@@ -10,7 +10,7 @@ function Token() {
       <Box
         as="section" id="token" className="section-token">
         
-          <Parallax strength={300}  renderLayer={percentage => (
+          <Parallax className="yieldfield-parallax" strength={300}  renderLayer={percentage => (
             <Box className="yieldfield" borderBottom="solid 8px" borderColor="gray.900"
             style={{
               backgroundPositionX:`-${10-percentage*10}vw`,

@@ -13,6 +13,17 @@ function Nfts() {
         </Text>
         <br/>
         <Heading>The Chinese Zodiacs</Heading>
+        <ZCoin imgSrc="./oxczodiac.png" name="OxZodiac" />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
+        <ZCoin />
         <ZCoin />
         <div className="dividing-bar" />
       </Box>

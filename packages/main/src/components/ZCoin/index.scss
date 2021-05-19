@@ -1,12 +1,13 @@
 .zcoin {
+  display: inline-block;
   .flip-container {
     perspective: 1000px;
   }
   .flip-container,
   .front,
   .back {
-    width: 320px;
-    height: 480px;
+    width: 150px;
+    height: 150px;
   }
   .flipper {
     transform-style: preserve-3d;
