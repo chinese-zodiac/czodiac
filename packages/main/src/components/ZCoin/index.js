@@ -5,12 +5,12 @@ import "./index.scss";
 
 function ZCoin({imgSrc, name}) {
     return(<Box margin="20px" className="zcoin">
-        <div class="flip-container" >
-            <div class="flipper">
-                <div class="front">
+        <div className="flip-container" >
+            <div className="flipper">
+                <div className="front">
                     <Image width="150px" src="./czodiac-coin.png" />
                 </div>
-                <div class="back">
+                <div className="back">
                     <Image width="150px" src={!!imgSrc ? imgSrc : "./blank.png"} />
                 </div>
             </div>

@@ -1,25 +1,51 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import _ from "lodash";
 import "./index.scss";
 
+function debounce(fn, ms) {
+    let timer
+    return _ => {
+        clearTimeout(timer)
+        timer = setTimeout(_ => {
+        timer = null
+        fn.apply(this, arguments)
+        }, ms)
+    };
+}
 
 function DigitalDance() {
 
     const canvasRef = useRef(null);
+
+    const [wd, setWd] = useState({ 
+        h: window.innerHeight,
+        w: window.innerWidth
+    })
+
+    useEffect(()=>{
+        const debouncedHandleResize = debounce(function handleResize() {
+            setWd({
+              h: window.innerHeight,
+              w: window.innerWidth
+            })
+          }, 100)
+      
+          window.addEventListener('resize', debouncedHandleResize)
+      
+          return ()=>window.removeEventListener('resize', debouncedHandleResize);
+    },[])
     
     useEffect(()=>{
-        console.log("running")
         /**
          * @author Alex Andrix <alex@alexandrix.com>
          * @since 2018-12-02
          */
-
         var AppD = {};
         AppD.setup = function() {
         var canvas = canvasRef.current;
         this.filename = "spipa";
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = wd.w;
+        canvas.height = wd.h;
         canvas.className = "digital-pattern";
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
@@ -295,11 +321,13 @@ function DigitalDance() {
             animReq = requestAnimationFrame(frame);
         };
         frame();
-        return ()=>window.cancelAnimationFrame(animReq);
-    },[]);
+        return ()=>{
+            window.cancelAnimationFrame(animReq);
+        };
+    },[wd.h,wd.w]);
 
     return(<>
-        <div className="digital-dance" >
+        <div id="digitaldance-container" className="digital-dance" >
             <canvas ref={canvasRef} />
         </div>
     </>)
