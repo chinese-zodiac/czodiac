@@ -1,4 +1,12 @@
 .section-footer {
-  padding: 10vh 0;
+  padding: 10vh 0 0 0;
   position: relative;
+  background: linear-gradient(
+    0deg,
+    rgba(94, 14, 8, 1) 0%,
+    rgba(92, 84, 10, 1) 100%
+  );
+  .bottom-image {
+    margin-top: 10vh;
+  }
 }

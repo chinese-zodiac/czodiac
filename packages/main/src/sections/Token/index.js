@@ -34,6 +34,7 @@ function Token() {
             </Box>
           )}>
           </Parallax>
+        <Image className="yellow-flowers-top" src="./flower-ylw-1.png" />
         <Heading>Tokenomics</Heading>
         <Text>8T supply, 4T Burn/CZ, 2T Sale, 2T Liquidity</Text>
         <Heading fontWeight="bold">100% to COMMUNITY for FAIR LAUNCH!</Heading>
@@ -41,11 +42,12 @@ function Token() {
             renderLayer={percentage => (
               <Image src="./tokenomics.png" maxWidth="960px" ml="auto" mr="auto"
                   style={{
-                    filter: `blur(${(percentage < 0.8 ? (0.8-percentage) : 0)*5}px) grayscale(${(percentage < 0.8 ? (0.8-percentage) : 0)*100}%)`
+                    filter: `blur(${(percentage < 0.5 ? (0.5-percentage) : 0)*5}px) grayscale(${(percentage < 0.8 ? (0.8-percentage) : 0)*100}%)`
                   }}
               />
           )}
         />
+        <Image className="yellow-flowers-bot" src="./flower-ylw-1.png" />
         <div className="dividing-bar" />
       </Box>
     </>)

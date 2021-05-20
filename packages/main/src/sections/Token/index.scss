@@ -1,5 +1,5 @@
 .section-token {
-  padding-bottom: 10vh 0px;
+  padding-bottom: 80px;
   min-height: 100vh;
   background: url("./bg-pattern.jpg");
   background-position-x: center;
@@ -51,5 +51,22 @@
       text-shadow: 0 0 4px #1b1b18, 0 0 6px #1b1b18, 0 0 8px #1b1b18,
         0 0 10px #1b1b18, 0 0 12px #1b1b18;
     }
+  }
+  .yellow-flowers-top {
+    transform: scale(-1, -1);
+    position: relative;
+    float: left;
+    z-index: 0;
+    width: 30vw;
+    top: -80px;
+    margin-right: -30vw;
+  }
+  .yellow-flowers-bot {
+    position: relative;
+    float: right;
+    z-index: 0;
+    width: 30vw;
+    margin-left: -30vw;
+    top: -10vw;
   }
 }
