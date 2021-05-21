@@ -167,6 +167,9 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         uint256
     ) internal override {
         if (isRewardsEnabled) {
+            if (block.timestamp > periodFinish.sub(1 days)) {
+                notifyRewardAmount();
+            }
             _updateReward(from);
             _updateReward(to);
         }
