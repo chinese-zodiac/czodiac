@@ -21,6 +21,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
     using Address for address;
 
     IERC20 private busd;
+
     //Rewards
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
@@ -37,6 +38,9 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         uint256 fill;
     }
 
+    //Farmer
+    address public farmer;
+
     event WithdrawRequest(address user, uint256 amount);
     event UpdateRewardPerSecond(uint256 valueWad, uint256 period);
     event RewardAdded(uint256 reward);
@@ -45,7 +49,10 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         string memory _name,
         string memory _symbol,
         IERC20 _busd
-    ) ERC20PresetMinterPauser(_name, _symbol) Ownable() {}
+    ) ERC20PresetMinterPauser(_name, _symbol) Ownable() {
+        busd = _busd;
+        farmer = msg.sender;
+    }
 
     function deposit(uint256 _wadBusd) external {
         _mint(_msgSender(), _wadBusd);
@@ -74,12 +81,17 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         return super.balanceOf(account).add(_earned(account));
     }
 
-    function recoverERC20(address tokenAddress, uint256 tokenAmount)
-        external
-        onlyOwner
-    {
+    function recoverERC20(address tokenAddress) external {
+        require(_msgSender() == farmer, "Sender must be farmer");
         require(tokenAddress != address(this), "Cannot withdraw zusd");
-        IERC20(tokenAddress).safeTransfer(owner(), tokenAmount);
+        IERC20(tokenAddress).safeTransfer(
+            farmer,
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
+    }
+
+    function changeFarmer(address _to) external onlyOwner {
+        farmer = _to;
     }
 
     function notifyRewardAmount() public {
