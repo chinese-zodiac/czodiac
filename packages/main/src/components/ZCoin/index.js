@@ -15,7 +15,7 @@ function ZCoin({imgSrc, name}) {
                 </div>
             </div>
         </div>
-        <Text mt="10px" fontWeight="bold">{!!name ? name : "???"}</Text>
+        <Text mt="10px" fontWeight="bold">{!!name ? name : ""}</Text>
     </Box>)
 }
 
