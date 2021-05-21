@@ -5,7 +5,6 @@
 // Credit to Synthetix
 pragma solidity ^0.8.4;
 
-import "./Checkpoints.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -15,7 +14,6 @@ import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol"
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
-    using Checkpoints for Checkpoints.Checkpoint[];
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using Address for address;
@@ -56,7 +54,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
 
     function deposit(uint256 _wadBusd) external {
         _mint(_msgSender(), _wadBusd);
-        busd.transferFrom(_msgSender(), address(this), _wadBusd);
+        busd.safeTransferFrom(_msgSender(), address(this), _wadBusd);
     }
 
     function withdrawRequest(uint256 _wadZusd) external {
@@ -95,7 +93,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
     }
 
     function notifyRewardAmount() public {
-        _updateReward(address(0));
+        updateReward(address(0));
         if (block.timestamp < periodFinish.sub(1 days) || periodFinish == 0) {
             //Only can update rewards on last day of 3 day period.
             return;
@@ -128,7 +126,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         emit RewardAdded(reward);
     }
 
-    function _updateReward(address account) internal returns (uint256 reward) {
+    function updateReward(address account) public returns (uint256 reward) {
         rewardPerTokenStored = _rewardPerToken();
         lastUpdateTime = _lastTimeRewardApplicable();
         if (account != address(0)) {
@@ -136,7 +134,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         if (reward > 0) {
-            transfer(_msgSender(), reward);
+            IERC20(address(this)).safeTransfer(_msgSender(), reward);
         }
     }
 
@@ -170,7 +168,7 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         Withdraws storage withdraws = userWithdraws[_for];
         uint256 amount = withdraws.request.sub(withdraws.fill);
         withdraws.fill = amount;
-        busd.transferFrom(_msgSender(), _for, amount);
+        busd.safeTransferFrom(_msgSender(), _for, amount);
     }
 
     function _beforeTokenTransfer(
@@ -182,8 +180,8 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
             if (block.timestamp > periodFinish.sub(1 days)) {
                 notifyRewardAmount();
             }
-            _updateReward(from);
-            _updateReward(to);
+            updateReward(from);
+            updateReward(to);
         }
     }
 }
