@@ -16,7 +16,7 @@ const { parseEther } = utils;
 function Sale() {
   const format = (val) => `${val} BNB`;
   const parse = (val) => val.replace(/^\$/, "");
-  const [value, setValue] = useState("1.5");
+  const [value, setValue] = useState("1.0");
   const {account, chainId} = useEthers();
   const {
     whitelistStatus,
