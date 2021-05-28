@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useEthers } from "@pdusedapp/core";
 import { CHAIN_LABELS, BLOCK_EXPLORERS, CHAINS, LOCKEDSALE_ADDRESSES } from "../../constants";
-import { useColorModeValue, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
+import { Progress, Box, Heading, Icon, Text, Link, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import Header from "../../components/Header";
 import BackgroundNetwork from "../../components/BackgroundNetwork";
 import useLockedSale from "../../hooks/useLockedSale";
@@ -137,6 +137,10 @@ function Sale() {
       </SimpleGrid>
       <hr />
       <Heading as="h2" size="md">Sale Stats</Heading>
+      <br/>
+      <Progress value={weiToFixed(totalSpendings,2)} colorScheme="red" />
+      {weiToFixed(totalSpendings,2)}% to hardcap
+      <br/>
       <SimpleGrid className="stats" columns={2} spacing={1}>
         <Text>Network:</Text>
         <Text>{CHAIN_LABELS[chainId]}</Text>
