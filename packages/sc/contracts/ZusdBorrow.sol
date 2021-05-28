@@ -62,6 +62,8 @@ contract ZusdBorrow is Context, Ownable, PriceConsumer {
         repayFor(_msgSender(), _amount);
     }
 
+    //TODO: add withdraw
+
     function depositFor(address _for, uint128 _amount) public {
         collateralAsset.safeTransferFrom(
             _msgSender(),
@@ -91,6 +93,8 @@ contract ZusdBorrow is Context, Ownable, PriceConsumer {
         BalanceSheet storage balanceSheet = balanceSheets[_for];
         balanceSheet.borrow -= _amount;
     }
+
+    //TODO: Add withdrawFor
 
     function recoverERC20(address tokenAddress) external {
         require(_msgSender() == farmer, "Sender must be farmer");

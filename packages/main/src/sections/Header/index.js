@@ -23,7 +23,7 @@ function Header() {
           <Link href="#token">Token</Link>
           <Link href="#nfts">NFTs</Link>
           <hr/>
-          <Link href="https://twitter.com/c_zodiacs?s=09" isExternal>Twitter <Icon as={FiExternalLink} /></Link>
+          <Link href="https://twitter.com/zodiacs_c" isExternal>Twitter <Icon as={FiExternalLink} /></Link>
           <Link href="https://t.me/CZodiacofficial" isExternal>Telegram <Icon as={FiExternalLink} /></Link>
           <Link href="https://app.czodiac.com" isExternal>Dapp <Icon as={FiExternalLink} /></Link>
         </Box>
