@@ -6,3 +6,6 @@ artifacts
 
 #Configuration
 networkConfig.json
+
+#exports
+sale-stats.csv
