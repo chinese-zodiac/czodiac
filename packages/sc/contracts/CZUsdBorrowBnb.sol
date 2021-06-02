@@ -3,14 +3,14 @@
 // Credit to Alchemix
 pragma solidity ^0.8.4;
 
-import "./ZusdBorrow.sol";
+import "./CZUsdBorrow.sol";
 
-contract ZusdBorrowBnb is ZusdBorrow {
+contract CZUsdBorrowBnb is CZUsdBorrow {
     constructor(
-        ERC20PresetMinterPauser _zusd,
+        ERC20PresetMinterPauser _czusd,
         IERC20Metadata _WBNB,
         address _usdPriceFeedForBNB
-    ) ZusdBorrow(_zusd, _WBNB, _usdPriceFeedForBNB) {}
+    ) CZUsdBorrow(_czusd, _WBNB, _usdPriceFeedForBNB) {}
 
     //TODO: Add BNB wrap/unwrap
 }

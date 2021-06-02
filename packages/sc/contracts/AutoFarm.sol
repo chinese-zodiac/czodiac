@@ -21,7 +21,6 @@ contract AutoFarm is Context, Ownable {
     uint16 public totalWeight;
     uint8 public totalPairs;
     IERC20 public czodiac;
-    IUniswapV2Router02 public router;
 
     constructor() Ownable() {}
 
@@ -35,11 +34,10 @@ contract AutoFarm is Context, Ownable {
                 totalWeight + _weights[i] > totalWeight || _weights[i] == 0,
                 "AutoFarm: total weight overflow"
             );
-            totalWeight = totalWeight - weights[indexes[pair]] + _weights[i];
-            weights[indexes[pair]] = _weights[i];
 
             //For new pair
             if (pairs.length == 0 || pairs[indexes[pair]] != pair) {
+                totalWeight = totalWeight + _weights[i];
                 indexes[pair] = uint8(pairs.length);
                 pairs.push(pair);
                 require(
@@ -47,7 +45,14 @@ contract AutoFarm is Context, Ownable {
                     "AutoFarm: total pairs overflow"
                 );
                 totalPairs = totalPairs + 1;
+            } else {
+                totalWeight =
+                    totalWeight -
+                    weights[indexes[pair]] +
+                    _weights[i];
             }
+
+            weights[indexes[pair]] = _weights[i];
         }
     }
 

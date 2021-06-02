@@ -12,14 +12,14 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
-contract ZusdBorrow is Context, Ownable, PriceConsumer {
+contract CZUsdBorrow is Context, Ownable, PriceConsumer {
     using SafeERC20 for IERC20;
     using SafeERC20 for IERC20Metadata;
     using SafeERC20 for ERC20PresetMinterPauser;
     using Address for address;
 
     IERC20Metadata public collateralAsset;
-    ERC20PresetMinterPauser public zusd;
+    ERC20PresetMinterPauser public czusd;
 
     mapping(address => BalanceSheet) public balanceSheets;
     struct BalanceSheet {
@@ -31,12 +31,12 @@ contract ZusdBorrow is Context, Ownable, PriceConsumer {
     address public farmer;
 
     constructor(
-        ERC20PresetMinterPauser _zusd,
+        ERC20PresetMinterPauser _czusd,
         IERC20Metadata _collateralAsset,
-        address _usdPriceFeed
-    ) PriceConsumer(_usdPriceFeed) {
+        address _linkUsdPriceFeed
+    ) PriceConsumer(_linkUsdPriceFeed) {
         collateralAsset = _collateralAsset;
-        zusd = _zusd;
+        czusd = _czusd;
         farmer = msg.sender;
     }
 
@@ -79,17 +79,17 @@ contract ZusdBorrow is Context, Ownable, PriceConsumer {
         uint128 value = uint128(collateralValue(_for));
         require(
             value >= balanceSheet.borrow + _amount,
-            "ZusdBorrow: Not enough collateral."
+            "CZUsdBorrow: Not enough collateral."
         );
         balanceSheet.borrow += _amount;
 
         uint256 fee = (_amount * feeBasis) / 10000;
-        zusd.mint(_for, _amount - fee);
-        zusd.mint(farmer, fee);
+        czusd.mint(_for, _amount - fee);
+        czusd.mint(farmer, fee);
     }
 
     function repayFor(address _for, uint128 _amount) public {
-        zusd.burnFrom(_msgSender(), uint256(_amount));
+        czusd.burnFrom(_msgSender(), uint256(_amount));
         BalanceSheet storage balanceSheet = balanceSheets[_for];
         balanceSheet.borrow -= _amount;
     }
