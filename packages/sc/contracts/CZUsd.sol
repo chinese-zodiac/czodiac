@@ -5,14 +5,11 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     using Address for address;
 
     IERC20 private busd;
@@ -27,16 +24,20 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
     bool public isRewardsEnabled;
 
     //Withdraws
-    mapping(address => Withdraws) private userWithdraws;
+    mapping(uint256 => Withdraws) private userWithdraws;
     struct Withdraws {
         uint256 request;
-        uint256 fill;
+        address requester;
+        bool isFilled;
     }
+    uint256 public totalWithdraws;
+    uint256 public totalWithdrawsFilled;
 
     //Farmer
     address public farmer;
 
-    event WithdrawRequest(address user, uint256 amount);
+    event WithdrawRequest(address user, uint256 id, uint256 amount);
+    event FillRequest(uint256 id);
     event UpdateRewardPerSecond(uint256 valueWad, uint256 period);
     event RewardAdded(uint256 reward);
 
@@ -52,36 +53,60 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
 
     function deposit(uint256 _wadBusd) external {
         _mint(_msgSender(), _wadBusd);
-        busd.safeTransferFrom(_msgSender(), address(this), _wadBusd);
+        busd.safeTransferFrom(_msgSender(), farmer, _wadBusd);
     }
 
     function withdrawRequest(uint256 _wadZusd) external {
-        require(_wadZusd >= 10 ether, "Must request a minimum of 10 zusd");
+        require(
+            _wadZusd >= 10 ether,
+            "CZUsd: Must request a minimum of 10 zusd"
+        );
         _burn(_msgSender(), _wadZusd);
-        Withdraws storage withdraws = userWithdraws[_msgSender()];
-        withdraws.request = withdraws.request.add(_wadZusd);
-        emit WithdrawRequest(_msgSender(), _wadZusd);
+        Withdraws storage withdraws = userWithdraws[totalWithdraws];
+        withdraws.request = _wadZusd;
+        withdraws.requester = _msgSender();
+        totalWithdraws++;
+        emit WithdrawRequest(_msgSender(), totalWithdraws - 1, _wadZusd);
     }
 
-    function fillRequests(address[] calldata _fors) external {
-        for (uint16 i; i < _fors.length; i++) {
-            _fillRequest(_fors[i]);
+    function fillAllRequests() external {
+        fillRequests(totalWithdraws - totalWithdrawsFilled);
+    }
+
+    function fillRequests(uint256 count) public {
+        for (uint256 i; i < count; i++) {
+            _fillRequest(i + totalWithdrawsFilled);
         }
     }
 
-    function recoverERC20(address tokenAddress) external {
-        require(_msgSender() == farmer, "Sender must be farmer");
-        require(tokenAddress != address(this), "Cannot withdraw zusd");
+    function fillSpecificRequest(uint256 _id) external {
+        _fillRequest(_id);
+    }
+
+    function recoverERC20(address tokenAddress) external onlyOwner {
         IERC20(tokenAddress).safeTransfer(
-            farmer,
+            owner(),
             IERC20(tokenAddress).balanceOf(address(this))
         );
     }
 
-    function _fillRequest(address _for) internal {
-        Withdraws storage withdraws = userWithdraws[_for];
-        uint256 amount = withdraws.request.sub(withdraws.fill);
-        withdraws.fill = amount;
-        busd.safeTransferFrom(_msgSender(), _for, amount);
+    function totalBusdWithdrawsRequested() public view {
+        uint256 total;
+        for (uint256 i; i < totalWithdrawsFilled + totalWithdraws; i++) {
+            total += userWithdraws[i].request;
+        }
+    }
+
+    function _fillRequest(uint256 _id) internal {
+        Withdraws storage withdraws = userWithdraws[_id];
+        require(withdraws.isFilled == false, "CZUsd: Request already filled");
+        withdraws.isFilled == true;
+        busd.safeTransferFrom(
+            _msgSender(),
+            withdraws.requester,
+            withdraws.request
+        );
+        totalWithdrawsFilled++;
+        emit FillRequest(_id);
     }
 }
