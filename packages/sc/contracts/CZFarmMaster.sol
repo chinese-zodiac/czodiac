@@ -5,12 +5,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./CZFarm.sol";
 
 contract CZFarmMaster is Ownable {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
     struct UserInfo {
         uint256 amount;
@@ -179,11 +177,11 @@ contract CZFarmMaster is Ownable {
             }
         }
         if (_amount > 0) {
-            pool.lpToken.safeTransferFrom(
+            require(pool.lpToken.transferFrom(
                 address(msg.sender),
                 address(this),
                 _amount
-            );
+            ),"CZFarmMaster: Transfer failed");
             user.amount = user.amount.add(_amount);
         }
         user.rewardDebt = user.amount.mul(pool.accCzfPerShare).div(1e12);
@@ -197,7 +195,7 @@ contract CZFarmMaster is Ownable {
     ) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        require(user.amount >= _amount, "withdraw: not good");
+        require(user.amount >= _amount, "CZFarmMaster: balance too low");
         updatePool(_pid);
         uint256 pending =
             user.amount.mul(pool.accCzfPerShare).div(1e12).sub(user.rewardDebt);
@@ -212,7 +210,7 @@ contract CZFarmMaster is Ownable {
         }
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
-            pool.lpToken.safeTransfer(address(msg.sender), _amount);
+            require(pool.lpToken.transfer(address(msg.sender), _amount),"CZFarmMaster: Transfer failed");
         }
         user.rewardDebt = user.amount.mul(pool.accCzfPerShare).div(1e12);
         emit Withdraw(msg.sender, _pid, _amount);
@@ -221,7 +219,7 @@ contract CZFarmMaster is Ownable {
     function emergencyWithdraw(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        require(pool.lpToken.transfer(address(msg.sender), user.amount),"CZFarmMaster: Transfer failed");
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
         user.amount = 0;
         user.rewardDebt = 0;
@@ -253,7 +251,7 @@ contract CZFarmMaster is Ownable {
     }
 
     function setCzfPerBlock(uint256 _czfPerBlock) public onlyOwner {
-        require(_czfPerBlock > 0, "!czfPerBlock-0");
+        require(_czfPerBlock > 0, "CZFarmMaster: czfPerBlock cannot be 0");
         czfPerBlock = _czfPerBlock;
     }
 }

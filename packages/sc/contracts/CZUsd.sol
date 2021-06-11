@@ -12,6 +12,9 @@ contract CZUsd is Context, ERC20PresetMinterPauser, Ownable {
 
     IERC20 private busd;
 
+    //Backing
+    uint256 totalBusdBacking;
+
     //Withdraws
     mapping(uint256 => Withdraws) private userWithdraws;
     struct Withdraws {
@@ -21,7 +24,7 @@ contract CZUsd is Context, ERC20PresetMinterPauser, Ownable {
     }
     uint256 public totalWithdraws;
 
-    //Farmer
+    //BUSD Farmer
     address public farmer;
 
     event WithdrawRequest(address user, uint256 id, uint256 amount);
@@ -78,6 +81,16 @@ contract CZUsd is Context, ERC20PresetMinterPauser, Ownable {
             owner(),
             IERC20(tokenAddress).balanceOf(address(this))
         ),"CZUsd: Recover failed.");
+    }
+
+    function setTotalBusdBacking(uint256 _wad) external {
+        require(_msgSender() == farmer, "CZUsd: Sender must be farmer");
+        totalBusdBacking = _wad;
+    }
+
+    function setFarmer(address _farmer) external {
+        require(_msgSender() == farmer || _msgSender() == owner(), "CZUsd: Sender must be farmer");
+        farmer = _farmer;
     }
 
     function totalBusdWithdrawsRequested() public view {
