@@ -23,9 +23,11 @@ function Header() {
           <Link href="#token">Token</Link>
           <Link href="#nfts">NFTs</Link>
           <hr/>
-          <Link href="https://twitter.com/zodiacs_c" isExternal>Twitter <Icon as={FiExternalLink} /></Link>
-          <Link href="https://t.me/CZodiacofficial" isExternal>Telegram <Icon as={FiExternalLink} /></Link>
-          <Link href="https://app.czodiac.com" isExternal>Dapp <Icon as={FiExternalLink} /></Link>
+          <b><Link href="https://exchange.pancakeswap.finance/#/swap?inputCurrency=0x58a39ceecc7b5b1497c39fa8e12dd781c4fafafc" isExternal>Buy</Link></b>
+          <Link href="https://t.me/CZodiacofficial" isExternal>Tg.</Link>
+          <Link href="https://discord.gg/FEpu3xF2Hb" isExternal>Dc.</Link>
+          <Link href="https://discord.gg/FEpu3xF2Hb" isExternal>Tw.</Link>
+          <Link href="https://app.czodiac.com" isExternal>Dapp</Link>
         </Box>
         <div className="dividing-bar" />
       </header>
