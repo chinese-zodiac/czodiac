@@ -6,22 +6,11 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
-    using SafeERC20 for IERC20;
+contract CZUsd is Context, ERC20PresetMinterPauser, Ownable {
     using Address for address;
 
     IERC20 private busd;
-
-    //Rewards
-    uint256 public periodFinish = 0;
-    uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 7 days;
-    uint256 public lastUpdateTime;
-    uint256 public rewardPerTokenStored;
-    mapping(address => uint256) public userRewardPerTokenPaid;
-    bool public isRewardsEnabled;
 
     //Withdraws
     mapping(uint256 => Withdraws) private userWithdraws;
@@ -31,7 +20,6 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         bool isFilled;
     }
     uint256 public totalWithdraws;
-    uint256 public totalWithdrawsFilled;
 
     //Farmer
     address public farmer;
@@ -52,8 +40,8 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
     }
 
     function deposit(uint256 _wadBusd) external {
+        require(busd.transferFrom(_msgSender(), farmer, _wadBusd),"CZUsd: busd transfer failed");
         _mint(_msgSender(), _wadBusd);
-        busd.safeTransferFrom(_msgSender(), farmer, _wadBusd);
     }
 
     function withdrawRequest(uint256 _wadZusd) external {
@@ -67,46 +55,44 @@ contract ZUSD is Context, ERC20PresetMinterPauser, Ownable {
         withdraws.requester = _msgSender();
         totalWithdraws++;
         emit WithdrawRequest(_msgSender(), totalWithdraws - 1, _wadZusd);
+        if(busd.balanceOf(address(this)) >= _wadZusd)
+            _fillRequest(totalWithdraws - 1, address(this));
     }
 
     function fillAllRequests() external {
-        fillRequests(totalWithdraws - totalWithdrawsFilled);
+        fillRequests(0,totalWithdraws);
     }
 
-    function fillRequests(uint256 count) public {
-        for (uint256 i; i < count; i++) {
-            _fillRequest(i + totalWithdrawsFilled);
+    function fillRequests(uint256 start, uint256 finish) public {
+        for (uint256 i; i < finish-start; i++) {
+            _fillRequest(i + start,_msgSender());
         }
     }
 
     function fillSpecificRequest(uint256 _id) external {
-        _fillRequest(_id);
+        _fillRequest(_id,_msgSender());
     }
 
     function recoverERC20(address tokenAddress) external onlyOwner {
-        IERC20(tokenAddress).safeTransfer(
+        require(IERC20(tokenAddress).transfer(
             owner(),
             IERC20(tokenAddress).balanceOf(address(this))
-        );
+        ),"CZUsd: Recover failed.");
     }
 
     function totalBusdWithdrawsRequested() public view {
         uint256 total;
-        for (uint256 i; i < totalWithdrawsFilled + totalWithdraws; i++) {
-            total += userWithdraws[i].request;
+        for (uint256 i; i < totalWithdraws; i++) {
+            if(!userWithdraws[i].isFilled)
+                total += userWithdraws[i].request;
         }
     }
 
-    function _fillRequest(uint256 _id) internal {
+    function _fillRequest(uint256 _id, address _by) internal {
         Withdraws storage withdraws = userWithdraws[_id];
-        require(withdraws.isFilled == false, "CZUsd: Request already filled");
-        withdraws.isFilled == true;
-        busd.safeTransferFrom(
-            _msgSender(),
-            withdraws.requester,
-            withdraws.request
-        );
-        totalWithdrawsFilled++;
+        if(withdraws.isFilled == true) return;
+        withdraws.isFilled = true;
+        require(busd.transferFrom(_by, withdraws.requester, withdraws.request),"CZUsd: busd transfer failed");
         emit FillRequest(_id);
     }
 }
