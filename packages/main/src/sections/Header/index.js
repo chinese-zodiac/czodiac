@@ -23,7 +23,7 @@ function Header() {
           <Link href="#token">Token</Link>
           <Link href="#nfts">NFTs</Link>
           <hr/>
-          <b><Link href="https://exchange.pancakeswap.finance/#/swap?inputCurrency=0x58a39ceecc7b5b1497c39fa8e12dd781c4fafafc" isExternal>Buy</Link></b>
+          <b><Link href="https://exchange.pancakeswap.finance/#/swap?inputCurrency=0x58a39ceecc7b5b1497c39fa8e12dd781c4fafafc" isExternal>Buy PCS</Link></b>
           <Link href="https://t.me/CZodiacofficial" isExternal>Tg.</Link>
           <Link href="https://discord.gg/FEpu3xF2Hb" isExternal>Dc.</Link>
           <Link href="https://discord.gg/FEpu3xF2Hb" isExternal>Tw.</Link>
