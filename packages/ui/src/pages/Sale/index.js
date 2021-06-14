@@ -62,7 +62,8 @@ function Sale() {
     <BackgroundNetwork />
     <Header />
     <Box as="main" className="horizontal-center sale-page">
-      <Heading mt="100px">Initial Liquidity Sale</Heading>
+      <Heading mt="100px">Initial Liquidity Sale (COMPLETE)</Heading>
+      <Heading mt="100px">Sale is completed, this page is for historical reference only!</Heading>
       <Text className="explanation">
       The Sale runs from the start countdown to the end countdown.
       There is a limit of {weiToFixed(maxPurchase, 2)} BNB per buyer and a minimum of 0.10 BNB.

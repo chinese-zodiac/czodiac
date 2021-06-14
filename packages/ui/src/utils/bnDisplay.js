@@ -14,16 +14,16 @@ export function weiToShortString(bn,decimals) {
 export function toShortString(bn,decimals) {
     if(!bn) return (0).toFixed(decimals);
     if(bn.gte(10**12)) {
-        return Number(bn.div(10**12)).toFixed(decimals)+"T";
+        return (Number(bn)/10**12).toFixed(decimals)+"T";
     }
     if(bn.gte(10**9)) {
-        return Number(bn.div(10**9)).toFixed(decimals)+"B";
+        return (Number(bn)/10**9).toFixed(decimals)+"B";
     }
     if(bn.gte(10**6)) {
-        return Number(bn.div(10**6)).toFixed(decimals)+"M";
+        return (Number(bn)/10**6).toFixed(decimals)+"M";
     }
     if(bn.gte(10**3)) {
-        return Number(bn.div(10**3)).toFixed(decimals)+"K";
+        return(Number(bn)/10**3).toFixed(decimals)+"K";
     }
     return Number(bn).toFixed(decimals);
 }

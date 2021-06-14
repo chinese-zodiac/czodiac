@@ -6,6 +6,7 @@ import WebfontLoader from '@dr-kobros/react-webfont-loader';
 import theme from "./theme";
 import Home from "./pages/Home";
 import Sale from "./pages/Sale";
+import Swap from "./pages/Swap";
 import reportWebVitals from "./reportWebVitals";
 import { DAppProvider } from "@pdusedapp/core";
 import {
@@ -38,6 +39,7 @@ ReactDOM.render(
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           <Route exact path="/" component={Home} />
           <Route path="/sale" component={Sale} />
+          <Route path="/swap" component={Swap} />
         </DAppProvider>
       </HashRouter>
     </ChakraProvider>

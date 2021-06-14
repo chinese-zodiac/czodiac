@@ -56,6 +56,9 @@ export const CZODIAC_ADDRESSES = {
   OxZodiac: {
     [CHAINS.BSC]: "0x58A39ceEcC7B5b1497c39fa8e12Dd781C4fAfaFc",
     [CHAINS.BSCTestnet]: "0xEee665826342D2297CDdA640e8F206Ad2aD0cE7C",
+  },
+  TigerZodiac: {
+    [CHAINS.BSC]: "0x535874BfBECaC5f235717FAEA7C26d01C67B38c5",
   }
 }
 

@@ -10,10 +10,10 @@ async function main() {
   const CZodiacToken = await ethers.getContractFactory("CZodiacToken");
 
   const PrevZodiac = await hre.ethers.getContractFactory("CZodiacToken");
-  const prevZodiac = OxzToken.attach(oxZodiac);
+  const prevZodiac = PrevZodiac.attach(oxZodiac);
 
   const cZodiacToken = await CZodiacToken.deploy(
-    autoFarm.address,//autofoarm,
+    autoFarm,//autofoarm,
     prevZodiac.address,//Prev czodiac for swapping
     "TigerZodiac",//Name
     "TigZ",//Symbol
@@ -32,9 +32,6 @@ async function main() {
   console.log("Exclude Disperse App...");
   await cZodiacToken.excludeFromReward(disperseApp);
   await cZodiacToken.excludeFromFee(disperseApp);
-  console.log("Swap Lucky Address...");
-  await cZodiacToken.excludeFromReward(luckyAddress);
-  await cZodiacToken.excludeFromFee(luckyAddress);
   console.log("Complete.")
   console.log("TODO: Swap luckyAddress, Create & Exclude liq pools, then enable global rewards.")
 }

@@ -12,10 +12,12 @@ function Home() {
       <Header />
     <LightMode>
       <Box as="main" className="both-center home-page">
-          <NavLink to="sale">
-            <Button colorScheme="red" >Liquidity Sale</Button>
+          <NavLink to="swap">
+            <Button colorScheme="red" >OxZ{"->"}TigZ Swap</Button>
           </NavLink>
-          <Button isDisabled={true} colorScheme="red" >Swap (coming soon)</Button>
+          <NavLink to="sale">
+            <Button colorScheme="orange" >Sale (complete)</Button>
+          </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>
           </Link >
