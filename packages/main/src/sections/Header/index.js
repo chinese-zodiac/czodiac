@@ -27,7 +27,7 @@ function Header() {
           <Link href="https://twitter.com/zodiacs_c" isExternal><Icon as={FaTwitter} /></Link>
           <Link href="https://t.me/CZodiacofficial" isExternal><Icon as={FaTelegram} /></Link>
           <Link href="https://discord.gg/FEpu3xF2Hb" isExternal><Icon as={FaDiscord} /></Link>
-          <Link href="https://https://czodiacs.medium.com/"><Icon as={FaMedium} /></Link>
+          <Link href="https://czodiacs.medium.com/"><Icon as={FaMedium} /></Link>
           <Link href="https://github.com/chinese-zodiac/czodiac"><Icon as={FiGithub} /></Link>
           <hr/>
           <b><Link href="https://exchange.pancakeswap.finance/#/swap?inputCurrency=0x58a39ceecc7b5b1497c39fa8e12dd781c4fafafc" isExternal>Buy on Pancakeswap<Icon as={FiExternalLink} /></Link></b>
