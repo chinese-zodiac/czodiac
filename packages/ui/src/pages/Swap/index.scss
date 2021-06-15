@@ -31,10 +31,23 @@
       font-size: 0.9em;
     }
   }
+
+  @media screen and (max-width: 500px) {
+    .stats {
+      font-size: 0.9em;
+    }
+    .swap-page {
+      padding-top: 150px;
+    }
+  }
   
   @media screen and (max-width: 400px) {
     .stats {
       font-size: 0.8em;
     }
+    .swap-page {
+      padding-top: 220px;
+    }
   }
+  
   
