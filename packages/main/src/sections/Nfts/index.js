@@ -14,7 +14,7 @@ function Nfts() {
         <br/>
         <Heading>The Chinese Zodiacs</Heading>
         <ZCoin imgSrc="./oxczodiac.png" name="OxZodiac" />
-        <ZCoin />
+        <ZCoin imgSrc="./tigerzodiac.png" name="TigerZodiac" />
         <ZCoin />
         <ZCoin />
         <ZCoin />

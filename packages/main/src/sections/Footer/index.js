@@ -11,6 +11,7 @@ function Footer() {
         <Link href="https://t.me/CZodiacofficial" isExternal>Telegram <Icon as={FiExternalLink} /></Link><br/>
         <Link href="https://app.czodiac.com" isExternal>Dapp <Icon as={FiExternalLink} /></Link><br/>
         <Link href="https://github.com/chinese-zodiac/" isExternal>Github <Icon as={FiExternalLink} /></Link>
+        <Link href="https://exchange.pancakeswap.finance/#/swap?outputCurrency=0x535874bfbecac5f235717faea7c26d01c67b38c5" isExternal>Pancakeswap <Icon as={FiExternalLink} /></Link>
         <br/><br/>
         <Text >May you have good fortune & a lucky portfolio!</Text>
         <Image className="bottom-image" src="./tea-table.png" />

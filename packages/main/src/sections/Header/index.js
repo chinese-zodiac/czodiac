@@ -30,7 +30,7 @@ function Header() {
           <Link href="https://czodiacs.medium.com/"><Icon as={FaMedium} /></Link>
           <Link href="https://github.com/chinese-zodiac/czodiac"><Icon as={FiGithub} /></Link>
           <hr/>
-          <b><Link href="https://exchange.pancakeswap.finance/#/swap?inputCurrency=0x58a39ceecc7b5b1497c39fa8e12dd781c4fafafc" isExternal>Buy on Pancakeswap<Icon as={FiExternalLink} /></Link></b>
+          <b><Link href="https://exchange.pancakeswap.finance/#/swap?outputCurrency=0x535874bfbecac5f235717faea7c26d01c67b38c5" isExternal>Buy on Pancakeswap<Icon as={FiExternalLink} /></Link></b>
           <Link href="https://app.czodiac.com" isExternal>Dapp<Icon as={FiExternalLink} /></Link>
         </Box>
         <div className="dividing-bar" />
