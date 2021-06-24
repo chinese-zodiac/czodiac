@@ -24,7 +24,7 @@ function Swap() {
     const {account, chainId} = useEthers();
     const oxzBalance = useTokenBalance(CZODIAC_ADDRESSES.OxZodiac[chainId], account)
     const tigzBalance = useTokenBalance(CZODIAC_ADDRESSES.TigerZodiac[chainId], account)
-    const startTimer = useCountdown(1624528800,"Complete");
+    const startTimer = useCountdown(1624529700,"Complete");
     const endTimer = useCountdown(1625237400,"Complete");
 
     const {swap} = useCZodiacToken(CZODIAC_ADDRESSES.TigerZodiac[chainId]);
@@ -53,11 +53,11 @@ function Swap() {
                 return;
               }
               if(nowTimestamp < 1624529700) {
-                alert("Sale not yet open.");
+                alert("Swap not yet open.");
                 return;
               }
               if(nowTimestamp > 1625237400) {
-                alert("Sale has closed.");
+                alert("Swap has closed.");
                 return;
               }
               if(oxzBalance.eq(0)){
