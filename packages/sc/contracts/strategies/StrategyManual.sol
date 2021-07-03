@@ -4,12 +4,11 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract CZFarm is Context, ERC20PresetMinterPauser, Ownable {
+contract StrategyManual is Context, Ownable {
     using SafeERC20 for IERC20;
-    constructor() ERC20PresetMinterPauser("CZFarm", "CZF") Ownable() {}
+    constructor() Ownable() {}
     function recoverERC20(address tokenAddress) external onlyOwner {
         IERC20(tokenAddress).safeTransfer(
             _msgSender(),

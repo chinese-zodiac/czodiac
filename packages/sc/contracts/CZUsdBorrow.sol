@@ -3,6 +3,7 @@
 // Credit to Alchemix
 pragma solidity ^0.8.4;
 
+import "./interfaces/IPairOracle.sol";
 import "./PriceConsumer.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -20,92 +21,218 @@ contract CZUsdBorrow is Context, Ownable, PriceConsumer {
 
     IERC20Metadata public collateralAsset;
     ERC20PresetMinterPauser public czusd;
+    ERC20PresetMinterPauser public czfarm;
+    IPairOracle public czfarmCzusdOracle;
+    address public strategy;
+
+    uint public liquidationDelay;
+    uint public czFarmMultiplier;
+    uint public globalBorrowLimit;
 
     mapping(address => BalanceSheet) public balanceSheets;
     struct BalanceSheet {
-        uint128 collateral;
-        uint128 borrow;
+        uint collateral;
+        uint czfarm;
+        uint borrow;
+        uint128 seizeTime;
     }
 
-    uint256 public feeBasis = 500;
-    address public farmer;
+    uint public totalCollateral;
+    uint public totalCzfarm;
+    uint public totalBorrow;
 
     constructor(
         ERC20PresetMinterPauser _czusd,
+        ERC20PresetMinterPauser _czfarm,
         IERC20Metadata _collateralAsset,
-        address _linkUsdPriceFeed
+        IPairOracle _czfarmCzusdOracle,
+        address _linkUsdPriceFeed,
+        address _strategy,
+        uint _liquidationDelay,
+        uint _czFarmMultiplier,
+        uint _globalBorrowLimit
     ) PriceConsumer(_linkUsdPriceFeed) {
         collateralAsset = _collateralAsset;
         czusd = _czusd;
-        farmer = msg.sender;
+        czfarm = _czfarm;
+        czfarmCzusdOracle = _czfarmCzusdOracle;
+        liquidationDelay = _liquidationDelay;
+        czFarmMultiplier = _czFarmMultiplier;
+        globalBorrowLimit = _globalBorrowLimit;
+        setStrategy(_strategy);
     }
 
-    function collateralValue(address _for) public view returns (uint256 value) {
-        return
-            (balanceSheets[_for].collateral * getPrice()) /
-            10**(getDecimals() + collateralAsset.decimals());
+    function baseCollateralUsdWad(address _for) public view returns (uint256 value) {
+        return (balanceSheets[_for].collateral * getPrice()) / 10**getDecimals();
     }
 
-    function setFeeBasis(uint256 _value) external onlyOwner {
-        feeBasis = _value;
+    function czFarmUsdWad(address _for) public view returns (uint256 value) {
+        uint czfarmWad = balanceSheets[_for].czfarm;
+        return Math.min(
+            czfarmCzusdOracle.consultPair(address(czfarm),czfarmWad),
+            czfarmCzusdOracle.consultTwap(address(czfarm),czfarmWad)
+        );
     }
 
-    function deposit(uint128 _amount) public {
+    function totalCollateralUsdWad(address _for) public view returns (uint256 value) {
+        return czFarmUsdWad(_for) + baseCollateralUsdWad(_for);
+    }
+
+    function maxBorrowFromCZFarmMultiplier(address _for) public view returns (uint256 value) {
+        return czFarmUsdWad(_for) * czFarmMultiplier;
+    }
+
+    function maxBorrow(address _for) public view returns (uint256 value) {
+        return Math.min(
+            totalCollateralUsdWad(_for),
+            maxBorrowFromCZFarmMultiplier(_for)
+        );
+    }
+
+    function isInGoodStanding(address _for) public view returns (bool hasGoodStanding) {
+        return maxBorrow(_for) < balanceSheets[_for].borrow;
+    }
+
+    function deposit(uint _amount) public {
         depositFor(_msgSender(), _amount);
     }
 
-    function borrow(uint128 _amount) public {
-        borrowFor(_msgSender(), _amount);
+    function depositCZFarm(uint _amount) public {
+        depositCZFarmFor(_msgSender(), _amount);
     }
 
-    function repay(uint128 _amount) public {
+    function borrow(uint _amount) public {
+        czfarmCzusdOracle.update();
+        BalanceSheet storage balanceSheet = balanceSheets[_msgSender()];
+        balanceSheet.borrow += _amount;
+        czusd.mint(_msgSender(), _amount);
+        totalBorrow += _amount;
+        require(totalBorrow < globalBorrowLimit, "Borrow exceeds global limit");
+        require(isInGoodStanding(_msgSender()), "Account not in good standing.");
+    }
+
+    function repay(uint _amount) public {
         repayFor(_msgSender(), _amount);
     }
 
-    //TODO: add withdraw
+    function withdraw(uint _amount) public {
+        czfarmCzusdOracle.update();
+        BalanceSheet storage balanceSheet = balanceSheets[_msgSender()];
+        collateralAsset.safeTransferFrom(
+            address(strategy),
+            _msgSender(),
+            uint256(_amount)
+        );
+        balanceSheet.collateral -= _amount;
+        totalCollateral -= _amount;
+        require(isInGoodStanding(_msgSender()), "Account not in good standing.");
+    }
 
-    function depositFor(address _for, uint128 _amount) public {
+    function withdrawCZFarm(uint _amount) public {
+        czfarmCzusdOracle.update();
+        BalanceSheet storage balanceSheet = balanceSheets[_msgSender()];
+        czfarm.safeTransferFrom(
+            address(strategy),
+            _msgSender(),
+            uint256(_amount)
+        );
+        balanceSheet.czfarm -= _amount;
+        totalCzfarm -= _amount;
+        require(isInGoodStanding(_msgSender()), "Account not in good standing.");
+    }
+
+    function depositFor(address _for, uint _amount) public {
+        czfarmCzusdOracle.update();
         collateralAsset.safeTransferFrom(
             _msgSender(),
-            address(this),
+            address(strategy),
             uint256(_amount)
         );
         BalanceSheet storage balanceSheet = balanceSheets[_for];
         balanceSheet.collateral += _amount;
+        totalCollateral += _amount;
     }
 
-    function borrowFor(address _for, uint128 _amount) public {
-        BalanceSheet storage balanceSheet = balanceSheets[_for];
-        uint128 value = uint128(collateralValue(_for));
-        require(
-            value >= balanceSheet.borrow + _amount,
-            "CZUsdBorrow: Not enough collateral."
+    function depositCZFarmFor(address _for, uint _amount) public {
+        czfarmCzusdOracle.update();
+        czfarm.safeTransferFrom(
+            _msgSender(),
+            address(strategy),
+            uint256(_amount)
         );
-        balanceSheet.borrow += _amount;
-
-        uint256 fee = (_amount * feeBasis) / 10000;
-        czusd.mint(_for, _amount - fee);
-        czusd.mint(farmer, fee);
+        BalanceSheet storage balanceSheet = balanceSheets[_for];
+        balanceSheet.czfarm += _amount;
+        totalCzfarm += _amount;
     }
 
-    function repayFor(address _for, uint128 _amount) public {
-        czusd.burnFrom(_msgSender(), uint256(_amount));
+    function repayFor(address _for, uint _amount) public {
+        czfarmCzusdOracle.update();
+        czusd.burnFrom(_msgSender(), _amount);
         BalanceSheet storage balanceSheet = balanceSheets[_for];
         balanceSheet.borrow -= _amount;
+        totalBorrow -= _amount;
+    }
+    
+    function seizeStart(address[] calldata _for) external onlyOwner {
+        czfarmCzusdOracle.update();
+        for(uint i; i<_for.length; i++){
+            address acc = _for[i];
+            BalanceSheet storage balanceSheet = balanceSheets[acc];
+            require(!isInGoodStanding(acc), "Cannot seize account in good standing");
+            balanceSheet.seizeTime = uint128(block.timestamp + liquidationDelay);
+        }
     }
 
-    //TODO: Add withdrawFor
+    function seizeCancel(address[] calldata _for) external onlyOwner {
+        for(uint i; i<_for.length; i++){
+            address acc = _for[i];
+            BalanceSheet storage balanceSheet = balanceSheets[acc];
+            balanceSheet.seizeTime = 0;
+        }
+    }
 
-    function recoverERC20(address tokenAddress) external {
-        require(_msgSender() == farmer, "Sender must be farmer");
-        require(tokenAddress != address(this), "Cannot withdraw zusd");
+    function seize(address[] calldata _for) external onlyOwner {
+        czfarmCzusdOracle.update();
+        for(uint i; i<_for.length; i++){
+            address acc = _for[i];
+            BalanceSheet storage balanceSheet = balanceSheets[acc];
+            require(0 < balanceSheet.seizeTime, "Must have warned user");
+            require(!isInGoodStanding(acc), "Cannot seize account in good standing");
+            require(block.timestamp >= balanceSheet.seizeTime, "Must be past seize time");
+            totalBorrow -= balanceSheet.borrow;
+            totalCzfarm -= balanceSheet.czfarm;
+            totalCollateral -= balanceSheet.collateral;
+            balanceSheet.seizeTime = 0;
+            balanceSheet.collateral = 0;
+            balanceSheet.czfarm = 0;
+            balanceSheet.borrow = 0;
+        }
+    }
+
+    function recoverERC20(address tokenAddress) external onlyOwner {
         IERC20(tokenAddress).safeTransfer(
-            farmer,
+            _msgSender(),
             IERC20(tokenAddress).balanceOf(address(this))
         );
     }
 
-    function changeFarmer(address _to) external onlyOwner {
-        farmer = _to;
+    function setStrategy(address _to) public onlyOwner {
+        czfarm.approve(strategy,0);
+        czusd.approve(strategy,0);
+        strategy = _to;
+        czfarm.approve(strategy,~uint(0));
+        czusd.approve(strategy,~uint(0));
+    }
+
+    function setCzFarmMultiplier(uint _to) public onlyOwner {
+        czFarmMultiplier = _to;
+    }
+
+    function setLiquidationDelay(uint _to) public onlyOwner {
+        liquidationDelay = _to;
+    }
+
+    function setGlobalBorrowLimit(uint _to) public onlyOwner {
+        globalBorrowLimit = _to;
     }
 }

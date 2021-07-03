@@ -48,7 +48,7 @@ async function main() {
                     retry = false;
                 } catch (err) {
                     console.log(err.code)
-                    if(err.code == "INVALID_ARGUMENT") {
+                    if(err.code == "INVALID_ARGUMENT" || err.code=="UNSUPPORTED_OPERATION") {
                         console.log("skipping");
                         lr.resume();
                         retry = false;
