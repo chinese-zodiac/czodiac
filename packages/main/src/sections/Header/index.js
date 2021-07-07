@@ -32,6 +32,8 @@ function Header() {
           <hr/>
           <b><Link href="https://exchange.pancakeswap.finance/#/swap?outputCurrency=0x535874bfbecac5f235717faea7c26d01c67b38c5" isExternal>Buy on Pancakeswap<Icon as={FiExternalLink} /></Link></b>
           <Link href="https://app.czodiac.com" isExternal>Dapp<Icon as={FiExternalLink} /></Link>
+          <hr/>
+          <b><Link href="https://czodiacs.medium.com/tigz-liquidity-sale-on-bounce-finance-8bc53ad9b73f" isExternal>🚀🚀TIGZ Bounce sale july 8!</Link></b>
         </Box>
         <div className="dividing-bar" />
       </header>
