@@ -80,7 +80,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(isHuntWinning(_msgSender()),"TigerHunt: Hunt not winning.");
         address target = tigerAccount.huntTarget;
-        uint amount = tigerHP.balanceOf(target) * 100 / huntPct;
+        uint amount = tigerHP.balanceOf(target) * huntPct / 100;
         tigerHP.burnFrom(target,amount);
         tigerHP.transferFrom(target,_msgSender(),amount);
         tigerAccount.huntBlock = 0;
