@@ -91,6 +91,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(_checkActionTimestamp(tigerAccount, TigerAction.GUARD), "TigerHunt: Already guarding.");
         require(tigerAccount.totalTigzStaked*1000 > tigerHP.balanceOf(_msgSender()), "TigerHunt: Not enough TIGZ staked.");
+        tigerHP.burnFrom(_msgSender(),tigerHP.balanceOf(_msgSender())*2*huntPct/100);
         _setActionTimestamp(tigerAccount, TigerAction.GUARD, block.timestamp);
     }
 
