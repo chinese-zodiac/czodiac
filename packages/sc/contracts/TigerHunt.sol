@@ -12,12 +12,14 @@ contract TigerHunt is Context, Ownable, Pausable {
     using SafeERC20 for IERC20;
 
     IERC20 public tigz;
+    IERC20 public oxz;
     ERC20PresetMinterPauser public tigerHP;
 
-    enum TigerAction {DRINK, EAT, POOP, SLEEP, HUNT, GUARD, STAKE}
+    enum TigerAction {DRINK, EAT, POOP, SLEEP, HUNT, GUARD, STAKETIGZ, STAKEOXZ}
     struct TigerAccount {
-        uint32[7] actionTimestamps;
-        uint totalTigzStaked;
+        uint32[8] actionTimestamps;
+        uint tigzStaked;
+        uint oxzStaked;
         uint huntBlock;
         address huntTarget;
     }
@@ -25,13 +27,14 @@ contract TigerHunt is Context, Ownable, Pausable {
 
     mapping(address => bool) public isHuntExempt;
 
-    uint32[7] public actionTimes = [
+    uint32[8] public actionTimes = [
         3 hours,
         7 hours,
         8 hours,
         24 hours,
         5 hours,
         12 hours,
+        24 hours,
         24 hours
     ];
 
@@ -42,24 +45,60 @@ contract TigerHunt is Context, Ownable, Pausable {
         45
     ];
 
+    uint32[5] public oxBonusMultipliersPct = [
+        10,
+        20,
+        30,
+        40,
+        50
+    ];
+
+    uint[5] public oxBonusThreshold = [
+        10000000 ether,
+        100000000 ether,
+        1000000000 ether,
+        10000000000 ether,
+        100000000000 ether
+    ];
+
     uint public huntPct = 5;
     uint public huntBlocks = 10;
 
-    constructor(IERC20 _tigz, ERC20PresetMinterPauser _tigerHP) Ownable() { }
+    constructor(IERC20 _tigz, IERC20 _oxz, ERC20PresetMinterPauser _tigerHP) Ownable() {
+        tigz = _tigz;
+        oxz = _oxz;
+        tigerHP = _tigerHP;
+     }
 
-    function stake(uint _wad) external {
+    function stakeTigz(uint _wad) external {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKE), "TigerHunt: Recently staked or unstaked.");
-        _setActionTimestamp(tigerAccount, TigerAction.STAKE, block.timestamp);
-        tigerAccount.totalTigzStaked += _wad;
+        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKETIGZ), "TigerHunt: Recently staked or unstaked TIGZ.");
+        _setActionTimestamp(tigerAccount, TigerAction.STAKETIGZ, block.timestamp);
+        tigerAccount.tigzStaked += _wad;
         tigz.safeTransferFrom(_msgSender(), address(this), _wad);
     }
 
-    function unstake(uint _wad) external {
+    function unstakeTigz(uint _wad) external {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKE), "TigerHunt: Recently staked or unstaked.");
-        _setActionTimestamp(tigerAccount, TigerAction.STAKE, block.timestamp);
-        tigerAccount.totalTigzStaked -= _wad;
+        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKETIGZ), "TigerHunt: Recently staked or unstaked TIGZ.");
+        _setActionTimestamp(tigerAccount, TigerAction.STAKETIGZ, block.timestamp);
+        tigerAccount.tigzStaked -= _wad;
+        tigz.safeTransfer(_msgSender(), _wad);
+    }
+
+    function stakeOxz(uint _wad) external {
+        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
+        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKEOXZ), "TigerHunt: Recently staked or unstaked OXZ.");
+        _setActionTimestamp(tigerAccount, TigerAction.STAKEOXZ, block.timestamp);
+        tigerAccount.oxzStaked += _wad;
+        tigz.safeTransferFrom(_msgSender(), address(this), _wad);
+    }
+
+    function unstakeOxz(uint _wad) external {
+        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
+        require(_checkActionTimestamp(tigerAccount, TigerAction.STAKEOXZ), "TigerHunt: Recently staked or unstaked OXZ.");
+        _setActionTimestamp(tigerAccount, TigerAction.STAKEOXZ, block.timestamp);
+        tigerAccount.oxzStaked -= _wad;
         tigz.safeTransfer(_msgSender(), _wad);
     }
 
@@ -67,9 +106,8 @@ contract TigerHunt is Context, Ownable, Pausable {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(!isHuntExempt[target], "TigerHunt: Target hunt exempt");
         require(!isOnGuard(target), "TigerHunt: Target is on guard");
-        require(tigerAccount.totalTigzStaked*1000 > tigerHP.balanceOf(_msgSender()), "TigerHunt: Not enough TIGZ staked.");
         require(tigerHP.balanceOf(_msgSender()) > 0, "TigerHunt: Sender 0 tigerHP");
-        require(tigerHP.balanceOf(target) > 0, "TigerHunt: Target 0 tigerHP");
+        require(tigerAccount.tigzStaked > 0, "TigerHunt: No TIGZ staked");
         require(_checkActionTimestamp(tigerAccount, TigerAction.HUNT), "TigerHunt: Recently hunted.");
         _setActionTimestamp(tigerAccount, TigerAction.HUNT, block.timestamp);
         tigerAccount.huntBlock = block.number + 1;
@@ -90,40 +128,33 @@ contract TigerHunt is Context, Ownable, Pausable {
     function guard() external whenNotPaused {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(_checkActionTimestamp(tigerAccount, TigerAction.GUARD), "TigerHunt: Already guarding.");
-        require(tigerAccount.totalTigzStaked*1000 > tigerHP.balanceOf(_msgSender()), "TigerHunt: Not enough TIGZ staked.");
+        require(tigerAccount.tigzStaked*1000 > tigerHP.balanceOf(_msgSender()), "TigerHunt: Not enough TIGZ staked.");
         tigerHP.burnFrom(_msgSender(),tigerHP.balanceOf(_msgSender())*2*huntPct/100);
         _setActionTimestamp(tigerAccount, TigerAction.GUARD, block.timestamp);
     }
 
-    //TODO: implemention eat, sleep, drink
     function eat() external whenNotPaused {
-        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.EAT), "TigerHunt: Not hungry.");
-        _setActionTimestamp(tigerAccount, TigerAction.EAT, block.timestamp);
+        _doStandardAction(_msgSender(), TigerAction.EAT);
     }
+    
     function sleep() external whenNotPaused {
-        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.SLEEP), "TigerHunt: Not tired.");
-        _setActionTimestamp(tigerAccount, TigerAction.SLEEP, block.timestamp);
+        _doStandardAction(_msgSender(), TigerAction.SLEEP);
     }
+
     function drink() external whenNotPaused {
-        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.DRINK), "TigerHunt: Not thirsty.");
-        _setActionTimestamp(tigerAccount, TigerAction.DRINK, block.timestamp);
+        _doStandardAction(_msgSender(), TigerAction.DRINK);
     }
+
     function poop() external whenNotPaused {
-        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        require(_checkActionTimestamp(tigerAccount, TigerAction.POOP), "TigerHunt: Not thirsty.");
-        _setActionTimestamp(tigerAccount, TigerAction.POOP, block.timestamp);
+        _doStandardAction(_msgSender(), TigerAction.POOP);
     }
+
     function doEatSleepDrinkPoop() external whenNotPaused {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
-        uint32[7] memory actionTimestamps = tigerAccount.actionTimestamps;
-        if (_checkActionTimestamp(tigerAccount, TigerAction.EAT)) actionTimestamps[uint(TigerAction.EAT)] = uint32(block.timestamp);
-        if (_checkActionTimestamp(tigerAccount, TigerAction.SLEEP)) actionTimestamps[uint(TigerAction.SLEEP)] = uint32(block.timestamp);
-        if (_checkActionTimestamp(tigerAccount, TigerAction.DRINK)) actionTimestamps[uint(TigerAction.DRINK)] = uint32(block.timestamp);
-        if (_checkActionTimestamp(tigerAccount, TigerAction.POOP)) actionTimestamps[uint(TigerAction.POOP)] = uint32(block.timestamp);
-        tigerAccount.actionTimestamps = actionTimestamps;
+        if (_checkActionTimestamp(tigerAccount, TigerAction.EAT)) _doStandardAction(_msgSender(), TigerAction.EAT);
+        if (_checkActionTimestamp(tigerAccount, TigerAction.SLEEP)) _doStandardAction(_msgSender(), TigerAction.SLEEP);
+        if (_checkActionTimestamp(tigerAccount, TigerAction.DRINK)) _doStandardAction(_msgSender(), TigerAction.DRINK);
+        if (_checkActionTimestamp(tigerAccount, TigerAction.POOP)) _doStandardAction(_msgSender(), TigerAction.POOP);
     }
 
     function setHuntExempt(address[] calldata _fors) external onlyOwner() {
@@ -148,12 +179,12 @@ contract TigerHunt is Context, Ownable, Pausable {
 
     function isHuntWinning(address _for) public view returns (bool) {
         TigerAccount storage tigerAccount = tigerAccounts[_for];
+        TigerAccount storage tigerAccountTarget = tigerAccounts[tigerAccount.huntTarget];
         uint rawRoll = uint256(blockhash(tigerAccount.huntBlock));
         if(rawRoll == uint(0)) return false;
-        uint targetHP = tigerHP.balanceOf(tigerAccount.huntTarget)/10**24/2;
-        uint hunterHP = tigerHP.balanceOf(tigerAccount.huntTarget)/10**24;
+        uint targetHP = tigerAccountTarget.tigzStaked/10**24/2;
+        uint hunterHP = tigerAccount.tigzStaked/10**24;
         if(hunterHP == 0) return false;
-        if(targetHP == 0) return false;
         if(targetHP / hunterHP >= 2) return false;
         uint minRoll = uint256(~uint128(0)) * targetHP / hunterHP;
         return rawRoll >= minRoll;
@@ -162,6 +193,30 @@ contract TigerHunt is Context, Ownable, Pausable {
     function isOnGuard(address _for) public view returns (bool) {
         TigerAccount storage tigerAccount = tigerAccounts[_for];
         return block.timestamp - _getActionTimestamp(tigerAccount, TigerAction.GUARD) <= actionTimes[uint32(TigerAction.GUARD)];
+    }
+
+    function _doStandardAction(address _for, TigerAction _action) internal {
+        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
+        require(_checkActionTimestamp(tigerAccount, _action), "TigerHunt: Action not available.");
+        _setActionTimestamp(tigerAccount, _action, block.timestamp);
+        tigerHP.mint(_for,_getReward(tigerAccount,_action));
+    }
+
+    function _getOxzBonusPct(TigerAccount storage _tigerAccount) internal view returns (uint32) {
+        uint tigzStaked = _tigerAccount.tigzStaked;
+        uint32 bonusPct = 0;
+        uint32 i;
+        while(i<oxBonusThreshold.length) {
+            if(tigzStaked < oxBonusThreshold[i]) return bonusPct;
+            bonusPct = oxBonusMultipliersPct[i];
+        }
+        return oxBonusMultipliersPct[oxBonusMultipliersPct.length - 1];
+    }
+
+    function _addOxzBonus(TigerAccount storage _tigerAccount, uint _initial) internal view returns (uint) {
+        uint32 bonusPct = _getOxzBonusPct(_tigerAccount);
+        if(bonusPct == 0) return _initial;
+        return _initial * (100 + bonusPct) / 100;
     }
 
     function _checkActionTimestamp(TigerAccount storage _tigerAccount, TigerAction _action) internal view returns (bool) {
@@ -174,6 +229,10 @@ contract TigerHunt is Context, Ownable, Pausable {
 
     function _setActionTimestamp(TigerAccount storage _tigerAccount, TigerAction _action, uint _to) internal {
         _tigerAccount.actionTimestamps[uint256(_action)] = uint32(_to);
+    }
+
+    function _getReward(TigerAccount storage _tigerAccount, TigerAction _action) internal view returns (uint256) {
+        return _addOxzBonus(_tigerAccount, _tigerAccount.tigzStaked) * actionMultipliers[uint32(_action)];
     }
 
 }
