@@ -41,7 +41,7 @@ describe("Tiger Hunt", function() {
         const TigerHunt = await ethers.getContractFactory("TigerHunt");
         tighunt = await TigerHunt.connect(owner).deploy(
             tigerZodiac, //IERC20 _tigz,
-            oxZodiac, //IERC20 _oxz,
+            //oxZodiac, //IERC20 _oxz,
             tighp.address//ERC20PresetMinterPauser _tigerHP
         );
         await tighunt.deployed();

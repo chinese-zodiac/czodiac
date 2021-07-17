@@ -12,7 +12,7 @@ contract TigerHunt is Context, Ownable, Pausable {
     using SafeERC20 for IERC20;
 
     IERC20 public tigz;
-    IERC20 public oxz;
+    //IERC20 public oxz;
     ERC20PresetMinterPauser public tigerHP;
 
     enum TigerAction {
@@ -28,7 +28,7 @@ contract TigerHunt is Context, Ownable, Pausable {
     struct TigerAccount {
         uint32[8] actionTimestamps;
         uint256 tigzStaked;
-        uint256 oxzStaked;
+        //uint256 oxzStaked;
         uint256 huntBlock;
         address huntTarget;
     }
@@ -65,11 +65,11 @@ contract TigerHunt is Context, Ownable, Pausable {
 
     constructor(
         IERC20 _tigz,
-        IERC20 _oxz,
+        //IERC20 _oxz,
         ERC20PresetMinterPauser _tigerHP
     ) Ownable() {
         tigz = _tigz;
-        oxz = _oxz;
+        //oxz = _oxz;
         tigerHP = _tigerHP;
     }
 
@@ -103,7 +103,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         tigz.safeTransfer(_msgSender(), _wad);
     }
 
-    function stakeOxz(uint256 _wad) external {
+    /*function stakeOxz(uint256 _wad) external {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(
             _checkActionTimestamp(tigerAccount, TigerAction.STAKEOXZ),
@@ -131,7 +131,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         );
         tigerAccount.oxzStaked -= _wad;
         oxz.safeTransfer(_msgSender(), _wad);
-    }
+    }*/
 
     function tryHunt(address target) external whenNotPaused {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
@@ -289,7 +289,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         tigerHP.mint(_for, _getReward(tigerAccount, _action));
     }
 
-    function _getOxzBonusPct(TigerAccount storage _tigerAccount)
+    /*function _getOxzBonusPct(TigerAccount storage _tigerAccount)
         internal
         view
         returns (uint32)
@@ -312,7 +312,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         uint32 bonusPct = _getOxzBonusPct(_tigerAccount);
         if (bonusPct == 0) return _initial;
         return (_initial * (100 + bonusPct)) / 100;
-    }
+    }*/
 
     function _checkActionTimestamp(
         TigerAccount storage _tigerAccount,
@@ -344,7 +344,8 @@ contract TigerHunt is Context, Ownable, Pausable {
         returns (uint256)
     {
         return
-            _addOxzBonus(_tigerAccount, _tigerAccount.tigzStaked) *
-            actionMultipliers[uint32(_action)];
+            //_addOxzBonus(_tigerAccount, _tigerAccount.tigzStaked) *
+            //note: remove tigzstaked mulitplier if readding oxz bonus
+            _tigerAccount.tigzStaked * actionMultipliers[uint32(_action)];
     }
 }
