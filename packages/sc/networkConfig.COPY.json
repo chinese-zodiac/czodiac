@@ -1,6 +1,7 @@
 {
     "ethKey": "",
     "rpcKey": "",
-    "etherscanKey":""
+    "etherscanKey":"",
+    "moralisRpcKey":""
 }
   

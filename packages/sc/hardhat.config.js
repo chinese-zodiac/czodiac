@@ -2,7 +2,8 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
-require("solidity-coverage");
+require("solidity-coverage")
+
 const loadJsonFile = require("load-json-file");
 const networkConfig = loadJsonFile.sync("./networkConfig.json");
 
@@ -30,7 +31,8 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://bsc-dataseed.binance.org`
+        url: `https://speedy-nodes-nyc.moralis.io/${networkConfig.moralisRpcKey}/bsc/mainnet/archive`,
+        blockNumber:  9227900
       }
     },
     rinkeby: {

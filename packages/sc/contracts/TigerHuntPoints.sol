@@ -11,7 +11,10 @@ contract TigerHuntPoints is Context, ERC20PresetMinterPauser, Ownable {
     using SafeERC20 for IERC20;
     mapping(address => bool) safeContracts;
 
-    constructor() ERC20PresetMinterPauser("Tiger Hunt Points", "TigzHP") Ownable() {}
+    constructor()
+        ERC20PresetMinterPauser("Tiger Hunt Points", "TigzHP")
+        Ownable()
+    {}
 
     function recoverERC20(address tokenAddress) external onlyOwner {
         IERC20(tokenAddress).safeTransfer(
@@ -20,9 +23,13 @@ contract TigerHuntPoints is Context, ERC20PresetMinterPauser, Ownable {
         );
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override{
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        if(safeContracts[_msgSender()]) {
+        if (safeContracts[_msgSender()] && from != address(0)) {
             _approve(from, _msgSender(), amount);
         }
     }

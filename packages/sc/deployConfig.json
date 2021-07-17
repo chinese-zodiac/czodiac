@@ -1,4 +1,5 @@
 {
+    "czDeployer":"0x70e1cB759996a1527eD1801B169621C18a9f38F9",
     "uniswapRouterAddress":"0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F",
     "uniswapRouterAddressBscTestnet":"0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
     "zeroAddress":  "0x0000000000000000000000000000000000000000",
