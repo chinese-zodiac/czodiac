@@ -29,9 +29,25 @@ contract TigerHuntPoints is Context, ERC20PresetMinterPauser, Ownable {
         uint256 amount
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        if (safeContracts[_msgSender()] && from != address(0)) {
+        if (
+            safeContracts[_msgSender()] &&
+            from != address(0) &&
+            to != address(0)
+        ) {
             _approve(from, _msgSender(), amount);
         }
+    }
+
+    function burnFrom(address account, uint256 amount) public virtual override {
+        if (!safeContracts[_msgSender()]) {
+            uint256 currentAllowance = allowance(account, _msgSender());
+            require(
+                currentAllowance >= amount,
+                "ERC20: burn amount exceeds allowance"
+            );
+            _approve(account, _msgSender(), currentAllowance - amount);
+        }
+        _burn(account, amount);
     }
 
     function setContractSafe(address _for) external onlyOwner {

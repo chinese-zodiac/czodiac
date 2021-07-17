@@ -112,5 +112,42 @@ describe("Tiger Hunt", function() {
         const tigerhpBalance = await tighp.balanceOf(owner.address);
         expect(parseEther("57000")).to.equal(tigerhpBalance, "Should gained 57x the staked tigz.");
     });
+
+    it("Should not hunt someone with no tighp", async function() {
+        await expect(tighunt.connect(owner).tryHunt(player1.address))
+        .to.be.revertedWith("TigerHunt: Target 0 tigerHP");
+    });
+
+    it("Should attempt hunt on someone with some tigerhp", async function() {
+        await tigz.connect(owner).transfer(player1.address, parseEther("10"));
+        await tigz.connect(player1).approve(tighunt.address,parseEther("10"));
+        await tighunt.connect(player1).stakeTigz(parseEther("10"));
+        await tighunt.connect(player1).doEatSleepDrinkPoop();
+        await tighunt.connect(owner).tryHunt(player1.address);
+        const isHuntWinning = await tighunt.isHuntWinning(owner.address);
+        const latestBlock = await time.latestBlock();
+        const tigerAccount = await tighunt.tigerAccounts(owner.address);
+        const roll = await tighunt.getRollAt(tigerAccount.huntBlock);
+        expect(tigerAccount.huntTarget).to.equal(player1.address);
+        expect(tigerAccount.huntBlock.sub(10).toString()).to.equal(latestBlock.toString());
+        expect(isHuntWinning).to.be.false;
+        expect(roll).to.equal(0);
+    });
+
+    it("Should check if hunt is winning after 10 blocks", async function() {
+        const latestBlock = await time.latestBlock();
+        await time.advanceBlockTo(Number(latestBlock)+12);
+        const tigerAccount = await tighunt.tigerAccounts(owner.address);
+        const roll = await tighunt.getRollAt(tigerAccount.huntBlock);
+        const isHuntWinning = await tighunt.isHuntWinning(owner.address);
+        expect(roll).to.be.gt(0);
+        expect(isHuntWinning).to.be.true;
+    });
+
+    it("Should win hunt", async function() {
+        await tighunt.connect(owner).winHunt();
+        const isHuntWinning = await tighunt.isHuntWinning(owner.address);
+        expect(isHuntWinning).to.be.false;
+    });
 })
 

@@ -140,13 +140,14 @@ contract TigerHunt is Context, Ownable, Pausable {
             tigerHP.balanceOf(_msgSender()) > 0,
             "TigerHunt: Sender 0 tigerHP"
         );
+        require(tigerHP.balanceOf(target) > 0, "TigerHunt: Target 0 tigerHP");
         require(tigerAccount.tigzStaked > 0, "TigerHunt: No TIGZ staked");
         require(
             _checkActionTimestamp(tigerAccount, TigerAction.HUNT),
             "TigerHunt: Recently hunted."
         );
         _setActionTimestamp(tigerAccount, TigerAction.HUNT, block.timestamp);
-        tigerAccount.huntBlock = block.number + 1;
+        tigerAccount.huntBlock = block.number + huntBlocks;
         tigerAccount.huntTarget = target;
     }
 
@@ -158,15 +159,15 @@ contract TigerHunt is Context, Ownable, Pausable {
         if (isOnGuard(target)) {
             uint256 targetTigzAdjusted = tigerAccounts[target].tigzStaked *
                 guardTigzMultiplier;
-            if (targetBalance > targetTigzAdjusted) {
+            if (targetBalance <= targetTigzAdjusted) {
                 targetBalance = 0;
             } else {
                 targetBalance -= targetTigzAdjusted;
             }
         }
         uint256 amount = (targetBalance * huntPct) / 100;
-        tigerHP.burnFrom(target, amount);
         tigerHP.transferFrom(target, _msgSender(), amount);
+        tigerHP.burnFrom(target, amount);
         tigerAccount.huntBlock = 0;
         tigerAccount.huntTarget = address(0);
     }
@@ -243,18 +244,22 @@ contract TigerHunt is Context, Ownable, Pausable {
         }
     }
 
+    function getRollAt(uint256 blocknumber) public view returns (uint256) {
+        if (blockhash(blocknumber) == 0) return 0;
+        return uint256(keccak256(abi.encodePacked(blockhash(blocknumber))));
+    }
+
     function isHuntWinning(address _for) public view returns (bool) {
         TigerAccount storage tigerAccount = tigerAccounts[_for];
-        TigerAccount storage tigerAccountTarget = tigerAccounts[
-            tigerAccount.huntTarget
-        ];
-        uint256 rawRoll = uint256(blockhash(tigerAccount.huntBlock));
+        uint256 rawRoll = getRollAt(tigerAccount.huntBlock);
         if (rawRoll == uint256(0)) return false;
-        uint256 targetHP = tigerAccountTarget.tigzStaked / 10**24 / 2;
-        uint256 hunterHP = tigerAccount.tigzStaked / 10**24;
+        uint256 targetHP = tigerHP.balanceOf(tigerAccount.huntTarget) /
+            10**18 /
+            2;
+        uint256 hunterHP = tigerHP.balanceOf(_for) / 10**18;
         if (hunterHP == 0) return false;
         if (targetHP / hunterHP >= 2) return false;
-        uint256 minRoll = (uint256(~uint128(0)) * targetHP) / hunterHP;
+        uint256 minRoll = (~uint256(0) / 2 / hunterHP) * targetHP;
         return rawRoll >= minRoll;
     }
 
