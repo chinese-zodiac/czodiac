@@ -48,8 +48,8 @@ contract TigerHunt is Context, Ownable, Pausable {
     ];
 
     uint32[4] public actionMultipliers = [2, 7, 3, 45];
-
     uint32[5] public oxBonusMultipliersPct = [10, 20, 30, 40, 50];
+    uint32 public guardTigzMultiplier = 100;
 
     uint256[5] public oxBonusThreshold = [
         10000000 ether,
@@ -61,6 +61,7 @@ contract TigerHunt is Context, Ownable, Pausable {
 
     uint256 public huntPct = 5;
     uint256 public huntBlocks = 10;
+    uint256 public huntRefreshFee = 100000 ether;
 
     constructor(
         IERC20 _tigz,
@@ -135,7 +136,6 @@ contract TigerHunt is Context, Ownable, Pausable {
     function tryHunt(address target) external whenNotPaused {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(!isHuntExempt[target], "TigerHunt: Target hunt exempt");
-        require(!isOnGuard(target), "TigerHunt: Target is on guard");
         require(
             tigerHP.balanceOf(_msgSender()) > 0,
             "TigerHunt: Sender 0 tigerHP"
@@ -154,7 +154,17 @@ contract TigerHunt is Context, Ownable, Pausable {
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(isHuntWinning(_msgSender()), "TigerHunt: Hunt not winning.");
         address target = tigerAccount.huntTarget;
-        uint256 amount = (tigerHP.balanceOf(target) * huntPct) / 100;
+        uint256 targetBalance = tigerHP.balanceOf(target);
+        if (isOnGuard(target)) {
+            uint256 targetTigzAdjusted = tigerAccounts[target].tigzStaked *
+                guardTigzMultiplier;
+            if (targetBalance > targetTigzAdjusted) {
+                targetBalance = 0;
+            } else {
+                targetBalance -= targetTigzAdjusted;
+            }
+        }
+        uint256 amount = (targetBalance * huntPct) / 100;
         tigerHP.burnFrom(target, amount);
         tigerHP.transferFrom(target, _msgSender(), amount);
         tigerAccount.huntBlock = 0;
@@ -166,10 +176,6 @@ contract TigerHunt is Context, Ownable, Pausable {
         require(
             _checkActionTimestamp(tigerAccount, TigerAction.GUARD),
             "TigerHunt: Already guarding."
-        );
-        require(
-            tigerAccount.tigzStaked * 1000 > tigerHP.balanceOf(_msgSender()),
-            "TigerHunt: Not enough TIGZ staked."
         );
         tigerHP.burnFrom(
             _msgSender(),
@@ -204,6 +210,17 @@ contract TigerHunt is Context, Ownable, Pausable {
             _doStandardAction(_msgSender(), TigerAction.DRINK);
         if (_checkActionTimestamp(tigerAccount, TigerAction.POOP))
             _doStandardAction(_msgSender(), TigerAction.POOP);
+    }
+
+    function refreshHunt() external whenNotPaused {
+        //TODO: Implement refresh hunt by burning 100k tigz
+        TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
+        require(
+            !_checkActionTimestamp(tigerAccount, TigerAction.HUNT),
+            "TigerHunt: Hunt already available."
+        );
+        _setActionTimestamp(tigerAccount, TigerAction.HUNT, 0);
+        tigerAccount.tigzStaked -= huntRefreshFee;
     }
 
     function setHuntExempt(address[] calldata _fors) external onlyOwner() {
