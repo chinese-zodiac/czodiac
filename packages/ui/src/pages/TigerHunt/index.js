@@ -46,7 +46,7 @@ function TigerHunt() {
         </Text>
         <Text>Under construction</Text>
         <SimpleGrid className="stats" columns={2} spacing={1}>
-
+            
         </SimpleGrid>
         <SimpleGrid className="stats" columns={2} spacing={1}>
             <Text>Network:</Text>
