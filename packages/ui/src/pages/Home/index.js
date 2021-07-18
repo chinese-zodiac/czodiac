@@ -12,8 +12,11 @@ function Home() {
       <Header />
     <LightMode>
       <Box as="main" className="both-center home-page">
+          <NavLink to="tigerhunt">
+            <Button colorScheme="red" >Play Tiger Hunt</Button>
+          </NavLink>
           <NavLink to="swap">
-            <Button colorScheme="red" >OxZ{"->"}TigZ Swap</Button>
+            <Button colorScheme="orange" >OxZ{"->"}TigZ (complete)</Button>
           </NavLink>
           <NavLink to="sale">
             <Button colorScheme="orange" >Sale (complete)</Button>

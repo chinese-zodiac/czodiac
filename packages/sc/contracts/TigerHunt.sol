@@ -180,7 +180,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         );
         tigerHP.burnFrom(
             _msgSender(),
-            (tigerHP.balanceOf(_msgSender()) * huntPct) / 100
+            (tigerHP.balanceOf(_msgSender()) * huntPct * 2) / 100
         );
         _setActionTimestamp(tigerAccount, TigerAction.GUARD, block.timestamp);
     }
