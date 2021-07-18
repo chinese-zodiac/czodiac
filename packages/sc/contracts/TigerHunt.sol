@@ -157,12 +157,12 @@ contract TigerHunt is Context, Ownable, Pausable {
         address target = tigerAccount.huntTarget;
         uint256 targetBalance = tigerHP.balanceOf(target);
         if (isOnGuard(target)) {
-            uint256 targetTigzAdjusted = tigerAccounts[target].tigzStaked *
+            uint256 gaurdedTigHP = tigerAccounts[target].tigzStaked *
                 guardTigzMultiplier;
-            if (targetBalance <= targetTigzAdjusted) {
+            if (targetBalance <= gaurdedTigHP) {
                 targetBalance = 0;
             } else {
-                targetBalance -= targetTigzAdjusted;
+                targetBalance -= gaurdedTigHP;
             }
         }
         uint256 amount = (targetBalance * huntPct) / 100;
@@ -180,7 +180,7 @@ contract TigerHunt is Context, Ownable, Pausable {
         );
         tigerHP.burnFrom(
             _msgSender(),
-            (tigerHP.balanceOf(_msgSender()) * 2 * huntPct) / 100
+            (tigerHP.balanceOf(_msgSender()) * huntPct) / 100
         );
         _setActionTimestamp(tigerAccount, TigerAction.GUARD, block.timestamp);
     }

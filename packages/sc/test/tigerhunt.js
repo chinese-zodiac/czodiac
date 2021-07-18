@@ -145,9 +145,29 @@ describe("Tiger Hunt", function() {
     });
 
     it("Should win hunt", async function() {
+        const initialBal = await tighp.balanceOf(owner.address);
         await tighunt.connect(owner).winHunt();
+        const finalBal = await tighp.balanceOf(owner.address);
         const isHuntWinning = await tighunt.isHuntWinning(owner.address);
-        expect(isHuntWinning).to.be.false;
+        expect(finalBal.sub(parseEther("28.5"))).to.equal(initialBal);
+    });
+
+    it("Should guard", async function() {
+        time.increase(time.duration.days(1));
+        await time.advanceBlock();
+        await tighunt.connect(player1).guard();
+        const isOnGuard = await tighunt.isOnGuard(player1.address);
+        expect(isOnGuard).to.be.true;
+    });
+
+    it("Hunt win should payout 0 if fully guarded", async function() {
+        await tighunt.connect(owner).tryHunt(player1.address);
+        const latestBlock = await time.latestBlock();
+        await time.advanceBlockTo(Number(latestBlock)+12);
+        const initialBal = await tighp.balanceOf(owner.address);
+        await tighunt.connect(owner).winHunt();
+        const finalBal = await tighp.balanceOf(owner.address);
+        expect(finalBal).to.equal(initialBal);
     });
 })
 
