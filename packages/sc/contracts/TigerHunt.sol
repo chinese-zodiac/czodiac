@@ -214,7 +214,6 @@ contract TigerHunt is Context, Ownable, Pausable {
     }
 
     function refreshHunt() external whenNotPaused {
-        //TODO: Implement refresh hunt by burning 100k tigz
         TigerAccount storage tigerAccount = tigerAccounts[_msgSender()];
         require(
             !_checkActionTimestamp(tigerAccount, TigerAction.HUNT),
