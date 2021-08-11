@@ -13,6 +13,7 @@ function useCZodiacToken(address) {
     const [czContract, setCzContract] = useState(
         null);
     const { state, send } = useContractFunction(czContract, 'swap')
+    const { state: approveState, send: approve } = useContractFunction(czContract, 'approve')
 
     useEffect(()=>{
         if(!!account && !!address)
@@ -21,7 +22,9 @@ function useCZodiacToken(address) {
 
     return {
         swap: send,
-        swapState: state
+        swapState: state,
+        approve: approve,
+        approveState: approveState
     }; 
 }
 

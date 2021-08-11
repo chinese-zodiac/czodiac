@@ -44,9 +44,6 @@ function useLockedSale() {
     },[account,chainId])
 
     useEffect(()=>{
-        console.log("Running effect")
-        console.log("Locked sale:",LOCKEDSALE_ADDRESSES[chainId])
-        console.log("Locked sale truthy:",!!LOCKEDSALE_ADDRESSES[chainId])
         const newCalls = []
         if(!!LOCKEDSALE_ADDRESSES[chainId]) {
             newCalls[0] = {
@@ -80,14 +77,12 @@ function useLockedSale() {
     const callResults = useContractCalls(calls) ?? [];
 
     useDeepCompareEffect(()=>{
-        console.log("Running deep compare")
         const newLockedSaleState = {...baseSaleState};
         newLockedSaleState.saleChainId = chainId;
         if(!callResults || callResults.length === 0 || !callResults[0] || !LOCKEDSALE_ADDRESSES[chainId]) {
             setLockedSaleState(newLockedSaleState);
             return;
         }
-        console.log("Passed check")
             
         newLockedSaleState.saleAddress = LOCKEDSALE_ADDRESSES[chainId];
 

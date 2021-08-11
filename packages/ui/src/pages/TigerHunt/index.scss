@@ -1,0 +1,39 @@
+.tighunt-page {
+  text-align: center;
+  width: 90vw;
+  max-width: 730px;
+  z-index: 1;
+  position: relative;
+  h2 {
+    margin: 0;
+    margin-top: 20px;
+  }
+  .swapButton {
+    display: inline-block;
+    margin: 10px;
+    position: relative;
+    top: 6px;
+  }
+  .stats {
+    text-align: right;
+    margin: 10px;
+    & > * {
+      padding: 0 5px;
+    }
+    & > *:nth-child(even) {
+      text-align: left;
+    }
+  }
+  .max{
+    border-top:solid 1px;
+    top:0px;
+    position: absolute;
+    font-size: 22px;
+    top: 11px;
+    right: -26px;
+    cursor:pointer;
+    &:hover{
+      color:yellow;
+    }
+  }
+}

@@ -223,24 +223,57 @@ contract TigerHunt is Context, Ownable, Pausable {
         tigerAccount.tigzStaked -= huntRefreshFee;
     }
 
-    function setHuntExempt(address[] calldata _fors) external onlyOwner() {
+    function setHuntExempt(address[] calldata _fors) external onlyOwner {
         for (uint256 i = 0; i < _fors.length; i++) {
             isHuntExempt[_fors[i]] = true;
         }
     }
 
-    function unsetHuntExempt(address[] calldata _fors) external onlyOwner() {
+    function unsetHuntExempt(address[] calldata _fors) external onlyOwner {
         for (uint256 i = 0; i < _fors.length; i++) {
             isHuntExempt[_fors[i]] = false;
         }
     }
 
-    function setPause(bool _to) external onlyOwner() {
+    function setPause(bool _to) external onlyOwner {
         if (_to) {
             _pause();
         } else {
             _unpause();
         }
+    }
+
+    function getTigerAccount(address account)
+        external
+        view
+        returns (
+            uint256 drinkTimestamp,
+            uint256 eatTimestamp,
+            uint256 poopTimestamp,
+            uint256 sleepTimestamp,
+            uint256 huntTimestamp,
+            uint256 guardTimestamp,
+            uint256 stakeTigzTimestamp,
+            //uint32 STAKEOXZ,
+            uint256 tigzStaked,
+            //uint256 oxzStaked,
+            uint256 huntBlock,
+            address huntTarget
+        )
+    {
+        TigerAccount storage tigerAccount = tigerAccounts[account];
+        return (
+            _getActionTimestamp(tigerAccount, TigerAction.DRINK),
+            _getActionTimestamp(tigerAccount, TigerAction.EAT),
+            _getActionTimestamp(tigerAccount, TigerAction.POOP),
+            _getActionTimestamp(tigerAccount, TigerAction.SLEEP),
+            _getActionTimestamp(tigerAccount, TigerAction.HUNT),
+            _getActionTimestamp(tigerAccount, TigerAction.GUARD),
+            _getActionTimestamp(tigerAccount, TigerAction.STAKETIGZ),
+            tigerAccount.tigzStaked,
+            tigerAccount.huntBlock,
+            tigerAccount.huntTarget
+        );
     }
 
     function getRollAt(uint256 blocknumber) public view returns (uint256) {

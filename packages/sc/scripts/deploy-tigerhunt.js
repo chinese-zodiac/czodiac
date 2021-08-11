@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const loadJsonFile = require("load-json-file");
-const { tigerZodiac } = loadJsonFile.sync("./deployConfig.json");
+const { tigerZodiac, tigerHpToken } = loadJsonFile.sync("./deployConfig.json");
 
 const {ethers} = hre;
 const {parseEther} = ethers.utils;
@@ -10,9 +10,10 @@ async function main() {
   const tigz = CZodiacToken.attach(tigerZodiac);
 
   const TigerHPToken = await ethers.getContractFactory("TigerHuntPoints");
-  const tighp = await TigerHPToken.deploy();
-  await tighp.deployed();
-  console.log("TigerHPToken deployed to:", tighp.address);
+  //const tighp = await TigerHPToken.deploy();
+  //await tighp.deployed();
+  //console.log("TigerHPToken deployed to:", tighp.address);
+  tighp = TigerHPToken.attach(tigerHpToken);
 
   const TigerHunt = await ethers.getContractFactory("TigerHunt");
   const tighunt = await TigerHunt.deploy(
@@ -28,7 +29,7 @@ async function main() {
   await tigz.excludeFromFee(tighunt.address);
 
   console.log("Grant tighp roles");
-  await tighp.grantRole(mintroleHash,tighunt.address);
+  await tighp.grantRole(ethers.utils.id("MINTER_ROLE"),tighunt.address);
   await tighp.setContractSafe(tighunt.address);
   console.log("Complete");
 }
