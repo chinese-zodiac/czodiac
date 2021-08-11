@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {constants, utils} from "ethers";
 import { useEthers, useTokenBalance, useTokenAllowance } from "@pdusedapp/core";
-import { CHAIN_LABELS, CZODIAC_ADDRESSES, TIGERHUNT_ADDRESSES} from "../../constants";
-import { Box, Heading, Icon, Text, Link, Button, SimpleGrid,
+import { CHAIN_LABELS, CZODIAC_ADDRESSES, TIGERHUNT_ADDRESSES, TIGERHP_ADDRESSES} from "../../constants";
+import { Box, Heading, Icon, Text, Link, Button, SimpleGrid, Image,
 NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper} from "@chakra-ui/react";
 import BackgroundNetwork from "../../components/BackgroundNetwork";
 import Header from "../../components/Header";
@@ -22,6 +22,7 @@ function TigerHunt() {
     const {account, chainId} = useEthers();
     const oxzBalance = useTokenBalance(CZODIAC_ADDRESSES.OxZodiac[chainId], account);
     const tigzBalance = useTokenBalance(CZODIAC_ADDRESSES.TigerZodiac[chainId], account);
+    const tighpBalance = useTokenBalance(TIGERHP_ADDRESSES[chainId], account);
     const {approve: oxzApprove, approveState: oxzApproveState} = useCZodiacToken(CZODIAC_ADDRESSES.OxZodiac[chainId]);
     const {approve: tigzApprove, approveState: tigzApproveState} = useCZodiacToken(CZODIAC_ADDRESSES.TigerZodiac[chainId]);
     const oxzAllowance = useTokenAllowance(CZODIAC_ADDRESSES.OxZodiac[chainId], account, TIGERHUNT_ADDRESSES[chainId]);
@@ -65,6 +66,10 @@ function TigerHunt() {
     } = useTigerHunt();
     console.log(actionTimestamps[ACTION.STAKETIGZ])
     const stakeTigzTimer = useCountdown(actionTimestamps[ACTION.STAKETIGZ],"Available");
+    const eatTimer = useCountdown(actionTimestamps[ACTION.EAT],"Available");
+    const sleepTimer = useCountdown(actionTimestamps[ACTION.SLEEP],"Available");
+    const drinkTimer = useCountdown(actionTimestamps[ACTION.DRINK],"Available");
+    const poopTimer = useCountdown(actionTimestamps[ACTION.POOP],"Available");
 
     const parseNumberInput = (val) => parseEther(val.replace(/^\$/, "").toString()+"000000");
     const formatTigz = (val) => `${weiToFixed(val.div("1000000"),0)} M TIGZ`;
@@ -141,16 +146,51 @@ function TigerHunt() {
             <Box/>
             <Text>{timeDisplay(actionTimestamps[ACTION.STAKETIGZ],stakeTigzTimer)}</Text>
           </>)}
+          {(!!tigzStaked && tigzStaked.gt(0)) && (<>
+            <Text mt="20px" mb="20px" fontSize="large">Your Tiger HP Score</Text>
+            <Link mt="20px" mb="20px" fontSize="large"
+              href={"https://bscscan.com/token/"+TIGERHP_ADDRESSES[chainId]}
+              style={{fontWeight:"bold",textDecoration:"underline"}}
+              isExternal>{weiToShortString(tighpBalance,2)} TigHP</Link>
+            <Box>
+              <Button w="100%" mt="10px" onClick={()=>{
+                eatSend();
+              }}>Eat</Button>
+              <Text>{timeDisplay(actionTimestamps[ACTION.EAT],eatTimer)}</Text>
+            </Box>
+            <Image src="./tigerhuntimg/tiger_eat.png"/>
+            <Box>
+              <Button w="100%" mt="10px" onClick={()=>{
+                sleepSend();
+              }}>Sleep</Button>
+              <Text>{timeDisplay(actionTimestamps[ACTION.SLEEP],sleepTimer)}</Text>
+            </Box>
+            <Image src="./tigerhuntimg/tiger_sleeping.png"/>
+            <Box>
+              <Button w="100%" mt="10px" onClick={()=>{
+                drinkSend();
+              }}>Drink</Button>
+              <Text>{timeDisplay(actionTimestamps[ACTION.DRINK],drinkTimer)}</Text>
+            </Box>
+            <Image src="./tigerhuntimg/tiger_drinking.png"/>
+            <Box>
+              <Button w="100%" mt="10px" onClick={()=>{
+                poopSend();
+              }}>Poop</Button>
+              <Text>{timeDisplay(actionTimestamps[ACTION.POOP],poopTimer)}</Text>
+            </Box>
+            <Image src="./tigerhuntimg/tiger_poop.png"/>
+          </>)}
         </SimpleGrid>
         <SimpleGrid className="stats" columns={2} spacing={1}>
             <Text>Network:</Text>
             <Text>{CHAIN_LABELS[chainId]}</Text>
+            <Text>Your TigHP:</Text>
+            <Text>{weiToShortString(tighpBalance,2)} TigHP</Text>
             <Text>Your OxZ:</Text>
             <Text>{weiToShortString(oxzBalance,2)} OxZ</Text>
             <Text>Your TigZ:</Text>
             <Text>{weiToShortString(tigzBalance,2)} TigZ</Text>
-            <Text>Your TigZ Staked:</Text>
-            <Text>{weiToShortString(tigzStaked,2)} TigZ</Text>
         </SimpleGrid>
         
         </>)}
