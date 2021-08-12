@@ -13,6 +13,7 @@ function useTigerHunt() {
     const tigerHuntInterface = new Interface(tigerHuntAbi);
 
     const [tigerHuntContract, setTigerHuntContract] = useState(null);
+    const {state: doEatSleepDrinkPoopState, send: doEatSleepDrinkPoopSend } = useContractFunction(tigerHuntContract, 'doEatSleepDrinkPoop');
     const {state: stakeTigzState, send: stakeTigzSend } = useContractFunction(tigerHuntContract, 'stakeTigz');
     const {state: unstakeTigzState, send: unstakeTigzSend } = useContractFunction(tigerHuntContract, 'unstakeTigz');
     const {state: tryHuntState, send: tryHuntSend } = useContractFunction(tigerHuntContract, 'tryHunt');
@@ -125,6 +126,8 @@ function useTigerHunt() {
     return {
         ...(tigerHuntState ?? baseTigerHuntState),
         ACTION:ACTION,
+        doEatSleepDrinkPoopState,
+        doEatSleepDrinkPoopSend,
         stakeTigzState,
         stakeTigzSend,
         unstakeTigzState,

@@ -38,6 +38,8 @@ function TigerHunt() {
     }
     const {
         ACTION,
+        doEatSleepDrinkPoopState,
+        doEatSleepDrinkPoopSend,
         isPaused,
         actionTimestamps,
         tigzStaked,
@@ -180,6 +182,10 @@ function TigerHunt() {
               <Text>{timeDisplay(actionTimestamps[ACTION.POOP],poopTimer)}</Text>
             </Box>
             <Image src="./tigerhuntimg/tiger_poop.png"/>
+            <Button w="100%" mt="10px" onClick={()=>{
+                doEatSleepDrinkPoopSend();
+              }}>Eat Sleep Drink Poop</Button>
+            <Text>Does any above actions that are available. Check timers first. May save on gas.</Text>
           </>)}
         </SimpleGrid>
         <SimpleGrid className="stats" columns={2} spacing={1}>
