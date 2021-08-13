@@ -23,6 +23,7 @@ function useTigerHunt() {
     const {state: sleepState, send: sleepSend } = useContractFunction(tigerHuntContract, 'sleep');
     const {state: drinkState, send: drinkSend } = useContractFunction(tigerHuntContract, 'drink');
     const {state: poopState, send: poopSend } = useContractFunction(tigerHuntContract, 'poop');
+    const {state: guardState, send: guardSend } = useContractFunction(tigerHuntContract, 'guard');
 
     const ACTION = {
         DRINK:0,
@@ -116,12 +117,13 @@ function useTigerHunt() {
             newTigerHuntState.canAction = [null,null,null,null,null,null,null,null];
         }
         if(!!callResults[2]) {
-            newTigerHuntState.isHuntWinning = null;
+            console.log( callResults[2][0])
+            newTigerHuntState.isHuntWinning = callResults[2][0];
         }
         
         newTigerHuntState.isPaused = callResults[0];
         setTigerHuntState(newTigerHuntState);
-    },[callResults,account,chainId])
+    },[callResults,account,chainId]);
 
     return {
         ...(tigerHuntState ?? baseTigerHuntState),
@@ -146,6 +148,8 @@ function useTigerHunt() {
         drinkSend,
         poopState,
         poopSend,
+        guardSend,
+        guardState
     }; 
 }
 
