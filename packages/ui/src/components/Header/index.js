@@ -1,6 +1,6 @@
 import React from "react";
 import { useEthers } from "@pdusedapp/core";
-import { useColorMode, Button, Heading, Text, Box, Icon  } from "@chakra-ui/react";
+import { useColorMode, Button, Heading, Text, Box, Icon } from "@chakra-ui/react";
 import { FiSun, FiMoon, FiCornerDownRight, FiHelpCircle } from "react-icons/fi";
 import { CHAIN_LABELS, CHAINS } from "../../constants";
 import { NavLink } from "react-router-dom";
@@ -55,7 +55,7 @@ function Header() {
                     </Button>
                 </>)}
             </div>
-            <Text className="version">v0.3.4</Text>
+            <Text className="version">v0.4.0</Text>
         </header>
     )
 }

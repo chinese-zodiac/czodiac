@@ -33,7 +33,9 @@ SPDX-License-Identifier: GPL-3.0
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 Authored by Plastic Digits
-Credit to reflect.finance, split.network, bubbadefi.finance
+Credit to OpenZeppelin, reflect.finance, split.network, bubbadefi.finance, uniswapv2, olive.cash, pancakeswap,
+iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, and of course my friends at d0rg plus everyone else who
+released the truly open source code used in this project.
 
 */
 pragma solidity ^0.8.4;
@@ -314,7 +316,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         return rAmount.div(currentRate);
     }
 
-    function excludeFromReward(address account) public onlyOwner() {
+    function excludeFromReward(address account) public onlyOwner {
         require(!_isExcluded[account], "Account is already excluded");
         if (_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
@@ -323,7 +325,7 @@ contract CZodiacToken is Context, IERC20, Ownable {
         _excluded.push(account);
     }
 
-    function includeInReward(address account) external onlyOwner() {
+    function includeInReward(address account) external onlyOwner {
         require(_isExcluded[account], "Account is already excluded");
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_excluded[i] == account) {
@@ -401,8 +403,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         uint256 tAmount,
         bool takeFee
     ) private {
-        (TValues memory tValues, RValues memory rValues) =
-            _getValues(tAmount, takeFee);
+        (TValues memory tValues, RValues memory rValues) = _getValues(
+            tAmount,
+            takeFee
+        );
         _rOwned[sender] = _rOwned[sender].sub(rValues.rAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rValues.rTransferAmount);
         _takeLpAndDevRewards(tValues.tLpReward, tValues.tDevReward);
@@ -421,8 +425,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         uint256 tAmount,
         bool takeFee
     ) private {
-        (TValues memory tValues, RValues memory rValues) =
-            _getValues(tAmount, takeFee);
+        (TValues memory tValues, RValues memory rValues) = _getValues(
+            tAmount,
+            takeFee
+        );
         _rOwned[sender] = _rOwned[sender].sub(rValues.rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tValues.tTransferAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rValues.rTransferAmount);
@@ -442,8 +448,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         uint256 tAmount,
         bool takeFee
     ) private {
-        (TValues memory tValues, RValues memory rValues) =
-            _getValues(tAmount, takeFee);
+        (TValues memory tValues, RValues memory rValues) = _getValues(
+            tAmount,
+            takeFee
+        );
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rValues.rAmount);
         _rOwned[recipient] = _rOwned[recipient].add(rValues.rTransferAmount);
@@ -463,8 +471,10 @@ contract CZodiacToken is Context, IERC20, Ownable {
         uint256 tAmount,
         bool takeFee
     ) private {
-        (TValues memory tValues, RValues memory rValues) =
-            _getValues(tAmount, takeFee);
+        (TValues memory tValues, RValues memory rValues) = _getValues(
+            tAmount,
+            takeFee
+        );
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rValues.rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tValues.tTransferAmount);

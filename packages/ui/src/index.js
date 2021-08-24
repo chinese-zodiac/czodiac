@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Sale from "./pages/Sale";
 import Swap from "./pages/Swap";
 import TigerHunt from "./pages/TigerHunt";
+import CZFarm from "./pages/CZFarm";
 import reportWebVitals from "./reportWebVitals";
 import { DAppProvider } from "@pdusedapp/core";
 import {
@@ -42,6 +43,7 @@ ReactDOM.render(
           <Route path="/sale" component={Sale} />
           <Route path="/swap" component={Swap} />
           <Route path="/tigerhunt" component={TigerHunt} />
+          <Route path="/czfarm" component={CZFarm} />
         </DAppProvider>
       </HashRouter>
     </ChakraProvider>

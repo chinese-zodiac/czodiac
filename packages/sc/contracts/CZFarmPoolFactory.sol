@@ -5,15 +5,16 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./CZFarmPool.sol";
+import "./CZFarm.sol";
 
 contract CZFarmPoolFactory is Ownable {
     using SafeERC20 for IERC20;
 
     event NewCZFarmPool(address indexed pool);
 
-    IERC20 public czfarm;
+    CZFarm public czfarm;
 
-    constructor(IERC20 _czfarm) Ownable() {
+    constructor(CZFarm _czfarm) Ownable() {
         czfarm = _czfarm;
     }
 
@@ -23,7 +24,7 @@ contract CZFarmPoolFactory is Ownable {
         uint256 rewardPerSecond,
         uint256 startTimestamp,
         uint256 endTimestamp
-    ) public {
+    ) public onlyOwner {
         bytes memory bytecode = type(CZFarmPool).creationCode;
         bytes32 salt = keccak256(
             abi.encodePacked(token, reward, block.timestamp)
@@ -42,6 +43,8 @@ contract CZFarmPoolFactory is Ownable {
             endTimestamp,
             owner()
         );
+
+        czfarm.setContractSafe(pool);
 
         emit NewCZFarmPool(address(pool));
     }

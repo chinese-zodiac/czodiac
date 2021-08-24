@@ -27,8 +27,6 @@ function useBUSDPrice(address) {
     const bnbContract = new Contract(WETH_ADDRESSES[chainId], erc20Interface, library);
     const tokenContract = new Contract(address, erc20Interface, library);
     (async () =>{
-      console.log(busdPair)
-      console.log(wbnbPair)
       if(!!busdPair && "0x0000000000000000000000000000000000000000" != busdPair) {
         const busdBalance = await busdContract.balanceOf(busdPair);
         if(busdBalance.gt(parseEther("10000")) || !wbnbPair) {
