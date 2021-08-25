@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useEthers, useContractCalls, useContractFunction } from "@pdusedapp/core";
+import { useEthers, useContractCalls, useContractFunction, useBlockNumber } from "@pdusedapp/core";
 import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
@@ -125,7 +125,7 @@ function useCZFarmMaster() {
         }
         setpoolCalls(newPoolCalls);
         setCZFarmState(newCZFarmState);
-    },[callResults]);
+    },[callResults,account,stateDeposit,stateWithdraw,stateClaim]);
     useDeepCompareEffect(()=>{
         let newCZFarmState = {...czFarmState}        
         if(!poolCallResults || poolCallResults.length === 0 || !poolCallResults[0] || !CZFARMMASTER_ADDRESSES[chainId]) {
@@ -133,6 +133,9 @@ function useCZFarmMaster() {
         }  
         let newPools = [];
         let newLpCalls = [];
+        console.log(poolCallResults.length,newCZFarmState.poolLength,!!account)
+        console.log(poolCallResults)
+        console.log(poolCallResults.length == newCZFarmState.poolLength*3 && !!account && poolCallResults[newCZFarmState.poolLength] != undefined)
         for(let pid=0; pid<newCZFarmState.poolLength; pid++) {
           let pool = {
             lpToken: poolCallResults[pid].lpToken,
@@ -141,7 +144,7 @@ function useCZFarmMaster() {
             accCzfPerShare: poolCallResults[pid].accCzfPerShare
           }
           pool.sendApprove = () => sendApproveLpForCZFarmMaster(pool.lpToken);
-          if(poolCallResults.length > newCZFarmState.poolLength && !!account) {
+          if(poolCallResults.length == newCZFarmState.poolLength*3 && !!account && poolCallResults[newCZFarmState.poolLength] != undefined) {
             pool.userInfo = {
           //TODO: add user approval wad
               amount: poolCallResults[pid+newCZFarmState.poolLength].amount,
@@ -200,42 +203,49 @@ function useCZFarmMaster() {
             });
           }
         }
-
+        console.log(newCZFarmState)
         setLpCalls(newLpCalls);
         setCZFarmState(newCZFarmState);
-    },[poolCallResults]);
+    },[poolCallResults,stateDeposit,stateWithdraw,stateClaim]);
     useDeepCompareEffect(()=>{
         let newCZFarmState = {...czFarmState}
         if(!czfBusdPrice || !lpCallsResults || lpCallsResults.length === 0 || !lpCallsResults[0] || !CZFARMMASTER_ADDRESSES[chainId] || !newCZFarmState.pools || !(newCZFarmState.pools.length == newCZFarmState.poolLength)) {
             return;
         }
-
+        if(!newCZFarmState.pools[0].userInfo) return
         for(let pid=0; pid<newCZFarmState.poolLength; pid++) {
           let pool = newCZFarmState.pools[pid];
+          console.log("has user info",!!pool.userInfo)
           pool.pid = pid;
           pool.lpCzfBalance = lpCallsResults[pid][0];
           pool.lpTotalSupply = lpCallsResults[pid+newCZFarmState.poolLength][0];
           pool.lpBalance = lpCallsResults[pid+newCZFarmState.poolLength*2][0];
           pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
-          if(!!lpCallsResults[pid+newCZFarmState.poolLength*3]){
+          if(!!lpCallsResults[pid+newCZFarmState.poolLength*3] & !!pool.userInfo){
             pool.userInfo.lpBalance = lpCallsResults[pid+newCZFarmState.poolLength*3][0];
             pool.userInfo.lpBalanceValue = pool.userInfo.lpBalance.mul(pool.lpUsdPrice).div(weiFactor);
           }
-          if(!!lpCallsResults[pid+newCZFarmState.poolLength*4]){
+          if(!!lpCallsResults[pid+newCZFarmState.poolLength*4] & !!pool.userInfo){
             pool.userInfo.lpAllowance = lpCallsResults[pid+newCZFarmState.poolLength*4][0];            
           }
           pool.czfPerBlock = newCZFarmState.czfPerBlock.mul(pool.allocPoint).div(newCZFarmState.totalAllocPoint);
           pool.czfPerDay = pool.czfPerBlock.mul(BigNumber.from("28800"));
           pool.usdValue = pool.lpUsdPrice.mul(pool.lpBalance).div(weiFactor);
-          pool.usdPerBlock = newCZFarmState.czfPerBlock.mul(czfBusdPrice).div(weiFactor);
+          pool.usdPerDay = pool.czfPerDay.mul(czfBusdPrice).div(weiFactor);
           if(pool.usdValue.gt(BigNumber.from("0")) && pool.lpBalance.gt(BigNumber.from("0"))){
-            pool.aprBasisPoints = pool.usdPerBlock.mul(BigNumber.from("10519200")).mul(BigNumber.from("10000")).div(pool.usdValue);
-            pool.userInfo.czfPerBlock = pool.czfPerBlock.mul(pool.userInfo.amount).div(pool.lpBalance);
-            pool.userInfo.czfPerDay = pool.userInfo.czfPerBlock.mul(BigNumber.from("28800"));
-            pool.userInfo.usdPerDay = pool.userInfo.czfPerDay.mul(pool.lpUsdPrice).div(weiFactor);
+            console.log(pool.czfPerDay.div(weiFactor).toNumber())
+            console.log(pool.usdPerDay.div(weiFactor).toNumber())
+            pool.aprBasisPoints = pool.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(pool.usdValue);
+            if(!!pool.userInfo) {
+              pool.userInfo.czfPerBlock = pool.czfPerBlock.mul(pool.userInfo.amount).div(pool.lpBalance);
+              pool.userInfo.czfPerDay = pool.userInfo.czfPerBlock.mul(BigNumber.from("28800"));
+              pool.userInfo.usdPerDay = pool.userInfo.czfPerDay.mul(czfBusdPrice).div(weiFactor);
+            }            
           }
-          pool.userInfo.amountValue = pool.userInfo.amount.mul(pool.lpUsdPrice).div(weiFactor);
-          pool.userInfo.pendingValue = pool.userInfo.pendingRewards.mul(pool.lpUsdPrice).div(weiFactor);
+          if(!!pool.userInfo){
+            pool.userInfo.amountValue = pool.userInfo.amount.mul(pool.lpUsdPrice).div(weiFactor);
+            pool.userInfo.pendingValue = pool.userInfo.pendingRewards.mul(pool.lpUsdPrice).div(weiFactor);
+          }          
           newCZFarmState.pools[pid] = pool;
         }
         (async ()=>{
@@ -272,10 +282,9 @@ function useCZFarmMaster() {
               newCZFarmState.pools[pid].tokens[1].symbol = symbols[pid][1];
             }
           }
-          console.log(newCZFarmState);
           setCZFarmState(newCZFarmState);
         })()
-    },[lpCallsResults,czfBusdPrice])
+    },[lpCallsResults,czfBusdPrice,stateDeposit,stateWithdraw,stateClaim])
 
 
   return {
