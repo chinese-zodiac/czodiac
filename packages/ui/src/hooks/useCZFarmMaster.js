@@ -179,7 +179,6 @@ function useCZFarmMaster() {
           pool.usdPerDay = pool.czfPerDay.mul(czfBusdPrice).div(weiFactor);
           if(callResults.length > 3+farmLps.length*3) {
             //results from account
-            console.log(3+farmLps.length*8)
             const userInfoResults = callResults[3+farmLps.length*4+pid];
             const pendingCzfResults = callResults[3+farmLps.length*5+pid];
             pool.userInfo = {
@@ -204,7 +203,7 @@ function useCZFarmMaster() {
           }
           newCZFarmState.pools[pid] = pool;
         }
-        console.log(newCZFarmState.pools);
+        //TODO: Move these calls to the multicall to increase speed
         (async ()=>{
           if(!!account){
             const tokens = await Promise.all(
