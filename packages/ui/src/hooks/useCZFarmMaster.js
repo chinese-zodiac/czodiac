@@ -234,8 +234,8 @@ function useCZFarmMaster() {
               })
             )
             for(let pid=0; pid<newCZFarmState.poolLength; pid++) {
-              newCZFarmState.pools[pid].tokens[0].symbol = symbols[pid][0];
-              newCZFarmState.pools[pid].tokens[1].symbol = symbols[pid][1];
+              newCZFarmState.pools[pid].tokens[0].symbol = symbols[pid][0].toUpperCase();
+              newCZFarmState.pools[pid].tokens[1].symbol = symbols[pid][1].toUpperCase();
             }
           }
           setCZFarmState(newCZFarmState);
