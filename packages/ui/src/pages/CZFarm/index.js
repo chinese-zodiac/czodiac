@@ -1,6 +1,6 @@
 import Header from "../../components/Header";
 import BackgroundNetwork from "../../components/BackgroundNetwork";
-import { Box, Button, LightMode, Icon, Link, Text, Heading,
+import { Box, Button, LightMode, Icon, Link, Text, Heading, Image,
 Tabs, TabList, TabPanels, Tab, TabPanel, SimpleGrid, Divider } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import { FiExternalLink } from "react-icons/fi";
@@ -80,25 +80,42 @@ function CZFarm() {
                   <Heading as="h3" fontSize="2xl">
                     {p.tokens[0].symbol + "/" + p.tokens[1].symbol}
                   </Heading>   
+                  <Image src={`./farm/${p.tokens[0].symbol}-${p.tokens[1].symbol}.jpg`} ml="auto" mr="auto" mb="10px" mt="10px" />
                   <Text>
-                    <Link isExternal href={`https://pancakeswap.finance/add/${poolName}`} textDecoration="underline">Mint {poolName} on PCS <Icon as={FiExternalLink} /></Link>
+                    <Link isExternal href={`https://pancakeswap.finance/add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on PCS <Icon as={FiExternalLink} /> 🖘🖘</Link>
                   </Text>
                   <Divider />
                   {(!!p.tokens && p.tokens.length == 2 && !!p.userInfo) ? (<>
-                    {(p.userInfo.lpAllowance.lt(p.userInfo.lpBalance)) ? (<>
+                    {(p.userInfo.lpAllowance.lte(p.userInfo.lpBalance)) ? (<>
                     <Button m="10px" onClick={()=>{
                       pool.sendApprove();
                     }}>Approve</Button>
                     </>) : (<>
-                    <Button m="10px" onClick={()=>{
-                      sendDeposit(pool.pid,p.userInfo.lpBalance,true);
-                    }}>Stake All {poolName}</Button>
-                    <Button m="10px" onClick={()=>{
-                      sendWithdraw(pool.pid,p.userInfo.amount,true);
-                    }}>Withdraw All {poolName}</Button>
-                    <Button m="10px" onClick={()=>{
+                    {p.userInfo.lpBalance.gt(BigNumber.from("0")) ? (
+                      <Button m="10px" onClick={()=>{
+                        sendDeposit(pool.pid,p.userInfo.lpBalance,true);
+                      }}>Stake All {poolName}</Button>
+                    ) : (
+                      <Text display="inline-block">
+                        <Link isExternal href={`https://pancakeswap.finance/add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline" m="10px">
+                          Get {poolName} LP
+                        </Link>
+                      </Text>
+                    )}
+                    {p.userInfo.amount.gt(BigNumber.from("0")) ? (
+                      <Button m="10px" onClick={()=>{
+                        sendWithdraw(pool.pid,p.userInfo.amount,true);
+                      }}>Withdraw All {poolName}</Button>
+                    ) : (
+                      <Text m="10px" display="inline-block">Stake to withdraw</Text>
+                    )}
+                    {p.userInfo.pendingRewards.gt(BigNumber.from("0")) ? (
+                      <Button m="10px" onClick={()=>{
                       sendClaim(pool.pid);
                     }}>Claim CZF</Button>
+                    ) : (
+                      <Text m="10px" display="inline-block">No CZF earnings</Text>
+                    )}
                     </>)}
                   <Divider />
                   <Text fontWeight="bold">Your stats</Text>
