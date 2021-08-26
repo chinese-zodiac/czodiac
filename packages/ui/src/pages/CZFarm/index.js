@@ -15,6 +15,7 @@ import "./index.scss";
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$CZF");
 
+
 function CZFarm() {  
   const {chainId} = useEthers();
   const tigzBusdPrice = useBUSDPrice(CZODIAC_ADDRESSES.TigerZodiac[chainId]);
@@ -52,8 +53,6 @@ function CZFarm() {
               NOTICES
               <br/>
               - CZF rewards start on block <Link isExternal href="https://bscscan.com/block/countdown/10400000" textDecoration="underline">10400000 <Icon as={FiExternalLink} /></Link>
-              <br/>
-              - CZFarm is in Beta, refresh the page after transactions finish.
             </Text>
             <br/>
             <Divider />
