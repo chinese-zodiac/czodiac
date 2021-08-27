@@ -16,10 +16,42 @@ const farmLps = [
   "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
   "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e"
 ];
+const farmTokens = [
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xe9e7cea3dedca5984780bafc599bd69add087d56",
+      symbol:"BUSD"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+      symbol:"WBNB"
+    }
+  ],
+  [
+    {
+      address:"0x535874bfbecac5f235717faea7c26d01c67b38c5",
+      symbol:"TIGZ"
+    },
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    }
+  ]
+];
 
 function useCZFarmMaster() {
   const baseCZFarmState = {
-    pools: farmLps.map((lpToken)=>{return {lpToken:lpToken}}),
+    pools: farmLps.map((lpToken,index)=>{return {lpToken:lpToken,tokens:farmTokens[index]}}),
     czfPerBlock: null,
     totalAllocPoint: null,
     startBlock: null,
@@ -151,8 +183,6 @@ function useCZFarmMaster() {
     useDeepCompareEffect(()=>{
         let newCZFarmState = {...czFarmState}
         if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMMASTER_ADDRESSES[chainId] || !czfBusdPrice) {
-            let newCZFarmState = {...baseCZFarmState}
-            setCZFarmState(newCZFarmState);
             return;
         }        
         newCZFarmState.czfPerBlock = callResults[0][0];
@@ -163,10 +193,11 @@ function useCZFarmMaster() {
           let poolInfoResults = callResults[3+pid];
           let pool = {
             lpToken: farmLps[pid],
+            tokens: farmTokens[pid],
             allocPoint: poolInfoResults.allocPoint.toNumber(),
             lastRewardBlock: poolInfoResults.lastRewardBlock.toNumber(),
             accCzfPerShare: poolInfoResults.accCzfPerShare,
-            sendApprove: () => sendApproveLpForCZFarmMaster(pool),
+            sendApprove: () => sendApproveLpForCZFarmMaster(farmLps[pid]),
             pid: pid,
             lpCzfBalance: callResults[3+farmLps.length*1+pid][0],
             lpTotalSupply: callResults[3+farmLps.length*2+pid][0],
@@ -203,43 +234,8 @@ function useCZFarmMaster() {
           }
           newCZFarmState.pools[pid] = pool;
         }
-        //TODO: Move these calls to the multicall to increase speed
-        (async ()=>{
-          if(!!account){
-            const tokens = await Promise.all(
-              newCZFarmState.pools.map((pool)=>{
-                let pairContract = new Contract(pool.lpToken, IAmmPairInterface, library);
-                return Promise.all([
-                  pairContract.token0(),
-                  pairContract.token1()
-                ])
-              })
-            );
-
-            for(let pid=0; pid<newCZFarmState.poolLength; pid++) {
-              newCZFarmState.pools[pid].tokens = [{
-                address:tokens[pid][0]
-              },{
-                address:tokens[pid][1]
-              }]
-            }
-            const symbols = await Promise.all(
-              newCZFarmState.pools.map((pool)=>{
-                let token0Contract = new Contract(pool.tokens[0].address, IAmmPairInterface, library);
-                let token1Contract = new Contract(pool.tokens[1].address, IAmmPairInterface, library);
-                return Promise.all([
-                  token0Contract.symbol(),
-                  token1Contract.symbol()
-                ])
-              })
-            )
-            for(let pid=0; pid<newCZFarmState.poolLength; pid++) {
-              newCZFarmState.pools[pid].tokens[0].symbol = symbols[pid][0].toUpperCase();
-              newCZFarmState.pools[pid].tokens[1].symbol = symbols[pid][1].toUpperCase();
-            }
-          }
-          setCZFarmState(newCZFarmState);
-        })()
+        console.log(newCZFarmState)
+        setCZFarmState(newCZFarmState);
     },[callResults,czfBusdPrice,stateDeposit,stateWithdraw,stateClaim])
 
 
