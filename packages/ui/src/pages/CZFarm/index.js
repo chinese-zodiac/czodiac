@@ -154,7 +154,11 @@ function CZFarm() {
               <Text textAlign="right" >Start Block:</Text>
               <Text textAlign="left" >{startBlock}</Text>
               <Text textAlign="right" >Total Alloc Point:</Text>
-              <Text textAlign="left" >{totalAllocPoint}</Text>
+              <Text textAlign="left" >{totalAllocPoint}</Text>              
+              <Text textAlign="right" >Total Value Locked:</Text>
+              <Text textAlign="left" >{(!!pools && pools.length>0 && !!pools[0].usdValue) ? 
+                "$"+weiToShortString(pools.reduce((prev,curr,index,pools)=>prev.add(pools[index].usdValue),BigNumber.from("0")),2)
+                : "loading"}</Text>
             </SimpleGrid>
           </TabPanel>
           <TabPanel>
