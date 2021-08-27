@@ -79,7 +79,7 @@ function CZFarm() {
                   <Heading as="h3" fontSize="2xl">
                     {p.tokens[0].symbol + "/" + p.tokens[1].symbol}
                   </Heading>   
-                  <Image src={`./farm/${p.tokens[0].symbol}-${p.tokens[1].symbol}.jpg`} ml="auto" mr="auto" mb="10px" mt="10px" />
+                  <Image maxW="250px" src={`./farm/${p.tokens[0].symbol}-${p.tokens[1].symbol}.jpg`} ml="auto" mr="auto" mb="10px" mt="10px" />
                   <Text>
                     <Link isExternal href={`https://pancakeswap.finance/add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on PCS <Icon as={FiExternalLink} /> 🖘🖘</Link>
                   </Text>
