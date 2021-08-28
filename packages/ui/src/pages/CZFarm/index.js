@@ -49,12 +49,6 @@ function CZFarm() {
             <br/>
             <Text>How it works: Each Farm below (for instance, CZF/TIGZ) is for Pancakeswap Liquidity Tokens (called LP). So if you want to stake your CZF and your TIGZ, you should scroll down to that farm and click "Mint TIGZ/CZF on PCS". That will take you to the page on Pancakeswap where you can combine your TIGZ and CZF to mint the LP tokens. Then come back to this page and refresh, your balance should show up in your wallet. Then, approve and "Stake All TIGZ/CZF" to start earning!</Text>
             <br/>
-            <Text  border="solid 1px" borderRadius="5px" p="20px" fontSize="large" >
-              NOTICES
-              <br/>
-              - CZF rewards start on block <Link isExternal href="https://bscscan.com/block/countdown/10400000" textDecoration="underline">10400000 <Icon as={FiExternalLink} /></Link>
-            </Text>
-            <br/>
             <Divider />
             {(!!pools && pools.length > 0) ? (<Box>
               {pools.map((pool)=>{
