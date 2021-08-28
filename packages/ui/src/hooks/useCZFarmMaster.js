@@ -208,15 +208,16 @@ function useCZFarmMaster() {
           pool.czfPerDay = pool.czfPerBlock.mul(BigNumber.from("28800"));
           pool.usdValue = pool.lpUsdPrice.mul(pool.lpBalance).div(weiFactor);
           pool.usdPerDay = pool.czfPerDay.mul(czfBusdPrice).div(weiFactor);
-          if(callResults.length > 3+farmLps.length*3) {
+          if(callResults.length > 3+farmLps.length*3 && !!callResults[3+farmLps.length*4+1]) {
             //results from account
             const userInfoResults = callResults[3+farmLps.length*4+pid];
             const pendingCzfResults = callResults[3+farmLps.length*5+pid];
+            console.log(pendingCzfResults)
             pool.userInfo = {
               amount: userInfoResults.amount,
               rewardDebt: userInfoResults.rewardDebt,
               pendingRewards: userInfoResults.pendingRewards,
-              pendingCzf: pendingCzfResults.pendingCzf,
+              pendingCzf: pendingCzfResults[0],
               lpBalance: callResults[3+farmLps.length*6+pid][0],
               lpAllowance: callResults[3+farmLps.length*7+pid][0],
             }

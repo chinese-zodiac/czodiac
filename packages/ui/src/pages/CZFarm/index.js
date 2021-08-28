@@ -120,7 +120,7 @@ function CZFarm() {
                   <Text fontWeight="bold">Your stats</Text>
                   <SimpleGrid columns="4" spacing="1" maxW="100%" ml="auto" mr="auto">
                     <Text textAlign="right">Staked:</Text><Text textAlign="left">${weiToShortString(p.userInfo.amountValue,2)} {poolName}</Text>
-                    <Text textAlign="right">Claimable:</Text><Text textAlign="left">{weiToShortString(p.userInfo.pendingRewards,2)} CZF</Text>
+                    <Text textAlign="right">Claimable:</Text><Text textAlign="left">{weiToShortString(p.userInfo.pendingCzf,2)} CZF</Text>
                     <Text textAlign="right">Wallet:</Text><Text textAlign="left">${weiToShortString(p.userInfo.lpBalanceValue,2)} {poolName}</Text>
                     <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{weiToShortString(p.userInfo.czfPerDay,2)} CZF</Text>
                   </SimpleGrid>
