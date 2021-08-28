@@ -102,7 +102,7 @@ function CZFarm() {
                     ) : (
                       <Text m="10px" display="inline-block">Stake to withdraw</Text>
                     )}
-                    {p.userInfo.pendingRewards.gt(BigNumber.from("0")) ? (
+                    {p.userInfo.pendingCzf.gt(BigNumber.from("0")) ? (
                       <Button m="10px" onClick={()=>{
                       sendClaim(pool.pid);
                     }}>Claim CZF</Button>
