@@ -54,8 +54,8 @@ contract CZFarmPoolFactory is Ownable {
         uint256 durationSeconds,
         uint256 rewardAmount
     ) public {
-        // start after 7 days
-        uint256 startBlock = block.timestamp + 1 weeks;
+        // start after 3 days
+        uint256 startBlock = block.timestamp + 3 days;
         uint256 endBlock = startBlock + durationSeconds;
         uint256 rewardPerSecond = rewardAmount / durationSeconds;
         createPool(czfarm, reward, rewardPerSecond, startBlock, endBlock);
