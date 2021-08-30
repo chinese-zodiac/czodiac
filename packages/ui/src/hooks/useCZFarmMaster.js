@@ -235,7 +235,6 @@ function useCZFarmMaster() {
           }
           newCZFarmState.pools[pid] = pool;
         }
-        console.log(newCZFarmState)
         setCZFarmState(newCZFarmState);
     },[callResults,czfBusdPrice,stateDeposit,stateWithdraw,stateClaim])
 

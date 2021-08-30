@@ -103,3 +103,14 @@ export const CZFARMMASTER_ADDRESSES = {
 export const CZFARMPOOLFACTORY_ADDRESSES = {
   [CHAINS.BSC]: "0xBA8A16Fd1Bc596F7BAFD0640c65d4281dA9d43DB"
 }
+
+export const CZFARMPOOLS = {
+  [CHAINS.BSC] : [
+    {
+      name: "TIGZ",
+      address: "0x535874bfbecac5f235717faea7c26d01c67b38c5",
+      rewardAddress: "0x535874bfbecac5f235717faea7c26d01c67b38c5",
+      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/common-files/tigz200.png"
+    }
+  ]
+}
