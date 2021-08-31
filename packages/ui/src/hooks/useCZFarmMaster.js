@@ -212,7 +212,6 @@ function useCZFarmMaster() {
             //results from account
             const userInfoResults = callResults[3+farmLps.length*4+pid];
             const pendingCzfResults = callResults[3+farmLps.length*5+pid];
-            console.log(pendingCzfResults)
             pool.userInfo = {
               amount: userInfoResults.amount,
               rewardDebt: userInfoResults.rewardDebt,
