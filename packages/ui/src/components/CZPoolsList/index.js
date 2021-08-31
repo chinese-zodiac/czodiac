@@ -57,9 +57,10 @@ function CZPoolsList() {
           </Slider>
 
           <Button onClick={()=>{
+            console.log(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from(100)).toString())
             pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from("100")));
           }}>
-            Stake {weiToShortString(pool.user.czfBal.mul(BigNumber.from("20")).div(BigNumber.from("100")),2)} %
+            Stake {percent[index]}% ({!!percent[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from(100)),2) : "0"} CZF)
           </Button>
           <br />
           {/* <Button m="10px" onClick={()=>{
