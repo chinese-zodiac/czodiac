@@ -112,8 +112,10 @@ function useCZPools() {
   },[account,chainId])
 
   useDeepCompareEffect(()=>{
+    console.log("Running results")
+    console.log(!callResults, callResults.length === 0, !callResults[0], !CZFARMPOOLS[chainId], !czfBusdPrice)
     let newPools = []
-    if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice || rewardBusdPrices.length == 0) {
+    if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice) {
         return;
     }
     CZFARMPOOLS[chainId].forEach((p, index) => {
@@ -131,7 +133,11 @@ function useCZPools() {
 
       p.usdValue = p.czfBal.mul(czfBusdPrice).div(weiFactor);
       p.rewardPerDay = p.rewardPerSecond.mul(BigNumber.from("86400"));
-      p.usdPerDay = p.rewardPerDay.mul(rewardBusdPrices[index]).div(weiFactor);
+      if(!!rewardBusdPrices[index]){
+        p.usdPerDay = p.rewardPerDay.mul(rewardBusdPrices[index]).div(weiFactor);
+      } else {
+        p.usdPerDay = BigNumber.from("0");
+      }      
       if(p.usdValue.gt(BigNumber.from("0"))) {
         p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue);
       } else {
