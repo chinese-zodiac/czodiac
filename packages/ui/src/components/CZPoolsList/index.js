@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, LightMode, Icon, Link, Text, Heading, Image,
-Tabs, TabList, TabPanels, Tab, TabPanel, SimpleGrid, Divider } from "@chakra-ui/react";
+Tabs, TabList, TabPanels, Tab, TabPanel, SimpleGrid, Divider, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from "@chakra-ui/react";
 import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
 import { CZODIAC_ADDRESSES, BUSD_ADDRESSES, WETH_ADDRESSES, CZFARM_ADDRESSES } from "../../constants";
@@ -19,6 +19,9 @@ function CZPoolsList() {
     pools
   } = useCZPools();
 
+  // States
+  const [percent, setPercent] = useState([100, 100])
+
   return (<>
     <p>Earn partnered tokens by by pooling {czfarmLink()}.</p>
     <Box border="solid 1px" borderRadius="5px" p="10px" m="10px">
@@ -30,14 +33,36 @@ function CZPoolsList() {
     <Divider />
     <br/>
     {(!!pools && pools.length > 0) ? (<Box>
-      {pools.map((pool)=>{
+      {pools.map((pool, index)=>{
         return(<Box key={"pid-"+pool.name} border="solid 1px" borderRadius="5px" m="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
           <Image src={pool.logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
           <Heading display="inline-block" as="h3" fontSize="2xl" >{tokenLink(pool.rewardAddress,pool.name)}</Heading>
           <br/>
           <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
           <Divider />
-          <Button m="10px" onClick={()=>{
+
+          <Slider
+            aria-label="stake-percentage"
+            defaultValue={100}
+            onChange={(value) => {
+              const newPercents = [...percent]
+              newPercents[index] = value
+              setPercent(newPercents)
+            }}
+          >
+            <SliderTrack>
+              <SliderFilledTrack bg="orange.800" />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+
+          <Button onClick={()=>{
+            pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from("100")));
+          }}>
+            Stake {weiToShortString(pool.user.czfBal.mul(BigNumber.from("20")).div(BigNumber.from("100")),2)} %
+          </Button>
+          <br />
+          {/* <Button m="10px" onClick={()=>{
               pool.sendDeposit(pool.user.czfBal);
             }}>Stake All</Button>
           <Button m="10px" onClick={()=>{
@@ -45,13 +70,14 @@ function CZPoolsList() {
             }}>Stake 50%</Button>
           <Button m="10px" onClick={()=>{
               pool.sendDeposit(pool.user.czfBal.div(BigNumber.from("10")));
-            }}>Stake 10%</Button>
+            }}>Stake 10%</Button> */}
           <Button m="10px" onClick={()=>{
             pool.sendWithdraw(pool.user.czfStaked);
           }}>Withdraw All</Button>
           <Button m="10px" onClick={()=>{
             pool.sendWithdraw(BigNumber.from("0"));
           }}>Claim {pool.name}</Button>
+
           <Divider />
           <Text fontWeight="bold">Your stats</Text>
           <SimpleGrid columns="4" spacing="1" >
