@@ -20,6 +20,7 @@ function CZPoolsList() {
   } = useCZPools();
 
   // States
+  console.log(pools.map((p)=>10000))
   const [basisPoints, setBasisPoints] = useState(pools.map((p)=>10000))
 
   return (<>
@@ -60,7 +61,7 @@ function CZPoolsList() {
           <Button onClick={()=>{
             pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from("100")));
           }}>
-            Stake {(basisPoints[index]/100).toFixed(2)}% ({!!basisPoints[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from(10000)),2) : "0"} CZF)
+            Stake {!!basisPoints[index] ? (basisPoints[index]/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from(10000)),2) : "0"} CZF)
           </Button>
           <br />
           {/* <Button m="10px" onClick={()=>{
