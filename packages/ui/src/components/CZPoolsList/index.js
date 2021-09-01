@@ -20,7 +20,7 @@ function CZPoolsList() {
   } = useCZPools();
 
   // States
-  const [percent, setPercent] = useState([100, 100])
+  const [basisPoints, setBasisPoints] = useState(pools.map((p)=>10000))
 
   return (<>
     <p>Earn partnered tokens by by pooling {czfarmLink()}.</p>
@@ -43,11 +43,12 @@ function CZPoolsList() {
 
           <Slider
             aria-label="stake-percentage"
-            defaultValue={100}
+            max={10000}
+            defaultValue={10000}
             onChange={(value) => {
-              const newPercents = [...percent]
-              newPercents[index] = value
-              setPercent(newPercents)
+              const newBasisPoints = [...basisPoints]
+              newBasisPoints[index] = value
+              setBasisPoints(newBasisPoints)
             }}
           >
             <SliderTrack>
@@ -57,10 +58,9 @@ function CZPoolsList() {
           </Slider>
 
           <Button onClick={()=>{
-            console.log(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from(100)).toString())
-            pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from("100")));
+            pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from("100")));
           }}>
-            Stake {percent[index]}% ({!!percent[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(percent[index])).div(BigNumber.from(100)),2) : "0"} CZF)
+            Stake {(basisPoints[index]/100).toFixed(2)}% ({!!basisPoints[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from(10000)),2) : "0"} CZF)
           </Button>
           <br />
           {/* <Button m="10px" onClick={()=>{

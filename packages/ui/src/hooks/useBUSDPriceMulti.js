@@ -57,7 +57,7 @@ function useBUSDPriceMulti(addresses) {
       let newPrices = await Promise.all(pricePromises);
       setPrices(newPrices)
     })();
-  },[chainId,account,bnbBusdPair])
+  },[chainId,account,bnbBusdPair,busdPairs])
 
   return prices
 }
