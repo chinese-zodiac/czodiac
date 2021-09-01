@@ -58,7 +58,6 @@ function useCZPools() {
   const callResults = useContractCalls(calls) ?? [];
 
   useEffect(()=>{
-    console.log("setting calls")
     const newCalls = [];
     if(!CZFARMPOOLS[chainId]) {
       setCalls(newCalls)
@@ -112,8 +111,6 @@ function useCZPools() {
   },[account,chainId])
 
   useDeepCompareEffect(()=>{
-    console.log("Running results")
-    console.log(!callResults, callResults.length === 0, !callResults[0], !CZFARMPOOLS[chainId], !czfBusdPrice)
     let newPools = []
     if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice) {
         return;
@@ -161,7 +158,6 @@ function useCZPools() {
       }
       newPools.push(p)
     });
-    console.log(newPools);
     setPools(newPools);
   },[callResults,czfBusdPrice,rewardBusdPrices])
 

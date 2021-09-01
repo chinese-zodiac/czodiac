@@ -19,9 +19,8 @@ function CZPoolsList() {
     pools
   } = useCZPools();
 
-  // States
-  console.log(pools.map((p)=>10000))
   const [basisPoints, setBasisPoints] = useState(pools.map((p)=>10000))
+
 
   return (<>
     <p>Earn partnered tokens by by pooling {czfarmLink()}.</p>
@@ -59,9 +58,11 @@ function CZPoolsList() {
           </Slider>
 
           <Button onClick={()=>{
-            pool.sendDeposit(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from("100")));
+            let bp = BigNumber.from(10000);
+            if(!!basisPoints[index]) bp = basisPoints[index]
+            pool.sendDeposit(pool.user.czfBal.mul(bp).div(BigNumber.from(10000)));
           }}>
-            Stake {!!basisPoints[index] ? (basisPoints[index]/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from(10000)),2) : "0"} CZF)
+            Stake {!!basisPoints[index] ? (basisPoints[index]/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints[index] ? weiToShortString(pool.user.czfBal.mul(BigNumber.from(basisPoints[index])).div(BigNumber.from(10000)),2) : weiToShortString(pool.user.czfBal,2)} CZF)
           </Button>
           <br />
           {/* <Button m="10px" onClick={()=>{
