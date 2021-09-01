@@ -108,6 +108,12 @@ function CZPoolsList() {
           </SimpleGrid>
         </Box>)
       })}
+      <Text fontWeight="bold">Pools Totals</Text>
+      <SimpleGrid columns="2" spacing="1" >
+        <Text textAlign="right">Pool Count:</Text><Text textAlign="left">{pools.length}</Text>
+        <Text textAlign="right">USD/Day Rewards:</Text><Text textAlign="left">${weiToShortString(pools.reduce((prev,curr,index,pools)=>prev.add(pools[index].usdPerDay),BigNumber.from("0")),2)}</Text>
+        <Text textAlign="right">Total Value Locked:</Text><Text textAlign="left">${weiToShortString(pools.reduce((prev,curr,index,pools)=>prev.add(pools[index].usdValue),BigNumber.from("0")),2)}</Text>
+      </SimpleGrid>
     </Box>) : (<Box>
       Loading pools... Check your wallet is connected to BSC.
     </Box>)}

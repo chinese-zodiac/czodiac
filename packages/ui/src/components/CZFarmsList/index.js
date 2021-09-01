@@ -127,7 +127,7 @@ function CZFarmsList() {
     <Divider />
     <Text fontWeight="bold">Farm Stats</Text>
     <SimpleGrid columns="2" spacing="1" >
-      <Text textAlign="right" >Pool Count:</Text>
+      <Text textAlign="right" >Farm Count:</Text>
       <Text textAlign="left" >{poolLength}</Text>
       <Text textAlign="right" >{czfarmLink()} per block:</Text>
       <Text textAlign="left" >{weiToShortString(czfPerBlock,2)}</Text>
