@@ -48,22 +48,24 @@ contract PairOracle is Ownable, IPairOracle {
             uint256 price1Cumulative,
             uint32 blockTimestamp
         ) = currentCumulativePrices(address(pair));
-        uint32 timeElapsed = blockTimestamp - blockTimestampLast; // Overflow is desired
+        unchecked {
+            uint32 timeElapsed = blockTimestamp - blockTimestampLast; // Overflow is desired
 
-        // Ensure that at least one full period has passed since the last update
-        require(timeElapsed >= PERIOD, "PairOracle: PERIOD_NOT_ELAPSED");
+            // Ensure that at least one full period has passed since the last update
+            if (timeElapsed >= PERIOD) return;
 
-        // Overflow is desired, casting never truncates
-        // Cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
-        price0Average = FixedPoint.uq112x112(
-            uint224((price0Cumulative - price0CumulativeLast) / timeElapsed)
-        );
-        price1Average = FixedPoint.uq112x112(
-            uint224((price1Cumulative - price1CumulativeLast) / timeElapsed)
-        );
-        price0CumulativeLast = price0Cumulative;
-        price1CumulativeLast = price1Cumulative;
-        blockTimestampLast = blockTimestamp;
+            // Overflow is desired, casting never truncates
+            // Cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
+            price0Average = FixedPoint.uq112x112(
+                uint224((price0Cumulative - price0CumulativeLast) / timeElapsed)
+            );
+            price1Average = FixedPoint.uq112x112(
+                uint224((price1Cumulative - price1CumulativeLast) / timeElapsed)
+            );
+            price0CumulativeLast = price0Cumulative;
+            price1CumulativeLast = price1Cumulative;
+            blockTimestampLast = blockTimestamp;
+        }
     }
 
     // Note this will always return 0 before update has been called successfully for the first time.
@@ -121,17 +123,19 @@ contract PairOracle is Ownable, IPairOracle {
             uint32 _blockTimestampLast
         ) = IValueLiquidPair(pair).getReserves();
         if (_blockTimestampLast != blockTimestamp) {
-            // subtraction overflow is desired
-            uint32 timeElapsed = blockTimestamp - _blockTimestampLast;
-            // addition overflow is desired
-            // counterfactual
-            price0Cumulative +=
-                uint256(FixedPoint.fraction(reserve1, reserve0)._x) *
-                timeElapsed;
-            // counterfactual
-            price1Cumulative +=
-                uint256(FixedPoint.fraction(reserve0, reserve1)._x) *
-                timeElapsed;
+            unchecked {
+                // subtraction overflow is desired
+                uint32 timeElapsed = blockTimestamp - _blockTimestampLast;
+                // addition overflow is desired
+                // counterfactual
+                price0Cumulative +=
+                    uint256(FixedPoint.fraction(reserve1, reserve0)._x) *
+                    timeElapsed;
+                // counterfactual
+                price1Cumulative +=
+                    uint256(FixedPoint.fraction(reserve0, reserve1)._x) *
+                    timeElapsed;
+            }
         }
     }
 }

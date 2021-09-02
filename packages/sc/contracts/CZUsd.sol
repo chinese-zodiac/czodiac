@@ -1,5 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
+
+/*
+CZUSD consists of three core smart contracts: 
+CZUsd for the BEP20 stablecoin; 
+CZUsdBorrow for depositing collateral, minting new CZUSD against that collateral, 
+and repaying CZUSD to release collateral; 
+and CZUsdStablization which mints/burns CZUSD and CZF from the CZUSD/CZF pool 
+in an economically neutral way to maintain the CZUSD peg within set bounds.
+Additionally CZUSD integrates with several peripheral contracts; 
+CZF, the equity token for the algorithmic stabilization; 
+IERC20 collalteral tokens, 
+and Pancakeswap TWAP oracles for determining both CZUSD and collateral prices.
+*/
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";

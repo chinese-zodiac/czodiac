@@ -22,7 +22,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
     //CZF contract.
     CZFarm public czf;
     //CZFarm Oracle
-    IPairOracle czfBusd;
+    IPairOracle public czfBusd;
     //Token wad deposited by account
     mapping(address => uint256) public deposited;
     //CZUSD wad borrowed by account
@@ -51,6 +51,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
     //Transfers _wad collateral from sender for _for's deposits.
     //Increases deposited[_for] by _wad.
     function deposit(address _for, uint256 _wad) external whenNotPaused {
+        czfBusd.update();
         czf.transferFrom(msg.sender, address(this), _wad);
         deposited[_for] += _wad;
     }
@@ -59,6 +60,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
     //Increases borrowed[msg.sender] by _wad.
     //Only allows borrow up to maxBorrow
     function borrow(address _to, uint256 _wad) external whenNotPaused {
+        czfBusd.update();
         czusd.mint(_to, _wad);
         borrowed[msg.sender] += _wad;
         _requireValidBorrowBalance();
@@ -67,6 +69,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
     //Burns _wad CZUSD from sender.
     //Reduces borrow[_for] by _wad.
     function repay(address _for, uint256 _wad) external whenNotPaused {
+        czfBusd.update();
         czusd.burnFrom(msg.sender, _wad);
         borrowed[_for] -= _wad;
     }
@@ -74,6 +77,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
     //Returns _wad CZF to _to from sender's deposits.
     //Reverts if final borrow is above maxBorrow.
     function withdraw(address _for, uint256 _wad) external whenNotPaused {
+        czfBusd.update();
         czf.transfer(_for, _wad);
         deposited[_for] -= _wad;
         _requireValidBorrowBalance();
