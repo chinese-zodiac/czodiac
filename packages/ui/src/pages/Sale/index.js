@@ -11,6 +11,7 @@ import { SimpleGrid } from "@chakra-ui/react";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 import {utils } from "ethers";
+import Footer from "../../components/Footer";
 const { parseEther } = utils;
 
 function Sale() {
@@ -186,6 +187,7 @@ function Sale() {
         }
         <hr />
       </>)}
+      <Footer />
     </Box>
   </>);
 }

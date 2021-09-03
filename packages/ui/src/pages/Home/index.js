@@ -1,4 +1,5 @@
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import BackgroundLines from "../../components/BackgroundLines";
 import { Box, Button, LightMode, Icon, Link, Text, SimpleGrid } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
@@ -24,9 +25,9 @@ function Home() {
   const tigzhpBusdPrice = useBUSDPrice(TIGERHP_ADDRESSES[chainId]);
   return (<>
     <BackgroundLines />
-      <Header />
+    <Header />
     <LightMode>
-      <Box as="main" className="both-center home-page">
+      <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
           <NavLink to="czfarm">
             <Button colorScheme="red" >Earn On CZFarm</Button>
           </NavLink>
@@ -48,6 +49,7 @@ function Home() {
             <Text w="100%" textAlign="right" pr="5px">{czfarmLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czfarmBusdPrice,12)}</Text>
           </SimpleGrid>
           <br/><br/>
+          <Footer />
       </Box>
     </LightMode>
 </>);

@@ -11,6 +11,7 @@ import useCZodiacToken from "../../hooks/useCZodiacToken";
 import useTigerHunt from "../../hooks/useTigerHunt";
 import { FiExternalLink, FiArrowUp} from "react-icons/fi";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
+import Footer from "../../components/Footer";
 import "./index.scss";
 
 const { parseEther } = utils;
@@ -272,6 +273,7 @@ function TigerHunt() {
         </SimpleGrid>
         
         </>)}
+        <Footer/>
         </Box>
     </>);
 }

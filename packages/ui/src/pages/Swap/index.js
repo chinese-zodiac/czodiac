@@ -8,6 +8,7 @@ import useCountdown from "../../hooks/useCountdown";
 import useCZodiacToken from "../../hooks/useCZodiacToken";
 import { FiExternalLink} from "react-icons/fi";
 import {weiToShortString} from "../../utils/bnDisplay";
+import Footer from "../../components/Footer";
 import "./index.scss";
 
 function timeDisplay(timestamp,timer) {
@@ -78,6 +79,7 @@ function Swap() {
             <Text>Closing Date:</Text>
             <Text>{timeDisplay(1625237400,endTimer)}</Text>
         </SimpleGrid>
+        <Footer />
         </Box>
     </>);
 }

@@ -1,4 +1,5 @@
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import BackgroundNetwork from "../../components/BackgroundNetwork";
 import { Box, Link,
 Tabs, TabList, TabPanels, Tab, TabPanel,  } from "@chakra-ui/react";
@@ -37,6 +38,7 @@ function CZFarm() {
           </TabPanel>
         </TabPanels>
       </Tabs>
+      <Footer />
     </Box>
 </>);
 }
