@@ -14,7 +14,9 @@ const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
 const farmLps = [
   "0xAAC96d00C566571bafdfa3B8440Bdc3cDB223Ad0",
   "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
-  "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e"
+  "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
+  false,
+  "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce"
 ];
 const farmTokens = [
   [
@@ -46,12 +48,26 @@ const farmTokens = [
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       symbol:"CZF"
     }
+  ],
+  [
+    false,
+    false
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0",
+      symbol:"TIGZHP"
+    }
   ]
 ];
 
 function useCZFarmMaster() {
   const baseCZFarmState = {
-    pools: farmLps.map((lpToken,index)=>{return {lpToken:lpToken,tokens:farmTokens[index]}}),
+    pools: farmLps.map((lpToken,index)=>{return {lpToken:lpToken,tokens:farmTokens[index]}}).filter(p=>!!p.lpToken),
     czfPerBlock: null,
     totalAllocPoint: null,
     startBlock: null,
@@ -108,6 +124,7 @@ function useCZFarmMaster() {
               method:'startBlock'
           });
           for(let pid=0; pid<farmLps.length; pid++) {
+            if(!farmLps[pid]) continue;
             newCalls.push({
                   abi:czfarmMasterInterface,
                   address:CZFARMMASTER_ADDRESSES[chainId],
@@ -116,6 +133,7 @@ function useCZFarmMaster() {
             });
           }
           for(let pid=0; pid<farmLps.length; pid++) {
+            if(!farmLps[pid]) continue;
             //lp calls for lp czf balance
             newCalls.push({
                   abi:ierc20Interface,
@@ -125,6 +143,7 @@ function useCZFarmMaster() {
             });
           }
           for(let pid=0; pid<farmLps.length; pid++) {
+            if(!farmLps[pid]) continue;
             //lp calls for lp total supply
             newCalls.push({
                   abi:ierc20Interface,
@@ -133,6 +152,7 @@ function useCZFarmMaster() {
             });
           }
           for(let pid=0; pid<farmLps.length; pid++) {
+            if(!farmLps[pid]) continue;
             //lp calls for lp balance of czfarm master
             newCalls.push({
                   abi:ierc20Interface,
@@ -143,6 +163,7 @@ function useCZFarmMaster() {
           }
           if(!!account){
             for(let pid=0; pid<farmLps.length; pid++) {
+              if(!farmLps[pid]) continue;
               newCalls.push({
                     abi:czfarmMasterInterface,
                     address:CZFARMMASTER_ADDRESSES[chainId],
@@ -151,6 +172,7 @@ function useCZFarmMaster() {
               });
             }
             for(let pid=0; pid<farmLps.length; pid++) {
+              if(!farmLps[pid]) continue;
               newCalls.push({
                     abi:czfarmMasterInterface,
                     address:CZFARMMASTER_ADDRESSES[chainId],
@@ -159,6 +181,7 @@ function useCZFarmMaster() {
               });
             }
             for(let pid=0; pid<farmLps.length; pid++) {
+              if(!farmLps[pid]) continue;
               //lp calls for lp balance of user
               newCalls.push({
                     abi:ierc20Interface,
@@ -168,6 +191,7 @@ function useCZFarmMaster() {
               });
             }
             for(let pid=0; pid<farmLps.length; pid++) {
+              if(!farmLps[pid]) continue;
               newCalls.push({
                     abi:ierc20Interface,
                     address:farmLps[pid],
@@ -189,36 +213,43 @@ function useCZFarmMaster() {
         newCZFarmState.totalAllocPoint = callResults[1][0].toNumber();
         newCZFarmState.startBlock = callResults[2][0].toNumber();
 
-        for(let pid=0; pid<farmLps.length; pid++) {
+        let validFarmLength = farmLps.reduce((prev,curr)=>!curr ? prev - 1 : prev,farmLps.length);
+        let offset = 0;
+        for(let i=0; i<farmLps.length; i++) {
+          if(!farmLps[i]) {
+            offset -= 1;
+            continue;
+          }
+          let pid = i + offset;
           let poolInfoResults = callResults[3+pid];
           let pool = {
-            lpToken: farmLps[pid],
-            tokens: farmTokens[pid],
+            lpToken: farmLps[i],
+            tokens: farmTokens[i],
             allocPoint: poolInfoResults.allocPoint.toNumber(),
             lastRewardBlock: poolInfoResults.lastRewardBlock.toNumber(),
             accCzfPerShare: poolInfoResults.accCzfPerShare,
-            sendApprove: () => sendApproveLpForCZFarmMaster(farmLps[pid]),
-            pid: pid,
-            lpCzfBalance: callResults[3+farmLps.length*1+pid][0],
-            lpTotalSupply: callResults[3+farmLps.length*2+pid][0],
-            lpBalance: callResults[3+farmLps.length*3+pid][0]
+            sendApprove: () => sendApproveLpForCZFarmMaster(farmLps[i]),
+            pid: i,
+            lpCzfBalance: callResults[3+validFarmLength*1+pid][0],
+            lpTotalSupply: callResults[3+validFarmLength*2+pid][0],
+            lpBalance: callResults[3+validFarmLength*3+pid][0]
           }
           pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
           pool.czfPerBlock = newCZFarmState.czfPerBlock.mul(pool.allocPoint).div(newCZFarmState.totalAllocPoint);
           pool.czfPerDay = pool.czfPerBlock.mul(BigNumber.from("28800"));
           pool.usdValue = pool.lpUsdPrice.mul(pool.lpBalance).div(weiFactor);
           pool.usdPerDay = pool.czfPerDay.mul(czfBusdPrice).div(weiFactor);
-          if(callResults.length > 3+farmLps.length*3 && !!callResults[3+farmLps.length*4+1]) {
+          if(callResults.length > 3+validFarmLength*3 && !!callResults[3+validFarmLength*4+1]) {
             //results from account
-            const userInfoResults = callResults[3+farmLps.length*4+pid];
-            const pendingCzfResults = callResults[3+farmLps.length*5+pid];
+            const userInfoResults = callResults[3+validFarmLength*4+pid];
+            const pendingCzfResults = callResults[3+validFarmLength*5+pid];
             pool.userInfo = {
               amount: userInfoResults.amount,
               rewardDebt: userInfoResults.rewardDebt,
               pendingRewards: userInfoResults.pendingRewards,
               pendingCzf: pendingCzfResults[0],
-              lpBalance: callResults[3+farmLps.length*6+pid][0],
-              lpAllowance: callResults[3+farmLps.length*7+pid][0],
+              lpBalance: callResults[3+validFarmLength*6+pid][0],
+              lpAllowance: callResults[3+validFarmLength*7+pid][0],
             }
             pool.userInfo.lpBalanceValue = pool.userInfo.lpBalance.mul(pool.lpUsdPrice).div(weiFactor);
             pool.userInfo.amountValue = pool.userInfo.amount.mul(pool.lpUsdPrice).div(weiFactor);
