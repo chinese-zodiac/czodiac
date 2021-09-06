@@ -40,17 +40,16 @@ function useBUSDPriceMulti(addresses) {
       if(!!busdPairs && busdPairs.length>0 && "0x0000000000000000000000000000000000000000" != busdPairs[0]) {
         const busdBalances = await Promise.all(busdPairs.map((pair)=>busdContract.balanceOf(pair)));
         pricePromises = busdBalances.map((busdBalance, index)=>{
-          //TODO: fix for contracts with no BUSD pair.
-           //if(busdBalance.gt(parseEther("1000")) || !wbnbPairs[index]) {
+          if(busdBalance.gt(parseEther("500"))) {
             return tokenContracts[index].balanceOf(busdPairs[index]).then((res)=>busdBalance.mul(parseEther("1")).div(res))
-           /*} else {
+           } else {
              if(!!wbnbPairs && wbnbPairs.length>0 && "0x0000000000000000000000000000000000000000" != wbnbPairs[index]){
               return Promise.all([
                 bnbContract.balanceOf(wbnbPairs[index]),
                 tokenContracts[index].balanceOf(wbnbPairs[index])
               ]).then((res)=>res[0].mul(parseEther("1")).div(res[1]).mul(busdBalanceOfBNB).div(bnbBalanceOfBNB));
              }            
-           }*/
+           }
            return Promise.resolve(BigNumber.from("0"));
         })
       }

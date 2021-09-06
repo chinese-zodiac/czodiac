@@ -111,7 +111,7 @@ function useCZPools() {
   },[account,chainId])
 
   useDeepCompareEffect(()=>{
-    let newPools = []
+    let newPools = [];
     if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice) {
         return;
     }

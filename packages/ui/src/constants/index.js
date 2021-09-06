@@ -117,6 +117,12 @@ export const CZFARMPOOLS = {
       address: "0x7981fed94a74e3b92a8974b5fe20c9359b695d12",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+    },
+    {
+      name: "FG",
+      address: "0xB7987823D1208A75780Be7d2C171A5c74fDbb74b",
+      rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
+      logo: "./pool/farmageddon.png"
     }
   ]
 }
