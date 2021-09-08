@@ -126,3 +126,10 @@ export const CZFARMPOOLS = {
     }
   ]
 }
+
+export const ORACLES = {
+  CZFBUSD : {
+    [CHAINS.BSC] : "0x242a01faA8771Bee63bbc9d2a9ebEc25c700dadf"
+  }
+  
+}

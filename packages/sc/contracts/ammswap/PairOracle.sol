@@ -52,7 +52,7 @@ contract PairOracle is Ownable, IPairOracle {
             uint32 timeElapsed = blockTimestamp - blockTimestampLast; // Overflow is desired
 
             // Ensure that at least one full period has passed since the last update
-            if (timeElapsed >= PERIOD) return;
+            if (timeElapsed < PERIOD) return;
 
             // Overflow is desired, casting never truncates
             // Cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
