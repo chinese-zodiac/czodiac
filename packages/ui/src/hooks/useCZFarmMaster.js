@@ -11,6 +11,18 @@ const {Interface} = utils;
 //TODO: use persisted state
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
+const DEX = {
+  PCS: {
+    name: "Pancakeswap",
+    shortName: "PCS",
+    baseUrl: "https://pancakeswap.finance/"
+  },
+  CAFE: {
+    name: "Cafeswap",
+    shortName: "CAFE",
+    baseUrl: "https://dex.cafeswap.finance/#/"
+  }
+}
 const farmLps = [
   "0xAAC96d00C566571bafdfa3B8440Bdc3cDB223Ad0",
   "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
@@ -18,6 +30,13 @@ const farmLps = [
   false,
   "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce"
 ];
+const farmDex = [
+  DEX.PCS,
+  DEX.PCS,
+  DEX.PCS,
+  false,
+  DEX.PCS,
+]
 const farmTokens = [
   [
     {
@@ -225,6 +244,7 @@ function useCZFarmMaster() {
           let pool = {
             lpToken: farmLps[i],
             tokens: farmTokens[i],
+            dex: farmDex[i],
             allocPoint: poolInfoResults.allocPoint.toNumber(),
             lastRewardBlock: poolInfoResults.lastRewardBlock.toNumber(),
             accCzfPerShare: poolInfoResults.accCzfPerShare,

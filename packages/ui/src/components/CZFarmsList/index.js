@@ -57,11 +57,11 @@ function CZFarmsList() {
         <Box key={"pid-"+pool.pid} border="solid 1px" borderRadius="5px" m="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
           {(!!p.tokens && p.tokens.length == 2) ? (<>
           <Heading as="h3" fontSize="2xl">
-            {p.tokens[0].symbol + "/" + p.tokens[1].symbol}
+            {p.tokens[0].symbol + "/" + p.tokens[1].symbol} on {p.dex.shortName}
           </Heading>   
           <Image maxW="250px" src={`./farm/${p.tokens[0].symbol}-${p.tokens[1].symbol}.jpg`} ml="auto" mr="auto" mb="10px" mt="10px" />
           <Text>
-            <Link isExternal href={`https://pancakeswap.finance/add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on PCS <Icon as={FiExternalLink} /> 🖘🖘</Link>
+            <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on {p.dex.shortName} <Icon as={FiExternalLink} /> 🖘🖘</Link>
           </Text>
           <Divider />
           {(!!p.tokens && p.tokens.length == 2 && !!p.userInfo) ? (<>
@@ -76,7 +76,7 @@ function CZFarmsList() {
               }}>Stake All {poolName}</Button>
             ) : (
               <Text display="inline-block">
-                <Link isExternal href={`https://pancakeswap.finance/add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline" m="10px">
+                <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline" m="10px">
                   Get {poolName} LP
                 </Link>
               </Text>
