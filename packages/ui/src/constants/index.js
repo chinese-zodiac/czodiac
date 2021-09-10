@@ -136,5 +136,12 @@ export const CZFARMPOOLS = {
 export const ORACLES = {
   CZFBUSD : {
     [CHAINS.BSC] : "0x27ce3f6478c35f333659997ec6903c1b67153678"
+  },  
+  CZFCZUSD : {
+    [CHAINS.BSC] : "0x7a9Bb0c5Aa35bf8ccf8B5BBeD07a79Ddb3708232"
   }  
+}
+
+export const CZUSD = {
+  [CHAINS.BSC]: "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70"
 }

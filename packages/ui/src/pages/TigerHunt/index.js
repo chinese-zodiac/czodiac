@@ -251,7 +251,7 @@ function TigerHunt() {
           <Box>
             <br/>
             <Heading>Guard</Heading>
-            <Text>Burn 10% of your {tigzHpLink()} but make it twice as hard for other users to hunt you for 24 hours.</Text>
+            <Text>Burn 10% of your {tigzHpLink()} but make it twice as hard for other users to hunt you for 12 hours.</Text>
             <Image ml="auto" mr="auto" src="./tigerhuntimg/tiger_guard.png"/>
             <Button w="100%" mt="10px" onClick={()=>{
                 guardSend();
