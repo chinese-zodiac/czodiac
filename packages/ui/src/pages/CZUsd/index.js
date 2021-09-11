@@ -134,19 +134,19 @@ return (<>
     <Box as="main" className="czusd-page horizontal-center">
         <Heading>CZUSD Borrowing</Heading>
         <Text>
-        Borrow CZUSD against {czfarmLink()}. First deposit {czfarmLink()}. Then borrow up to your limit. No interest, liquidations, or fees.
+        Borrow {czusdLink()} against {czfarmLink()}. First deposit {czfarmLink()}. Then borrow up to your limit. No interest, liquidations, or fees.
         </Text>
     <Box border="solid 1px" borderRadius="5px" p="10px" m="10px">
       <b>NOTICE</b><br/>
-      - CZUSD is in BETA. You may need to refresh the page to update UI.
+      - {czusdLink()} is in BETA. You may need to refresh the page to update UI.
       <br/>
-      - Algorithmic peg NOT ACTIVE. Check the CZUSD price on bottom of this page before buying/selling.
+      - Algorithmic peg NOT ACTIVE. Check the {czusdLink()} price on bottom of this page before buying/selling.
       <br/>
-      - Algorithmic peg may be activated at any time. It is recommended to expect the price of CZUSD to return to 1.0000 once the peg is active.
+      - Algorithmic peg may be activated at any time. It is recommended to expect the price of {czusdLink()} to return to 1.0000 once the peg is active.
       <br/>
-      - CZUSD minting is currently highly restricted. The cap will be raised once the price stabilizes.
+      - {czusdLink()} minting is currently highly restricted. The cap will be raised once the price stabilizes.
       <br/>
-      - CZUSD farms earning CZF are not yet active. This dapp is currently for testing small amounts only!
+      - {czusdLink()} farms earning CZF are not yet active. This dapp is currently for testing small amounts only!
     </Box>
         <br/>
         {(!!maxBorrow && !!czfBalance && !!czfBusdPriceTwap && !!czusdBorrowed) ? (<>
@@ -160,23 +160,23 @@ return (<>
         </>): <Text>Loading... check wallet is connected and on BSC</Text>}
         <br/><br/>
         <Text><b>Your Vault info</b></Text>
-        <Text>CZF Deposited: {weiToShortString(czfDeposited,2)}</Text>
-        <Text>CZUSD Borrowed: {weiToShortString(czusdBorrowed,2)}</Text>
-        <Text>CZUSD Max Borrow: {weiToShortString(maxBorrow,2)}</Text>
+        <Text>{czfarmLink()} Deposited: {weiToShortString(czfDeposited,2)}</Text>
+        <Text>{czusdLink()} Borrowed: {weiToShortString(czusdBorrowed,2)}</Text>
+        <Text>{czusdLink()} Max Borrow: {weiToShortString(maxBorrow,2)}</Text>
         <br/>
         <Text><b>Your Wallet info</b></Text>
-        <Text>CZF: {weiToShortString(czfBalance,2)}</Text>
-        <Text>CZUSD: {weiToShortString(czusdBalance,2)}</Text>
+        <Text>{czfarmLink()}: {weiToShortString(czfBalance,2)}</Text>
+        <Text>{czusdLink()}: {weiToShortString(czusdBalance,2)}</Text>
         <br/>
         <Text><b>Global CZUSD stats</b></Text>
-        <Text>CZUSD max supply: {weiToShortString(maxCZUsd,2)}</Text>
-        <Text>CZUSD current supply: {weiToShortString(czusdTotalSupply,2)}</Text>
+        <Text>{czusdLink()} max supply: {weiToShortString(maxCZUsd,2)}</Text>
+        <Text>{czusdLink()} current supply: {weiToShortString(czusdTotalSupply,2)}</Text>
         <Text>Max Borrow Ratio: {maxBorrowBasis && (maxBorrowBasis.toNumber()/100).toFixed(2) + "%"}</Text>
-        <Text>CZF TWAP: {weiToFixed(czfBusdPriceTwap,8)}</Text>
-        <Text>CZUSD Pair Price: {
+        <Text>{czfarmLink()} TWAP: {weiToFixed(czfBusdPriceTwap,8)}</Text>
+        <Text>{czusdLink()} Pair Price: {
             (!!czfBusdPricePair && !!czfCzusdPricePair && czfCzusdPricePair.gt(BigNumber.from("0")))
              ? weiToFixed(czfBusdPricePair.mul(parseEther("1")).div(czfCzusdPricePair),4) : 0}</Text>
-        <Text>CZUSD 1 hour Price: {
+        <Text>{czusdLink()} 1 hour Price: {
             (!!czfBusdPriceTwap && !!czfCzusdPriceTwap && czfCzusdPriceTwap.gt(BigNumber.from("0")))
              ? weiToFixed(czfBusdPriceTwap.mul(parseEther("1")).div(czfCzusdPriceTwap),4) : 0}</Text>
         <Button onClick={()=>{sendUpdateOracles()}} >Update Oracles (GLOBAL, experts only)</Button>

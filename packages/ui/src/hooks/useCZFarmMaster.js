@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction, useBlockNumber } from "@pdusedapp/core";
-import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES } from "../constants";
+import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES, BUSD_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
 import czFarmMaster from "../abi/CZFarmMaster.json";
 import IAmmPair from "../abi/IAmmPair.json";
 import ierc20 from "../abi/ierc20.json";
-const {Interface} = utils;
+const {Interface, parseEther} = utils;
 //TODO: use persisted state
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
@@ -28,7 +28,9 @@ const farmLps = [
   "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
   "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
   false,
-  "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce"
+  "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce",
+  "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47",
+  "0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671"
 ];
 const farmDex = [
   DEX.PCS,
@@ -36,7 +38,9 @@ const farmDex = [
   DEX.PCS,
   false,
   DEX.PCS,
-]
+  DEX.PCS,
+  DEX.PCS
+];
 const farmTokens = [
   [
     {
@@ -44,7 +48,7 @@ const farmTokens = [
       symbol:"CZF"
     },
     {
-      address:"0xe9e7cea3dedca5984780bafc599bd69add087d56",
+      address:"0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
       symbol:"BUSD"
     }
   ],
@@ -80,6 +84,26 @@ const farmTokens = [
     {
       address:"0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0",
       symbol:"TIGZHP"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      symbol:"CZUSD"
+    }
+  ],
+  [
+    {
+      address:"0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      symbol:"CZUSD"
+    },
+    {
+      address:"0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+      symbol:"BUSD"
     }
   ]
 ];
@@ -154,12 +178,21 @@ function useCZFarmMaster() {
           for(let pid=0; pid<farmLps.length; pid++) {
             if(!farmLps[pid]) continue;
             //lp calls for lp czf balance
-            newCalls.push({
-                  abi:ierc20Interface,
-                  address:CZFARM_ADDRESSES[chainId],
-                  method:'balanceOf',
-                  args: [farmLps[pid]]
-            });
+            if(farmTokens[pid][0].address == BUSD_ADDRESSES[chainId] || farmTokens[pid][1].address == BUSD_ADDRESSES[chainId]) {
+              newCalls.push({
+                    abi:ierc20Interface,
+                    address:BUSD_ADDRESSES[chainId],
+                    method:'balanceOf',
+                    args: [farmLps[pid]]
+              });
+            } else {
+              newCalls.push({
+                    abi:ierc20Interface,
+                    address:CZFARM_ADDRESSES[chainId],
+                    method:'balanceOf',
+                    args: [farmLps[pid]]
+              });
+            }
           }
           for(let pid=0; pid<farmLps.length; pid++) {
             if(!farmLps[pid]) continue;
@@ -254,7 +287,14 @@ function useCZFarmMaster() {
             lpTotalSupply: callResults[3+validFarmLength*2+pid][0],
             lpBalance: callResults[3+validFarmLength*3+pid][0]
           }
-          pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+
+
+          if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
+            console.log(pid,czfBusdPrice.toString(),parseEther("1").toString())
+            pool.lpUsdPrice = pool.lpCzfBalance.mul(parseEther("1")).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+          } else {
+            pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+          }
           pool.czfPerBlock = newCZFarmState.czfPerBlock.mul(pool.allocPoint).div(newCZFarmState.totalAllocPoint);
           pool.czfPerDay = pool.czfPerBlock.mul(BigNumber.from("28800"));
           pool.usdValue = pool.lpUsdPrice.mul(pool.lpBalance).div(weiFactor);
