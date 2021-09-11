@@ -76,22 +76,26 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
 
     //Returns _wad CZF to _to from sender's deposits.
     //Reverts if final borrow is above maxBorrow.
-    function withdraw(address _for, uint256 _wad) external whenNotPaused {
+    function withdraw(address _to, uint256 _wad) external whenNotPaused {
         czfBusd.update();
-        czf.transfer(_for, _wad);
-        deposited[_for] -= _wad;
+        czf.transfer(_to, _wad);
+        deposited[msg.sender] -= _wad;
         _requireValidBorrowBalance();
     }
 
-    //Returns max available borrow for the user.
+    //Returns max borrow for the user.
     //Formula: depositedUsdValue(_for) * maxBorrowBasis / 10000 - borrowed[_for]
     //If borrowing all would cause CZUSD supply to exceed max, then set to maxCZUsd - czusd.totalSupply().
     function maxBorrow(address _for) public view returns (uint256 wad_) {
         wad_ =
-            ((depositedUsdValue(_for) * maxBorrowBasis) / 10000) -
-            borrowed[_for];
+            ((depositedUsdValue(_for) * maxBorrowBasis) / 10000);
         if (wad_ + czusd.totalSupply() > maxCZUsd)
             wad_ = maxCZUsd - czusd.totalSupply();
+    }
+
+    //Returns maxBorrowAvailable for the user
+    function maxBorrowAvailable(address _for) public view returns (int wad_) {
+        wad_ = int(maxBorrow(_for)) - int(borrowed[_for]);
     }
 
     //Returns deposited CZF USD value of _for.
@@ -132,7 +136,7 @@ contract CZUsdBorrowCZF is Ownable, Pausable, AccessControlEnumerable {
 
     function _requireValidBorrowBalance() internal view {
         require(
-            borrowed[msg.sender] <= maxBorrow(msg.sender),
+            maxBorrow(msg.sender) - borrowed[msg.sender] >= 0,
             "CZUsdBorrowCZF: Exceed borow limite"
         );
     }

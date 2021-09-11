@@ -24,12 +24,6 @@ function CZPoolsList() {
 
   return (<>
     <p>Earn partnered tokens by pooling {czfarmLink()}.</p>
-    <Box border="solid 1px" borderRadius="5px" p="10px" m="10px">
-      <b>NOTICE</b><br/>
-      - CZ Pools are in BETA. You may need to refresh the page to update UI.
-      <br/>
-      - Flexible staking amounts (select amount to stake) coming soon.
-    </Box>
     <Divider />
     <br/>
     {(!!pools && pools.length > 0) ? (<Box>

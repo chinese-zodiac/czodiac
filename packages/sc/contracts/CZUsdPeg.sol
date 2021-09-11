@@ -9,7 +9,7 @@ import "./CZFarm.sol";
 import "./CZUsd.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract CZUsdBorrowCZF is Ownable {
+contract CZUsdPeg is Ownable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     //lpAddress for CZUSD/CZF pair

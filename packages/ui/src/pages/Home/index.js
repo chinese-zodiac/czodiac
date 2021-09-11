@@ -31,6 +31,9 @@ function Home() {
           <NavLink to="czfarm">
             <Button colorScheme="red" >Earn On CZFarm</Button>
           </NavLink>
+          <NavLink to="czusd">
+            <Button colorScheme="red" >Borrow CZUsd</Button>
+          </NavLink>
           <NavLink to="tigerhunt">
             <Button colorScheme="red" >Play Tiger Hunt</Button>
           </NavLink>
