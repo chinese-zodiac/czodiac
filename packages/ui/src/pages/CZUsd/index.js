@@ -140,13 +140,9 @@ return (<>
       <b>NOTICE</b><br/>
       - {czusdLink()} is in BETA. You may need to refresh the page to update UI.
       <br/>
-      - Algorithmic peg NOT ACTIVE. Check the {czusdLink()} price on bottom of this page before buying/selling.
-      <br/>
       - Algorithmic peg may be activated at any time. It is recommended to expect the price of {czusdLink()} to return to 1.0000 once the peg is active.
       <br/>
       - {czusdLink()} minting is currently highly restricted. The cap will be raised once the price stabilizes.
-      <br/>
-      - {czusdLink()} farms earning CZF are not yet active. This dapp is currently for testing small amounts only!
     </Box>
         <br/>
         {(!!maxBorrow && !!czfBalance && !!czfBusdPriceTwap && !!czusdBorrowed) ? (<>
