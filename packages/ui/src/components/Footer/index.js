@@ -10,6 +10,7 @@ const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$
 const tigzLink = ()=>tokenLink("0x535874bfbecac5f235717faea7c26d01c67b38c5","$TIGZ");
 //const oxzLink = ()=>tokenLink("0x58A39ceEcC7B5b1497c39fa8e12Dd781C4fAfaFc","$OXZ");
 const tigzhpLink = ()=>tokenLink("0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0","$TIGZHP");
+const czusdLink = ()=>tokenLink("0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70","$CZUSD");
 
 function Footer() {  
     return (<>
@@ -17,7 +18,7 @@ function Footer() {
       <Flex as="footer" justify="center" position="relative">
         <Box p="10px" >
           <Text>Token Contracts</Text>
-          {czfarmLink()} {tigzLink()} {tigzhpLink()}
+          {czfarmLink()} {tigzLink()} {tigzhpLink()} {czusdLink()}
         </Box>
         <Box p="10px" borderLeft="1px" borderRight="1px" borderColor="gray.500">
           <Text>Social Links</Text>
