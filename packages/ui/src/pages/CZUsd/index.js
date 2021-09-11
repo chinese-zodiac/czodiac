@@ -20,7 +20,7 @@ const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",text
 const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$CZF");
 const czusdLink = ()=>tokenLink("0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70","$CZUSD");
 
-const SliderStaker = ({basis,setBasis,balance,sendAction,account,name}) => {
+const SliderStaker = ({basis,setBasis,balance,sendAction,account,name,token}) => {
     return (<>
         <Slider
         aria-label="deposit-percentage"
@@ -41,7 +41,7 @@ const SliderStaker = ({basis,setBasis,balance,sendAction,account,name}) => {
         if(!!basis) bp = BigNumber.from(basis);
         sendAction(account,balance.mul(bp).div(BigNumber.from(10000)));
       }}>
-        {name} {!!basis ? (basis/100).toFixed(2) : (100).toFixed(2)}% ({!!balance ? weiToShortString(balance.mul(BigNumber.from(basis)).div(BigNumber.from(10000)),2) : weiToShortString(balance,2)} CZF)
+        {name} {!!basis ? (basis/100).toFixed(2) : (100).toFixed(2)}% ({!!balance ? weiToShortString(balance.mul(BigNumber.from(basis)).div(BigNumber.from(10000)),2) : weiToShortString(balance,2)} {token})
       </Button>  
     </>)
 }
