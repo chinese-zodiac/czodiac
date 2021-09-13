@@ -123,13 +123,13 @@ export const CZFARMPOOLS = {
       address: "0xB7987823D1208A75780Be7d2C171A5c74fDbb74b",
       rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
       logo: "./pool/farmageddon.png"
-    }/*,
+    },
     {
       name: "GHD",
       address: "0x009d28c1fcb9ba2256ed07c92049bd2a57f5ab00",
       rewardAddress: "0xfdfd27ae39cebefdbaac8615f18aa68ddd0f15f5",
       logo: "./pool/GHD.png"
-    }*/
+    }
   ]
 }
 
