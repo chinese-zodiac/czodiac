@@ -177,6 +177,7 @@ return (<>
         <Text>{czusdLink()} max supply: {weiToShortString(maxCZUsd,2)}</Text>
         <Text>{czusdLink()} current supply: {weiToShortString(czusdTotalSupply,2)}</Text>
         <Text>Max Borrow Ratio: {maxBorrowBasis && (maxBorrowBasis.toNumber()/100).toFixed(2) + "%"}</Text>
+        <Text>Global Borrow Ratio: {(!!czusdTotalSupply && !!czfTotalLocked && !!czfBusdPricePair) && (czusdTotalSupply.sub(parseEther("15000")).mul(BigNumber.from("10000")).div(czfTotalLocked.mul(czfBusdPricePair).div(parseEther("1"))).toNumber() / 100)}%</Text>
         <Text>{czfarmLink()} TWAP: {weiToFixed(czfBusdPriceTwap,8)}</Text>
         <Text>{czusdLink()} Pair Price: {
             (!!czfBusdPricePair && !!czfCzusdPricePair && czfCzusdPricePair.gt(BigNumber.from("0")))
