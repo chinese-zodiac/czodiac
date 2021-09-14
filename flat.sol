@@ -36,8 +36,8 @@ SPDX-License-Identifier: GPL-3.0
 
 Authored by Plastic Digits
 Credit to OpenZeppelin, reflect.finance, split.network, bubbadefi.finance, uniswapv2, olive.cash, pancakeswap,
-iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, and of course my friends at d0rg plus everyone else who
-released the truly open source code used in this project.
+iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, Compound, and of course my friends at d0rg plus everyone
+else who released the truly open source code used in this project.
 
 */
 
@@ -4035,12 +4035,11 @@ contract PriceConsumer {
         (
             ,
             //roundID
-            int256 price, //startedAt //timeStamp
+            int256 price, //startedAt //timeStamp //answeredInRound
             ,
             ,
 
-        ) = //answeredInRound
-            priceFeed.latestRoundData();
+        ) = priceFeed.latestRoundData();
         require(price > 0, "PriceConsumer: Negative Price.");
         return uint256(price);
     }

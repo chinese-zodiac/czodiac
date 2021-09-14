@@ -34,8 +34,8 @@ SPDX-License-Identifier: GPL-3.0
 
 Authored by Plastic Digits
 Credit to OpenZeppelin, reflect.finance, split.network, bubbadefi.finance, uniswapv2, olive.cash, pancakeswap,
-iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, frax, and of course my friends at d0rg plus everyone else who
-released the truly open source code used in this project.
+iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, Compound, and of course my friends at d0rg plus everyone
+else who released the truly open source code used in this project.
 
 */
 pragma solidity ^0.8.4;

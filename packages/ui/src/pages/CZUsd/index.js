@@ -116,6 +116,12 @@ function CZUsd() {
         method:'consultTwap',
         args:[CZFARM_ADDRESSES[CHAINS.BSC],parseEther("1")]
     }) ?? [];
+    const [czfTotalLocked] = useContractCall({
+        abi:erc20Interface,
+        address:CZFARM_ADDRESSES[CHAINS.BSC],
+        method:'balanceOf',
+        args:[CZUSDBORROWCZF[CHAINS.BSC]]
+    }) ?? [];
 
     const { send: sendUpdateOracles } = useContractFunction(updateOraclesContract, 'updateAll');
     const { send: sendDeposit } = useContractFunction(czusdBorrowCzfContract, 'deposit');
@@ -157,6 +163,7 @@ return (<>
         <br/><br/>
         <Text><b>Your Vault info</b></Text>
         <Text>{czfarmLink()} Deposited: {weiToShortString(czfDeposited,2)}</Text>
+        <Text>{czfarmLink()} Value: ${(!!czfDeposited && !!czfBusdPricePair) ? weiToShortString(czfDeposited.mul(czfBusdPricePair).div(parseEther("1")),2) : "0.00"}</Text>
         <Text>{czusdLink()} Borrowed: {weiToShortString(czusdBorrowed,2)}</Text>
         <Text>{czusdLink()} Max Borrow: {weiToShortString(maxBorrow,2)}</Text>
         <br/>
@@ -165,6 +172,8 @@ return (<>
         <Text>{czusdLink()}: {weiToShortString(czusdBalance,2)}</Text>
         <br/>
         <Text><b>Global CZUSD stats</b></Text>
+        <Text>{czfarmLink()} Locked: {weiToShortString(czfTotalLocked,2)}</Text>
+        <Text>TVL: ${(!!czfTotalLocked && !!czfBusdPricePair) ? weiToShortString(czfTotalLocked.mul(czfBusdPricePair).div(parseEther("1")),2) : "0.00"}</Text>
         <Text>{czusdLink()} max supply: {weiToShortString(maxCZUsd,2)}</Text>
         <Text>{czusdLink()} current supply: {weiToShortString(czusdTotalSupply,2)}</Text>
         <Text>Max Borrow Ratio: {maxBorrowBasis && (maxBorrowBasis.toNumber()/100).toFixed(2) + "%"}</Text>
