@@ -30,13 +30,15 @@ const farmLps = [
   false,
   "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce",
   "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47",
-  "0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671"
+  "0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671",
+  "0xE90AEbc91Df3b534F4e2D74b527FaA6f49d45a77"
 ];
 const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.PCS,
   false,
+  DEX.PCS,
   DEX.PCS,
   DEX.PCS,
   DEX.PCS
@@ -104,6 +106,16 @@ const farmTokens = [
     {
       address:"0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
       symbol:"BUSD"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xfDFD27aE39cebefDBaAc8615F18aa68DDD0F15f5",
+      symbol:"GHD"
     }
   ]
 ];
