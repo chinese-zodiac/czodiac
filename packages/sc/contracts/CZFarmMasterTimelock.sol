@@ -41,7 +41,7 @@ contract CZFarmMasterTimelock {
     uint256 public delay;
 
     mapping(bytes32 => bool) public queuedTransactions;
-    bytes32[] transactionHistory;
+    bytes32[] public transactionHistory;
 
     constructor() {
         admin = msg.sender;

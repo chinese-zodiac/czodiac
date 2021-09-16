@@ -5,7 +5,7 @@ import { Box, Button, LightMode, Icon, Link, Text, SimpleGrid } from "@chakra-ui
 import { NavLink } from "react-router-dom";
 import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
-import { CZODIAC_ADDRESSES, CZFARM_ADDRESSES, TIGERHP_ADDRESSES } from "../../constants";
+import { CZODIAC_ADDRESSES, CZFARM_ADDRESSES, TIGERHP_ADDRESSES, CZUSD } from "../../constants";
 import useBUSDPrice from "../../hooks/useBUSDPrice";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 
@@ -15,6 +15,7 @@ const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$
 const tigzLink = ()=>tokenLink("0x535874bfbecac5f235717faea7c26d01c67b38c5","$TIGZ");
 //const oxzLink = ()=>tokenLink("0x58A39ceEcC7B5b1497c39fa8e12Dd781C4fAfaFc","$OXZ");
 const tigzhpLink = ()=>tokenLink("0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0","$TIGZHP");
+const czusdLink = ()=>tokenLink("0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70","$CZUSD");
 
 
 function Home() {  
@@ -23,6 +24,7 @@ function Home() {
   const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
   //const oxzBusdPrice = useBUSDPrice(CZODIAC_ADDRESSES.OxZodiac[chainId]);
   const tigzhpBusdPrice = useBUSDPrice(TIGERHP_ADDRESSES[chainId]);
+  const czusdBusdPrice = useBUSDPrice(CZUSD[chainId]);
   return (<>
     <BackgroundLines />
     <Header />
@@ -50,6 +52,7 @@ function Home() {
             <Text w="100%" textAlign="right" pr="5px">{tigzLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(tigzBusdPrice,12)}</Text>
             <Text w="100%" textAlign="right" pr="5px">{tigzhpLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(tigzhpBusdPrice,12)}</Text>
             <Text w="100%" textAlign="right" pr="5px">{czfarmLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czfarmBusdPrice,12)}</Text>
+            <Text w="100%" textAlign="right" pr="5px">{czusdLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czusdBusdPrice,12)}</Text>
           </SimpleGrid>
           <br/><br/>
           <Footer />

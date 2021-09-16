@@ -31,8 +31,12 @@ const farmLps = [
   "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce",
   "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47",
   "0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671",
-  "0xE90AEbc91Df3b534F4e2D74b527FaA6f49d45a77"
+  "0xE90AEbc91Df3b534F4e2D74b527FaA6f49d45a77",
+  //"0x3e9c5352c486524a407d9900a5a3a9d05b6c14e6",
+  //"0x393843Ab5839408dAAe3Be55aa09A04a5787a179",
+  //"0xdca1ad23bf713fb8277e99f3bd5d1ee4e6b65332"
 ];
+
 const farmDex = [
   DEX.PCS,
   DEX.PCS,
@@ -41,7 +45,9 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.PCS,
-  DEX.PCS
+  DEX.PCS,
+  DEX.CAFE,
+  DEX.CAFE
 ];
 const farmTokens = [
   [
@@ -117,7 +123,37 @@ const farmTokens = [
       address:"0xfDFD27aE39cebefDBaAc8615F18aa68DDD0F15f5",
       symbol:"GHD"
     }
-  ]
+  ],
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+      symbol:"WBNB"
+    }
+  ],
+  [
+    {
+      address:"0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      symbol:"CZUSD"
+    },
+    {
+      address:"0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+      symbol:"BUSD"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x790be81c3ca0e53974be2688cdb954732c9862e1",
+      symbol:"BREW"
+    }
+  ]*/
 ];
 
 function useCZFarmMaster() {
@@ -351,5 +387,4 @@ function useCZFarmMaster() {
     sendClaim
   }
 }
-
 export default useCZFarmMaster;
