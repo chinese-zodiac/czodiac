@@ -108,7 +108,7 @@ function CZFarmsList() {
             <Text>Loading your account...</Text>
           </>)}
           <Divider />
-          <Text fontWeight="bold">Pool stats</Text>
+          <Text fontWeight="bold">Pool stats (pid: {p.pid})</Text>
           <SimpleGrid columns="4" spacing="1" maxW="400px" ml="auto" mr="auto">
             <Text textAlign="right">APR:</Text><Text textAlign="left">{p.aprBasisPoints.toNumber()/100}%</Text>
             <Text textAlign="right">Allocation:</Text><Text textAlign="left">{p.allocPoint}</Text>
