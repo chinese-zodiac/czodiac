@@ -129,7 +129,13 @@ export const CZFARMPOOLS = {
       address: "0x009d28c1fcb9ba2256ed07c92049bd2a57f5ab00",
       rewardAddress: "0xfdfd27ae39cebefdbaac8615f18aa68ddd0f15f5",
       logo: "./pool/GHD.png"
-    }
+    }/*,
+    {
+      name: "DST",
+      address: "0x288739594E0cab36c492CE0BF349F86183C7631f",
+      rewardAddress: "0x3969fe107bae2537cb58047159a83c33dfbd73f9",
+      logo: "./pool/GHD.png"
+    }*/
   ]
 }
 
