@@ -5,7 +5,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IBeltMultiStrategyToken is IERC20 {
-    function token() external returns (address);
+    function token() external view returns (address);
 
     function deposit(uint256 _amount, uint256 _minShares) external;
 
