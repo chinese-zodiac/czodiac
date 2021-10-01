@@ -40,11 +40,13 @@ contract CzfBeltVault is
     IBeltFarm public beltFarm;
     IERC20 public beltBNB;
     IERC20 public belt;
+    uint256 public feeBasis;
 
-    uint256 private beltPoolId;
+    uint256 public beltPoolId;
 
     event Deposit(address _for, uint256 _pid, uint256 _amt);
     event Withdraw(address _for, uint256 _pid, uint256 _amt);
+    event Fee(address _for, uint256 _pid, uint256 _amt);
 
     constructor(
         address _beltFarm,
@@ -83,10 +85,14 @@ contract CzfBeltVault is
     function withdraw(address _for, uint256 _wad) external {
         _burn(msg.sender, _wad);
 
-        beltFarm.withdraw(beltPoolId, _wad);
-        beltBNB.transfer(_for, _wad);
+        uint256 fee = (_wad * feeBasis) / 10000;
+        uint256 withdrawAmt = _wad - fee;
 
-        emit Withdraw(msg.sender, beltPoolId, _wad);
+        beltFarm.withdraw(beltPoolId, withdrawAmt);
+        beltBNB.transfer(_for, withdrawAmt);
+
+        emit Withdraw(msg.sender, beltPoolId, withdrawAmt);
+        emit Fee(msg.sender, beltPoolId, fee);
     }
 
     //1) Harvests BELT from beltFarm.
@@ -104,6 +110,11 @@ contract CzfBeltVault is
 
     function updateBeltPoolId(uint256 _beltPoolId) external onlyOwner {
         beltPoolId = _beltPoolId;
+    }
+
+    function setFeeBasis(uint256 _feeBasis) external onlyOwner {
+        feeBasis = _feeBasis;
+        require(feeBasis < 100, "CzfBeltVault: Fee can never be more than 1%");
     }
 
     //Utility methods & safe contract methods
