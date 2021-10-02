@@ -33,6 +33,7 @@ function CZPoolsList() {
               sendDeposit={pool.sendDeposit}
               sendWithdraw={pool.sendWithdraw}
               rewardAddress={pool.rewardAddress}
+              rewardDecimals={pool.rewardDecimals}
               aprBasisPoints={pool.aprBasisPoints}
               rewardPerDay={pool.rewardPerDay}
               usdValue={pool.usdValue}
