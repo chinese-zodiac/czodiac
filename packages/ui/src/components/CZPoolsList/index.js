@@ -85,7 +85,7 @@ function CZPoolsList() {
       <Text textAlign="right">Pool Count:</Text><Text textAlign="left">{pools.length}</Text>
       <Text textAlign="right">Active USD/Day Rewards:</Text><Text textAlign="left">
         ${weiToShortString(pools.reduce((prev,curr,index,pools)=>((pools[index].timeStart <= currentDate && pools[index].timeEnd >= currentDate) ? prev.add(pools[index].usdPerDay) : prev),BigNumber.from("0")),2)}</Text>
-      <Text textAlign="right">Total Value Locked:</Text><Text textAlign="left">${weiToShortString(pools.reduce((prev,curr,index,pools)=>prev.add(pools[index].usdValue).sub(pools[index].tvlOffset),BigNumber.from("0")),2)}</Text>
+      <Text textAlign="right">Total Value Locked:</Text><Text textAlign="left">${weiToShortString(pools.reduce((prev,curr,index,pools)=>prev.add(pools[index].usdValue),BigNumber.from("0")),2)}</Text>
     </SimpleGrid>) : (
       <Box>Loading pools...</Box>
     )}

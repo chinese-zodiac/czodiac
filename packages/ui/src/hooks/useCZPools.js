@@ -130,33 +130,39 @@ function useCZPools() {
 
       p.usdValue = p.czfBal.mul(czfBusdPrice).div(weiFactor);
       p.rewardPerDay = p.rewardPerSecond.mul(BigNumber.from("86400"));
-      const currentDate = new Date();
       if(!!rewardBusdPrices[index]){
         p.usdPerDay = p.rewardPerDay.mul(rewardBusdPrices[index]).div(weiFactor);
       } else {
         p.usdPerDay = BigNumber.from("0");
-      }      
+      }
+
+      //Fixes bug where TVL includes the CZF rewards in CZF->CZF pool
+      if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
+        let seconds = 0;
+        if(new Date() >= p.timeStart && new Date() <= p.timeEnd) {
+          seconds = (p.timeEnd - new Date()) / 1000;
+        } else if(new Date() < p.timeStart) {
+          seconds = (p.timeEnd - p.timeStart) / 1000;
+        }
+        let tvlOffset = p.usdPerDay.mul(BigNumber.from(seconds.toString()).div(BigNumber.from("86400")));
+        console.log(p.usdValue.toString())
+        console.log(tvlOffset.toString())
+        p.usdValue = p.usdValue.sub(tvlOffset);
+      }
+
       if(p.usdValue.gt(BigNumber.from("0"))) {
         p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue);
       } else {
         p.aprBasisPoints = BigNumber.from("0");
       }
 
-      
-      //Fixes bug where TVL includes the CZF rewards in CZF->CZF pool
-      p.tvlOffset = BigNumber.from("0")
-      console.log(p.rewardAddress)
-      if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
-        let seconds = 0;
-        console.log(new Date() >= p.timeStart && new Date() <= p.timeEnd)
-        if(new Date() >= p.timeStart && new Date() <= p.timeEnd) {
-          seconds = (p.timeEnd - new Date()) / 1000;
-        } else if(new Date() < p.timeStart) {
-          seconds = (p.timeEnd - p.timeStart) / 1000;
-        }
-        p.tvlOffset = p.usdPerDay.mul(BigNumber.from(seconds.toString()).div(BigNumber.from("86400")))
-      console.log(p.tvlOffset)
+      if(p.usdValue.gt(BigNumber.from("0"))) {
+        p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue);
+      } else {
+        p.aprBasisPoints = BigNumber.from("0");
       }
+
+
 
       if(!!account && !!callResults[4+o]){
         p.user = {}
