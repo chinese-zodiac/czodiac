@@ -129,13 +129,19 @@ export const CZFARMPOOLS = {
       address: "0x009d28c1fcb9ba2256ed07c92049bd2a57f5ab00",
       rewardAddress: "0xfdfd27ae39cebefdbaac8615f18aa68ddd0f15f5",
       logo: "./pool/GHD.png"
-    }/*,
+    },
     {
       name: "IF1",
       address: "0x6e35fdf5071f7c2d0f53532710135055a305731a",
       rewardAddress: "0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
       logo: "./pool/IF1.png"
-    }*//*,
+    },
+    {
+      name: "CZF",
+      address: "0x8c7678cd08580d4ba55dff215229c6e6cb6b6df4",
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+    }/*,
     {
       name: "DST",
       address: "0x288739594E0cab36c492CE0BF349F86183C7631f",
