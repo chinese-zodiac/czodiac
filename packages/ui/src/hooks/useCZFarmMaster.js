@@ -49,6 +49,7 @@ const farmLps = [
   "0xE90AEbc91Df3b534F4e2D74b527FaA6f49d45a77",
   "0x3e9c5352c486524a407d9900a5a3a9d05b6c14e6",
   "0xdca1ad23bf713fb8277e99f3bd5d1ee4e6b65332",
+  //"0x41063A1AEFE6d6f4b44a2b030bB259673dCA8bA6", //CZF/IF1 -PCS
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -66,6 +67,7 @@ const farmDex = [
   DEX.PCS,
   DEX.CAFE,
   DEX.CAFE,
+  //DEX.PCS,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -164,6 +166,16 @@ const farmTokens = [
     {
       address:"0x790be81c3ca0e53974be2688cdb954732c9862e1",
       symbol:"BREW"
+    }
+  ],
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
+      symbol:"IF1"
     }
   ],
   /*[
