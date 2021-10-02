@@ -142,9 +142,9 @@ function useCZPools() {
       if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
         let seconds = 0;
         if(new Date() >= p.timeStart && new Date() <= p.timeEnd) {
-          seconds = (p.timeEnd - new Date()) / 1000;
+          seconds = Math.floor((p.timeEnd - new Date()) / 1000);
         } else if(new Date() < p.timeStart) {
-          seconds = (p.timeEnd - p.timeStart) / 1000;
+          seconds = Math.floor((p.timeEnd - p.timeStart) / 1000);
         }
         tvlOffset = p.usdPerDay.mul(BigNumber.from(seconds.toString()).div(BigNumber.from("86400")));
         p.usdValue = p.usdValue.sub(tvlOffset);
