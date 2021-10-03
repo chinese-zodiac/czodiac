@@ -11,6 +11,11 @@ export function weiToShortString(bn,decimals) {
     return toShortString(bn.div(BigNumber.from("10").pow(18)),decimals);
 }
 
+export function tokenAmtToShortString(bn,tokenDecimals,decimals) {
+    if(!bn) return (0).toFixed(decimals);
+    return toShortString(bn.div(BigNumber.from("10").pow(tokenDecimals)),decimals);
+}
+
 export function toShortString(bn,decimals) {
     if(!bn) return (0).toFixed(decimals);
     if(bn.gte(10**12)) {

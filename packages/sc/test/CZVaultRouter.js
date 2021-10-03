@@ -8,95 +8,66 @@ const { ethers, config } = require("hardhat");
 const { time } = require("@openzeppelin/test-helpers");
 // const { toNum, toBN } = require("./utils/bignumberConverter");
 
-const { beltBNB, beltBnbPoolId, beltFarm, BELT, czDeployer } = require("../deployConfig.json");
+const { beltBNB, beltBnbPoolId, beltFarm, BELT, czf, czDeployer } = require("../deployConfig.json");
 
 const { expect } = chai;
 const { parseEther, formatEther, parseUnits } = ethers.utils;
 
-/*
-SETUP
-- Deploy the CZFarmMasterRoutable, CZfBeltVault, CZVaultRouter
-- Call czBeltVault.setContractSafe(address(czVaultRouter)) and CZFarmMasterRoutable.setRouter(address(czVaultRouter))
-- Add a new czfBeltVault token farm to czFarmRoutable (the lpToken should be the czBeltVault token, even tho czbeltvault is not an lp token it will still work)
 
-TASKS to TEST (for BNB only, later we will need to test the other methods)
-- CZVaultRouter.depositAndStakeBeltBNB 
-— Decreases the BNB balance of sender
-— Increases the beltBNB balance of czVaultRouter
-— Increases the czfBeltVault balance of czFarmMasterRoutable
-— Increases the czFarmMasterRoutable(pid,sender) amount.
-- CZVaultRouter.withdrawAndStakeBeltBNB 
-— Opposite of depositAndStakeBeltBNB
-— Should increase CZF holdings of sender.
-*/
-
-describe("CZVaultRouter", function () {
+describe("CzVaultRouter", function () {
   let czfBeltVault;
   let czVaultRouter;
-  let cZFarmMasterRoutable;
+  let czFarmMasterRoutable;
+  let czfContract
   let beltContract;
   let beltBNBContract;
   let beltFarmContract;
-  let deployer, owner, trader, trader1, trader2, trader3;
-  let _startBlock = 0;
-  const _czfPerBlock = 100;
-  const _allocPoint = 5;
-
-  const depositBeltBNB = async (signer, bnbAmount) => {
-    await beltBNBContract.connect(signer).depositBNB(0, {
-      value: bnbAmount,
-    });
-
-    const beltBNBBalance = await beltBNBContract.balanceOf(signer.address);
-
-    return {
-      beltBNBBalance,
-    };
-  };
+  let owner, trader, trader1, trader2, trader3;
+  let deployer;
 
   before(async function () {
-    [owner, lpTokener, trader1, trader2, trader3] = await ethers.getSigners();
-    _startBlock = owner.provider.getBlockNumber();
+    [owner, trader, trader1, trader2, trader3] = await ethers.getSigners();
 
     await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [czDeployer],
-    })
-    deployer = await ethers.getSigner(czDeployer)
+            method: "hardhat_impersonateAccount",
+            params: [czDeployer],
+        });
+    deployer = await ethers.getSigner(czDeployer);
 
-    const CZFarmMasterRoutable = await ethers.getContractFactory("CZFarmMasterRoutable");
-    cZFarmMasterRoutable = await CZFarmMasterRoutable.deploy(
-      deployer,
-      _startBlock,
-      _czfPerBlock,
+    czfContract = await ethers.getContractAt(
+      "CZFarm",
+      czf
     );
-    await cZFarmMasterRoutable.deployed();
-
-    const CZVaultRouter = await ethers.getContractFactory("CZVaultRouter");
-    czVaultRouter = await CZVaultRouter.deploy();
-    await czVaultRouter.deployed();
 
     const CzfBeltVault = await ethers.getContractFactory("CzfBeltVault");
     czfBeltVault = await CzfBeltVault.deploy(beltFarm, beltBNB, beltBnbPoolId, BELT);
-    await czfBeltVault.deployed();
 
-    
-    await czfBeltVault.connect(owner).setContractSafe(czVaultRouter.address);
-    await cZFarmMasterRoutable.connect(owner).setRouter(czVaultRouter.address);
+    const CZVaultRouter = await ethers.getContractFactory("CZVaultRouter");
+    czVaultRouter = await CZVaultRouter.deploy();
 
-    await czfBeltVault.attach(lpTokener.address);
-    await cZFarmMasterRoutable.connect(owner).add(_allocPoint, lpTokener.address, true);
+    await time.advanceBlock();
+    const latestBlock = await time.latestBlock();
+
+    console.log(latestBlock);
+
+    const CZFarmMasterRoutable = await ethers.getContractFactory("CZFarmMasterRoutable");
+    czFarmMasterRoutable = await CZFarmMasterRoutable.deploy(czf,parseEther("100"),latestBlock+1);
+
+    await czFarmMasterRoutable.setRouter(czVaultRouter.address);
+    await czFarmMasterRoutable.add(
+        100,
+        czfBeltVault.address,
+        true
+    );
+    await czfBeltVault.setContractSafe(czVaultRouter.address);
+    await czfBeltVault.setContractSafe(czFarmMasterRoutable.address);
+    await czfContract.connect(deployer).grantRole(ethers.utils.id("MINTER_ROLE"),czFarmMasterRoutable.address);
   });
 
-  describe("depositAndStakeBeltBNB", function () {
-    it("Should correctly deposit the token", async function () {
-      const bnbAmount = parseEther("1");
-      const depositAmount = bnbAmount.div(2);
+  describe("Deploy success", function () {
+    it("Should have deployed the contracts", async function() {
+      expect(czfContract.address).to.eq(czf);
+    })
+  })
 
-      await depositBeltBNB(trader1, bnbAmount);
-      await czVaultRouter.connect(trader1).depositAndStakeBeltBNB(cZFarmMasterRoutable, beltBnbPoolId, {
-        value: depositAmount,
-      });
-    });
-  });
-});
+})

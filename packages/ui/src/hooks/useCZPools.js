@@ -7,6 +7,7 @@ import useBUSDPrice from "./useBUSDPrice";
 import useBUSDPriceMulti from "./useBUSDPriceMulti";
 import czFarmPool from "../abi/CZFarmPool.json";
 import ierc20 from "../abi/ierc20.json";
+import { parseEther } from "@ethersproject/units";
 const {Interface} = utils;
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
@@ -134,12 +135,40 @@ function useCZPools() {
         p.usdPerDay = p.rewardPerDay.mul(rewardBusdPrices[index]).div(weiFactor);
       } else {
         p.usdPerDay = BigNumber.from("0");
-      }      
+      }
+
+      //Fixes bug where TVL includes the CZF rewards in CZF->CZF pool
+      let tvlOffset = BigNumber.from("0")
+      if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
+        let seconds = 0;
+        if(new Date() >= p.timeStart && new Date() <= p.timeEnd) {
+          seconds = Math.floor((p.timeEnd - new Date()) / 1000);
+        } else if(new Date() < p.timeStart) {
+          seconds = Math.floor((p.timeEnd - p.timeStart) / 1000);
+        }
+        tvlOffset = p.usdPerDay.mul(BigNumber.from(seconds.toString()).div(BigNumber.from("86400")));
+        p.usdValue = p.usdValue.sub(tvlOffset);
+      }
+
       if(p.usdValue.gt(BigNumber.from("0"))) {
         p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue);
       } else {
         p.aprBasisPoints = BigNumber.from("0");
       }
+
+      if(p.usdValue.gt(BigNumber.from("0"))) {
+        p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue.add(tvlOffset));
+      } else {
+        p.aprBasisPoints = BigNumber.from("0");
+      }
+
+       if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
+        p.usdValue = p.usdValue.add(
+          parseEther("288385966").mul(czfBusdPrice).div(weiFactor)
+        );
+       }
+
+
 
       if(!!account && !!callResults[4+o]){
         p.user = {}

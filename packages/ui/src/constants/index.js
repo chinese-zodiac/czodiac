@@ -110,25 +110,43 @@ export const CZFARMPOOLS = {
       name: "TIGZ",
       address: "0xeAAe8daEe860eFc43851d4234eB944F8C9B5f968",
       rewardAddress: "0x535874bfbecac5f235717faea7c26d01c67b38c5",
+      rewardDecimals: 18,
       logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/common-files/tigz200.png"
     },
     {
       name: "CZF",
       address: "0x7981fed94a74e3b92a8974b5fe20c9359b695d12",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      rewardDecimals: 18,
       logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     },
     {
       name: "FG",
       address: "0xB7987823D1208A75780Be7d2C171A5c74fDbb74b",
       rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
+      rewardDecimals: 18,
       logo: "./pool/farmageddon.png"
     },
     {
       name: "GHD",
       address: "0x009d28c1fcb9ba2256ed07c92049bd2a57f5ab00",
       rewardAddress: "0xfdfd27ae39cebefdbaac8615f18aa68ddd0f15f5",
+      rewardDecimals: 18,
       logo: "./pool/GHD.png"
+    },
+    {
+      name: "IF1",
+      address: "0x6e35fdf5071f7c2d0f53532710135055a305731a",
+      rewardAddress: "0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
+      rewardDecimals: 9,
+      logo: "./pool/IF1.png"
+    },
+    {
+      name: "CZF",
+      address: "0x8c7678cd08580d4ba55dff215229c6e6cb6b6df4",
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      rewardDecimals: 18,
+      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     }/*,
     {
       name: "DST",
