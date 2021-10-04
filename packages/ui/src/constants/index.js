@@ -147,6 +147,13 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
       logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+    },
+    {
+      name: "FINS",
+      address: "0xe05A2888De69602B85e23Da67A8EaEdefc3E9E19",
+      rewardAddress: "0x1b219Aca875f8C74c33CFF9fF98f3a9b62fCbff5",
+      rewardDecimals: 18,
+      logo: "./pool/FINS.png"
     }/*,
     {
       name: "DST",
