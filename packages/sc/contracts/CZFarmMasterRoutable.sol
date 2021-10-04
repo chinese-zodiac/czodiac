@@ -4,6 +4,7 @@
 //This variant can have an approved router, set by owner, which can deposit/withdraw on behalf of users to reduce the number of required tx.
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./CZFarm.sol";
@@ -186,6 +187,9 @@ contract CZFarmMasterRoutable is Ownable {
     ) internal {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_account];
+
+        console.log("CZFarmMasterRoutable deposit", _account);
+
         updatePool(_pid);
         if (user.amount > 0) {
             uint256 pending = user

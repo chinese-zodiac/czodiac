@@ -2,6 +2,7 @@
 // Authored by Plastic Digits
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -39,13 +40,32 @@ contract CZVaultRouter is ReentrancyGuard {
         external
         payable
     {
+
+        console.log("depositAndStakeBeltBNB start", _pid);
+        
         (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
+
+        console.log("CZVaultRouter poolInfo", address(vaultAddress));
+
         ICZVault vault = ICZVault(address(vaultAddress));
+
+        console.log("CZVaultRouter before depositBNB", address(vault.asset()));
+
         IBeltMultiStrategyToken(address(vault.asset())).depositBNB{
             value: msg.value
         }(0);
+        console.log("DepositBNB done", msg.value);
+
         uint256 _beltWad = vault.asset().balanceOf(address(this));
+
+        vault.asset().approve(address(vault), _beltWad);
+
+        console.log("beltBNB", _beltWad);
+
         vault.deposit(address(this), _beltWad);
+
+        console.log("vault deposit done");
+
         _master.depositRoutable(
             _pid,
             _beltWad,

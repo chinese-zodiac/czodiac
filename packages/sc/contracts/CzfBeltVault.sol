@@ -2,7 +2,6 @@
 // Authored by Anthony Nguyen
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
@@ -155,5 +154,9 @@ contract CzfBeltVault is
             "CZFarm: must have SAFE_GRANTER_ROLE role"
         );
         safeContracts[_for] = false;
+    }
+
+    function asset() external view returns (IERC20 _asset) {
+        return beltBNB;
     }
 }
