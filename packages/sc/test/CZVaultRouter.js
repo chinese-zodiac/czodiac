@@ -99,6 +99,7 @@ describe("CzVaultRouter", function() {
     await czfContract
       .connect(deployer)
       .grantRole(ethers.utils.id("MINTER_ROLE"), czFarmMasterRoutable.address);
+    await czfBeltVault.setFeeBasis(449);
   });
 
   describe("Deploy success", function() {
