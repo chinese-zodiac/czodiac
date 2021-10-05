@@ -10,6 +10,7 @@ import Swap from "./pages/Swap";
 import TigerHunt from "./pages/TigerHunt";
 import CZFarm from "./pages/CZFarm";
 import CZUsd from "./pages/CZUsd";
+import CZVaults from "./pages/CZVaults";
 import reportWebVitals from "./reportWebVitals";
 import { DAppProvider } from "@pdusedapp/core";
 import {
@@ -46,6 +47,7 @@ ReactDOM.render(
           <Route path="/tigerhunt" component={TigerHunt} />
           <Route path="/czfarm" component={CZFarm} />
           <Route path="/czusd" component={CZUsd} />
+          <Route path="/vaults" component={CZVaults} />
         </DAppProvider>
       </HashRouter>
     </ChakraProvider>
