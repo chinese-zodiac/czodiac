@@ -48,6 +48,7 @@ describe("CzVaultRouter", function() {
   let beltFarmContract;
   let owner, trader, trader1, trader2, trader3;
   let deployer;
+  let czfStartBlock, czfPerBlock = parseEther("100");
 
   before(async function() {
     [owner, trader, trader1, trader2, trader3] = await ethers.getSigners();
@@ -79,6 +80,7 @@ describe("CzVaultRouter", function() {
 
     await time.advanceBlock();
     const latestBlock = await time.latestBlock();
+    czfStartBlock = Number(latestBlock.toString());
     console.log("latest block before deploy", latestBlock.toString());
 
     const CZFarmMasterRoutable = await ethers.getContractFactory(
@@ -86,7 +88,7 @@ describe("CzVaultRouter", function() {
     );
     czFarmMasterRoutable = await CZFarmMasterRoutable.deploy(
       czf,
-      parseEther("100"),
+      czfPerBlock,
       latestBlock.toString() //Since openzeppelin time uses a different BigNumber library
     );
 
@@ -179,7 +181,16 @@ describe("CzVaultRouter", function() {
         trader.address
       );
 
-      console.log({ pendingCzfAmount });
+      expect(pendingCzfAmount).to.eq(0);
+
+      const czfAmount = await czfContract.balanceOf(trader.address);
+
+      await time.advanceBlock();
+      const latestBlock = await time.latestBlock();
+
+      const blockDiff = Number(latestBlock.toString()) - czfStartBlock;
+
+      console.log({ pendingCzfAmount, czfAmount, blockDiff, czfPerBlock });
     });
   });
 });
