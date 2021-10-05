@@ -251,6 +251,8 @@ contract CZFarmMasterRoutable is Ownable {
     ) internal {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_account];
+
+        console.log("withdraw amount", user.amount, _amount);
         require(user.amount >= _amount, "CZFarmMaster: balance too low");
         updatePool(_pid);
         uint256 pending = user.amount.mul(pool.accCzfPerShare).div(1e12).sub(

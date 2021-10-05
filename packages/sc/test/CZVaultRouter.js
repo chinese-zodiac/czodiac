@@ -8,7 +8,14 @@ const { ethers, config } = require("hardhat");
 const { time } = require("@openzeppelin/test-helpers");
 // const { toNum, toBN } = require("./utils/bignumberConverter");
 
-const { beltBNB, beltBnbPoolId, beltFarm, BELT, czf, czDeployer } = require("../deployConfig.json");
+const {
+  beltBNB,
+  beltBnbPoolId,
+  beltFarm,
+  BELT,
+  czf,
+  czDeployer,
+} = require("../deployConfig.json");
 
 const { expect } = chai;
 const { parseEther, formatEther, parseUnits } = ethers.utils;
@@ -30,30 +37,27 @@ TASKS to TEST (for BNB only, later we will need to test the other methods)
 — Should increase CZF holdings of sender.
 */
 
-describe("CzVaultRouter", function () {
+describe("CzVaultRouter", function() {
   let czfBeltVault;
   let czVaultRouter;
   let czFarmMasterRoutable;
-  let czfContract
+  let czfContract;
   let beltContract;
   let beltBNBContract;
   let beltFarmContract;
   let owner, trader, trader1, trader2, trader3;
   let deployer;
 
-  before(async function () {
+  before(async function() {
     [owner, trader, trader1, trader2, trader3] = await ethers.getSigners();
 
     await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [czDeployer],
-        });
+      method: "hardhat_impersonateAccount",
+      params: [czDeployer],
+    });
     deployer = await ethers.getSigner(czDeployer);
 
-    czfContract = await ethers.getContractAt(
-      "CZFarm",
-      czf
-    );
+    czfContract = await ethers.getContractAt("CZFarm", czf);
 
     beltBNBContract = await ethers.getContractAt(
       "IBeltMultiStrategyToken",
@@ -61,7 +65,12 @@ describe("CzVaultRouter", function () {
     );
 
     const CzfBeltVault = await ethers.getContractFactory("CzfBeltVault");
-    czfBeltVault = await CzfBeltVault.deploy(beltFarm, beltBNB, beltBnbPoolId, BELT);
+    czfBeltVault = await CzfBeltVault.deploy(
+      beltFarm,
+      beltBNB,
+      beltBnbPoolId,
+      BELT
+    );
 
     const CZVaultRouter = await ethers.getContractFactory("CZVaultRouter");
     czVaultRouter = await CZVaultRouter.deploy();
@@ -72,83 +81,116 @@ describe("CzVaultRouter", function () {
 
     console.log({ latestBlock });
 
-    const CZFarmMasterRoutable = await ethers.getContractFactory("CZFarmMasterRoutable");
-    czFarmMasterRoutable = await CZFarmMasterRoutable.deploy(czf,parseEther("100"),latestBlock+1);
+    const CZFarmMasterRoutable = await ethers.getContractFactory(
+      "CZFarmMasterRoutable"
+    );
+    czFarmMasterRoutable = await CZFarmMasterRoutable.deploy(
+      czf,
+      parseEther("100"),
+      latestBlock + 1
+    );
 
     await czFarmMasterRoutable.deployed();
 
     await czFarmMasterRoutable.setRouter(czVaultRouter.address);
-    await czFarmMasterRoutable.add(
-      100,
-      czfBeltVault.address,
-      true
-    );
+    await czFarmMasterRoutable.add(100, czfBeltVault.address, true);
     await czfBeltVault.setContractSafe(czVaultRouter.address);
     await czfBeltVault.setContractSafe(czFarmMasterRoutable.address);
-    await czfContract.connect(deployer).grantRole(ethers.utils.id("MINTER_ROLE"),czFarmMasterRoutable.address);
+    await czfContract
+      .connect(deployer)
+      .grantRole(ethers.utils.id("MINTER_ROLE"), czFarmMasterRoutable.address);
   });
 
-  describe("Deploy success", function () {
+  describe("Deploy success", function() {
     it("Should have deployed the contracts", async function() {
       expect(czfContract.address).to.eq(czf);
-    })
-  })
+    });
+  });
 
-  describe("Deposit and withdraw", function () {
+  describe("Deposit and withdraw", function() {
     it("Should deposit correctly", async function() {
-      const initialBNBBalance = await trader.provider.getBalance(trader.address);
+      const initialBNBBalance = await trader.provider.getBalance(
+        trader.address
+      );
       const depositBNBAmount = parseEther("100");
 
       expect(initialBNBBalance > depositBNBAmount).to.eq(true);
 
-      console.log('BNB balance', await trader.provider.getBalance(trader.address));
+      console.log(
+        "BNB balance",
+        await trader.provider.getBalance(trader.address)
+      );
 
-      await czVaultRouter.connect(trader).depositAndStakeBeltBNB(czFarmMasterRoutable.address, 0, {
-        value: depositBNBAmount
-      });
+      await czVaultRouter
+        .connect(trader)
+        .depositAndStakeBeltBNB(czFarmMasterRoutable.address, 0, {
+          value: depositBNBAmount,
+        });
 
-      const remainingBNBAmount = await trader.provider.getBalance(trader.address);
+      const remainingBNBAmount = await trader.provider.getBalance(
+        trader.address
+      );
 
-      console.log( { remainingBNBAmount });
+      console.log({ remainingBNBAmount });
 
       // Think of gas fees spent on the transaction
-      expect(initialBNBBalance.sub(depositBNBAmount).sub(remainingBNBAmount).toNumber()).to.greaterThan(0);
+      expect(
+        initialBNBBalance
+          .sub(depositBNBAmount)
+          .sub(remainingBNBAmount)
+          .toNumber()
+      ).to.greaterThan(0);
 
-      console.log('bnb balance check done');
+      expect(
+        await czfBeltVault.balanceOf(czFarmMasterRoutable.address)
+      ).to.not.eq(0);
 
-      expect(await czfBeltVault.balanceOf(czFarmMasterRoutable.address)).to.not.eq(0);
+      const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
+        0,
+        trader.address
+      );
 
-      console.log('belt vault balance check done');
+      console.log({ pendingCzfAmount });
 
-      const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(0, trader.address);
+      expect(pendingCzfAmount).to.eq(0);
 
-      console.log({pendingCzfAmount});
+      const userInfo = await czFarmMasterRoutable.userInfo(0, trader.address);
+      console.log({ userInfo });
 
-      expect(pendingCzfAmount).to.not.eq(0);
-
+      // TODO: This line is failing, but it's not clear why.
       // console.log('czfFarm balance', await czfContract.balanceOf(trader.address));
-
-    })
+    });
 
     it("Should withdraw correctly", async function() {
-      const initialBNBBalance = await trader.provider.getBalance(trader.address);
-      const withdrawAmount = parseEther("100");
+      const initialBNBBalance = await trader.provider.getBalance(
+        trader.address
+      );
 
-      await czVaultRouter.connect(trader).withdrawAndUnstakeBeltBNB(czFarmMasterRoutable.address, 0, withdrawAmount);
+      const withdrawAmount = (
+        await czFarmMasterRoutable.userInfo(0, trader.address)
+      ).amount;
 
-      console.log('withdrawAndUnstakeBeltBNB done');
+      console.log({ withdrawAmount });
+
+      await czVaultRouter
+        .connect(trader)
+        .withdrawAndUnstakeBeltBNB(
+          czFarmMasterRoutable.address,
+          0,
+          withdrawAmount
+        );
+
+      console.log("withdrawAndUnstakeBeltBNB done");
 
       const totalBNBAmount = await trader.provider.getBalance(trader.address);
 
-      console.log({totalBNBAmount, withdrawAmount, initialBNBBalance});
+      console.log({ totalBNBAmount, withdrawAmount, initialBNBBalance });
 
-      const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(trader.address);
+      const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
+        trader.address
+      );
 
-      console.log({pendingCzfAmount});
-
-
-    })
-  })
-
-
-})
+      console.log({ pendingCzfAmount });
+    });
+  });
+});

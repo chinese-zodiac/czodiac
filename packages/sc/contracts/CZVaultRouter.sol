@@ -82,9 +82,18 @@ contract CZVaultRouter is ReentrancyGuard {
     ) external nonReentrant {
         (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
         ICZVault vault = ICZVault(address(vaultAddress));
+
         _master.withdrawRoutable(_pid, _wad, true, msg.sender, address(this));
+
+        console.log("Afer withdrawRoutable", vault.asset().balanceOf(address(this)));
+
         vault.withdraw(address(this), vault.asset().balanceOf(address(this)));
-        IBeltMultiStrategyToken(address(vault.asset())).withdrawBNB(_wad, 0);
+
+        console.log("Before WithdrawBNB", address(vault.asset()));
+
+        IBeltMultiStrategyToken(address(vault.asset())).withdrawBNB(1, _wad);
+
+        console.log("WithdrawBNB done", address(this).balance);
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
         require(sent, "CZVaultRouter: Transfer failed");
     }
