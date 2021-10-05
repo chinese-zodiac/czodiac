@@ -174,6 +174,7 @@ describe("CzVaultRouter", function() {
       console.log({ totalBNBAmount, withdrawAmount, initialBNBBalance });
 
       const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
+        0,
         trader.address
       );
 
