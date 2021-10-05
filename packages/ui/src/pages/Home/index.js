@@ -45,6 +45,9 @@ function Home() {
           <NavLink to="sale">
             <Button colorScheme="orange" >Sale (complete)</Button>
           </NavLink>
+          <NavLink to="sale">
+            <Button colorScheme="orange">CZVaults</Button>
+          </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>
           </Link >

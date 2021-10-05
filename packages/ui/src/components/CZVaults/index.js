@@ -14,7 +14,7 @@ import CZPool from "../CZPool";
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$CZF");
 
-function CZPoolsList() {
+function CZVaults() {
   const {chainId} = useEthers();
   const {
     pools
@@ -95,4 +95,4 @@ function CZPoolsList() {
   </>)
 }
 
-export default CZPoolsList;
+export default CZVaults;
