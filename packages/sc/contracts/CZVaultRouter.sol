@@ -13,6 +13,8 @@ import "./CZFarmMasterRoutable.sol";
 contract CZVaultRouter is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    fallback() external payable {}
+
     function depositAndStake(
         CZFarmMasterRoutable _master,
         uint256 _pid,
@@ -73,9 +75,12 @@ contract CZVaultRouter is ReentrancyGuard {
 
         _master.withdrawRoutable(_pid, _wad, true, msg.sender, address(this));
 
-        vault.withdraw(address(this), vault.asset().balanceOf(address(this)));
+        vault.withdraw(address(this), vault.balanceOf(address(this)));
 
-        IBeltMultiStrategyToken(address(vault.asset())).withdrawBNB(_wad, 0);
+        IBeltMultiStrategyToken(address(vault.asset())).withdrawBNB(
+            vault.asset().balanceOf(address(this)),
+            0
+        );
 
         console.log("CZVaultRouter: attempting bnb send");
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
