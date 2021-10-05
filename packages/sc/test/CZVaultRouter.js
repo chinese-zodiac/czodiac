@@ -16,6 +16,7 @@ const {
   czf,
   czDeployer,
 } = require("../deployConfig.json");
+const { BigNumber } = require("@ethersproject/bignumber");
 
 const { expect } = chai;
 const { parseEther, formatEther, parseUnits } = ethers.utils;
@@ -78,8 +79,7 @@ describe("CzVaultRouter", function() {
 
     await time.advanceBlock();
     const latestBlock = await time.latestBlock();
-
-    console.log({ latestBlock });
+    console.log("latest block before deploy", latestBlock.toString());
 
     const CZFarmMasterRoutable = await ethers.getContractFactory(
       "CZFarmMasterRoutable"
@@ -87,7 +87,7 @@ describe("CzVaultRouter", function() {
     czFarmMasterRoutable = await CZFarmMasterRoutable.deploy(
       czf,
       parseEther("100"),
-      latestBlock + 1
+      latestBlock.toString() //Since openzeppelin time uses a different BigNumber library
     );
 
     await czFarmMasterRoutable.deployed();
@@ -99,6 +99,7 @@ describe("CzVaultRouter", function() {
     await czfContract
       .connect(deployer)
       .grantRole(ethers.utils.id("MINTER_ROLE"), czFarmMasterRoutable.address);
+    await czfBeltVault.setFeeBasis(449);
   });
 
   describe("Deploy success", function() {
@@ -112,15 +113,7 @@ describe("CzVaultRouter", function() {
       const initialBNBBalance = await trader.provider.getBalance(
         trader.address
       );
-      const depositBNBAmount = parseEther("100");
-
-      expect(initialBNBBalance > depositBNBAmount).to.eq(true);
-
-      console.log(
-        "BNB balance",
-        await trader.provider.getBalance(trader.address)
-      );
-
+      const depositBNBAmount = parseEther("10");
       await czVaultRouter
         .connect(trader)
         .depositAndStakeBeltBNB(czFarmMasterRoutable.address, 0, {
@@ -131,28 +124,23 @@ describe("CzVaultRouter", function() {
         trader.address
       );
 
-      console.log({ remainingBNBAmount });
-
       // Think of gas fees spent on the transaction
       expect(
         initialBNBBalance
           .sub(depositBNBAmount)
           .sub(remainingBNBAmount)
-          .toNumber()
-      ).to.greaterThan(0);
-
+      ).to.be.closeTo(BigNumber.from(0),parseEther("0.01"));
       expect(
         await czfBeltVault.balanceOf(czFarmMasterRoutable.address)
-      ).to.not.eq(0);
+      ).to.be.gt(0);
 
+      await time.advanceBlock();
       const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
         0,
         trader.address
       );
 
-      console.log({ pendingCzfAmount });
-
-      expect(pendingCzfAmount).to.eq(0);
+      expect(pendingCzfAmount).to.closeTo(parseEther("100"),10000000);
 
       const userInfo = await czFarmMasterRoutable.userInfo(0, trader.address);
       console.log({ userInfo });
@@ -187,6 +175,7 @@ describe("CzVaultRouter", function() {
       console.log({ totalBNBAmount, withdrawAmount, initialBNBBalance });
 
       const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
+        0,
         trader.address
       );
 

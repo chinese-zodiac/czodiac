@@ -113,7 +113,10 @@ contract CzfBeltVault is
 
     function setFeeBasis(uint256 _feeBasis) external onlyOwner {
         feeBasis = _feeBasis;
-        require(feeBasis < 100, "CzfBeltVault: Fee can never be more than 1%");
+        require(
+            feeBasis < 5000,
+            "CzfBeltVault: Fee can never be more than 50%"
+        );
     }
 
     //Utility methods & safe contract methods
