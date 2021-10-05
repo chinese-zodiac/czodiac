@@ -185,12 +185,9 @@ describe("CzVaultRouter", function() {
 
       const czfAmount = await czfContract.balanceOf(trader.address);
 
-      await time.advanceBlock();
-      const latestBlock = await time.latestBlock();
+      console.log({ pendingCzfAmount, czfAmount, czfPerBlock });
 
-      const blockDiff = Number(latestBlock.toString()) - czfStartBlock;
-
-      console.log({ pendingCzfAmount, czfAmount, blockDiff, czfPerBlock });
+      expect(czfAmount).to.be.closeTo(czfPerBlock.mul(2), 10000000);
     });
   });
 });
