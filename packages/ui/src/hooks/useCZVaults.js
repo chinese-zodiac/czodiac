@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction, useBlockNumber } from "@pdusedapp/core";
-import { CZFARMPOOLS, CZFARM_ADDRESSES } from "../constants";
+import { CZVAULTPOOLS, CZFARM_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -48,11 +48,11 @@ function useCZVaults() {
   }
 
   const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
-  const rewardBusdPrices = useBUSDPriceMulti(!!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p)=>p.rewardAddress) : []);
+  const rewardBusdPrices = useBUSDPriceMulti(!!CZVAULTPOOLS[chainId] ? CZVAULTPOOLS[chainId].map((p)=>p.rewardAddress) : []);
 
   const ierc20Interface = new Interface(ierc20);
   const czFarmPoolInterface = new Interface(czFarmPool);
-  const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(!!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p)=>new Contract(p.address, czFarmPoolInterface)) : []);
+  const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(!!CZVAULTPOOLS[chainId] ? CZVAULTPOOLS[chainId].map((p)=>new Contract(p.address, czFarmPoolInterface)) : []);
 
   const [pools, setPools] = useState([]);
   const [calls, setCalls] = useState([]);
@@ -60,11 +60,11 @@ function useCZVaults() {
 
   useEffect(()=>{
     const newCalls = [];
-    if(!CZFARMPOOLS[chainId]) {
+    if(!CZVAULTPOOLS[chainId]) {
       setCalls(newCalls)
       return;
     }
-    CZFARMPOOLS[chainId].forEach((p) => {
+    CZVAULTPOOLS[chainId].forEach((p) => {
       let ca = p.address;
       newCalls.push({
         abi:czFarmPoolInterface,
@@ -113,10 +113,10 @@ function useCZVaults() {
 
   useDeepCompareEffect(()=>{
     let newPools = [];
-    if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice) {
+    if(!callResults || callResults.length === 0 || !callResults[0] || !CZVAULTPOOLS[chainId] || !czfBusdPrice) {
         return;
     }
-    CZFARMPOOLS[chainId].forEach((p, index) => {
+    CZVAULTPOOLS[chainId].forEach((p, index) => {
       let l = 7;
       if(!account) l = 4;
       let o = l*index
@@ -191,6 +191,7 @@ function useCZVaults() {
   },[callResults,czfBusdPrice,rewardBusdPrices])
 
 
+  console.log({ pools });
   return {
     pools
   }
