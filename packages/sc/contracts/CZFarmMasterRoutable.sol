@@ -151,7 +151,9 @@ contract CZFarmMasterRoutable is Ownable {
             .mul(czfPerBlock)
             .mul(pool.allocPoint)
             .div(totalAllocPoint);
+
         czf.mint(address(this), czfReward);
+
         pool.accCzfPerShare = pool.accCzfPerShare.add(
             czfReward.mul(1e12).div(lpSupply)
         );
@@ -186,6 +188,7 @@ contract CZFarmMasterRoutable is Ownable {
     ) internal {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_account];
+
         updatePool(_pid);
         if (user.amount > 0) {
             uint256 pending = user
@@ -247,6 +250,7 @@ contract CZFarmMasterRoutable is Ownable {
     ) internal {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_account];
+
         require(user.amount >= _amount, "CZFarmMaster: balance too low");
         updatePool(_pid);
         uint256 pending = user.amount.mul(pool.accCzfPerShare).div(1e12).sub(
