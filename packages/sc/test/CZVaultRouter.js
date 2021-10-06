@@ -81,7 +81,7 @@ describe("CzVaultRouter", function() {
     await time.advanceBlock();
     const latestBlock = await time.latestBlock();
     czfStartBlock = Number(latestBlock.toString());
-    console.log("latest block before deploy", latestBlock.toString());
+    // console.log("latest block before deploy", latestBlock.toString());
 
     const CZFarmMasterRoutable = await ethers.getContractFactory(
       "CZFarmMasterRoutable"
@@ -144,8 +144,8 @@ describe("CzVaultRouter", function() {
 
       expect(pendingCzfAmount).to.closeTo(parseEther("100"),10000000);
 
-      const userInfo = await czFarmMasterRoutable.userInfo(0, trader.address);
-      console.log({ userInfo });
+      // const userInfo = await czFarmMasterRoutable.userInfo(0, trader.address);
+      // console.log({ userInfo });
 
       // TODO: This line is failing, but it's not clear why.
       // console.log('czfFarm balance', await czfContract.balanceOf(trader.address));
@@ -168,9 +168,9 @@ describe("CzVaultRouter", function() {
           withdrawAmount
         );
 
-      const totalBNBAmount = await trader.provider.getBalance(trader.address);
+      // const totalBNBAmount = await trader.provider.getBalance(trader.address);
 
-      console.log({ totalBNBAmount, withdrawAmount, initialBNBBalance });
+      // console.log({ totalBNBAmount, withdrawAmount, initialBNBBalance });
 
       const pendingCzfAmount = await czFarmMasterRoutable.pendingCzf(
         0,
@@ -181,7 +181,7 @@ describe("CzVaultRouter", function() {
 
       const czfAmount = await czfContract.balanceOf(trader.address);
 
-      console.log({ czfAmount, czfPerBlock });
+      // console.log({ czfAmount, czfPerBlock });
 
       expect(czfAmount).to.be.closeTo(czfPerBlock.mul(2), 10000000);
     });
