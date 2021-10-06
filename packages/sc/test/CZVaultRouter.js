@@ -160,8 +160,6 @@ describe("CzVaultRouter", function() {
         await czFarmMasterRoutable.userInfo(0, trader.address)
       ).amount;
 
-      console.log({ withdrawAmount });
-
       await czVaultRouter
         .connect(trader)
         .withdrawAndUnstakeBeltBNB(
@@ -169,8 +167,6 @@ describe("CzVaultRouter", function() {
           0,
           withdrawAmount
         );
-
-      console.log("withdrawAndUnstakeBeltBNB done");
 
       const totalBNBAmount = await trader.provider.getBalance(trader.address);
 
@@ -185,7 +181,7 @@ describe("CzVaultRouter", function() {
 
       const czfAmount = await czfContract.balanceOf(trader.address);
 
-      console.log({ pendingCzfAmount, czfAmount, czfPerBlock });
+      console.log({ czfAmount, czfPerBlock });
 
       expect(czfAmount).to.be.closeTo(czfPerBlock.mul(2), 10000000);
     });

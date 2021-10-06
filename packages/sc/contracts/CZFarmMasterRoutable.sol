@@ -4,7 +4,6 @@
 //This variant can have an approved router, set by owner, which can deposit/withdraw on behalf of users to reduce the number of required tx.
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./CZFarm.sol";
@@ -152,9 +151,9 @@ contract CZFarmMasterRoutable is Ownable {
             .mul(czfPerBlock)
             .mul(pool.allocPoint)
             .div(totalAllocPoint);
-        console.log("CZFarmMasterRoutable: czf address", address(czf));
+
         czf.mint(address(this), czfReward);
-        console.log("CZFarmMasterRoutable: mint complete");
+
         pool.accCzfPerShare = pool.accCzfPerShare.add(
             czfReward.mul(1e12).div(lpSupply)
         );

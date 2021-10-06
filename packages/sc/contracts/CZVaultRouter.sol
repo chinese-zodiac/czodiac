@@ -2,7 +2,6 @@
 // Authored by Plastic Digits
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -87,7 +86,6 @@ contract CZVaultRouter is ReentrancyGuard, Ownable, Pausable {
             0
         );
 
-        console.log("CZVaultRouter: attempting bnb send");
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
         require(sent, "CZVaultRouter: Transfer failed");
     }
