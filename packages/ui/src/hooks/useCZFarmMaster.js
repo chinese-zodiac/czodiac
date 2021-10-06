@@ -50,6 +50,7 @@ const farmLps = [
   "0x3e9c5352c486524a407d9900a5a3a9d05b6c14e6",
   "0xdca1ad23bf713fb8277e99f3bd5d1ee4e6b65332",
   "0x41063A1AEFE6d6f4b44a2b030bB259673dCA8bA6", //CZF/IF1 -PCS
+  "0x425183B75687a54e1D77eE7580ec42FfEB6610bF", //CZF/BRY -PCS
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -67,6 +68,7 @@ const farmDex = [
   DEX.PCS,
   DEX.CAFE,
   DEX.CAFE,
+  DEX.PCS,
   DEX.PCS,
   //DEX.SHRK,
   //DEX.DONK,
@@ -176,6 +178,17 @@ const farmTokens = [
     {
       address:"0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
       symbol:"IF1"
+    }
+  ],
+  ,
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xf859Bf77cBe8699013d6Dbc7C2b926Aaf307F830",
+      symbol:"BRY"
     }
   ],
   /*[
