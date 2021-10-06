@@ -180,7 +180,6 @@ const farmTokens = [
       symbol:"IF1"
     }
   ],
-  ,
   [
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
