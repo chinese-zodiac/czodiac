@@ -2,11 +2,11 @@
 // Authored by Anthony Nguyen
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -31,7 +31,8 @@ contract CzfBeltVault is
     ERC20,
     Ownable,
     ReentrancyGuard,
-    AccessControlEnumerable
+    AccessControlEnumerable,
+    Pausable
 {
     using SafeERC20 for IERC20;
     bytes32 public constant SAFE_GRANTER_ROLE = keccak256("SAFE_GRANTER_ROLE");
@@ -67,7 +68,11 @@ contract CzfBeltVault is
     // 3) Mints _wad of CzfBeltVault to _for
     // NOTE: This contract must be approved for beltBNB first.
     // NOTE: If this fails, double check the pid
-    function deposit(address _for, uint256 _wad) external nonReentrant {
+    function deposit(address _for, uint256 _wad)
+        external
+        nonReentrant
+        whenNotPaused
+    {
         beltBNB.transferFrom(msg.sender, address(this), _wad);
 
         beltBNB.approve(address(beltFarm), _wad);
@@ -82,7 +87,7 @@ contract CzfBeltVault is
     //2) Unstakes _wad beltBnb from beltFarm
     //3) Transfers _wad beltBNB from self to _for.
     //NOTE: This contract must be approved for CzfBeltVault first.
-    function withdraw(address _for, uint256 _wad) external {
+    function withdraw(address _for, uint256 _wad) external whenNotPaused {
         _burn(msg.sender, _wad);
 
         uint256 fee = (_wad * feeBasis) / 10000;
@@ -98,7 +103,7 @@ contract CzfBeltVault is
     //1) Harvests BELT from beltFarm.
     //2) Transfers all BELT in this contract to _pool
     //NOTE: This can only be called by owner.
-    function harvest(address _pool) external onlyOwner {
+    function harvest(address _pool) external onlyOwner whenNotPaused {
         beltFarm.withdraw(beltPoolId, 0);
 
         belt.transfer(_pool, belt.balanceOf(address(this)));
@@ -114,7 +119,10 @@ contract CzfBeltVault is
 
     function setFeeBasis(uint256 _feeBasis) external onlyOwner {
         feeBasis = _feeBasis;
-        require(feeBasis < 100, "CzfBeltVault: Fee can never be more than 1%");
+        require(
+            feeBasis < 5000,
+            "CzfBeltVault: Fee can never be more than 50%"
+        );
     }
 
     //Utility methods & safe contract methods
@@ -155,5 +163,17 @@ contract CzfBeltVault is
             "CZFarm: must have SAFE_GRANTER_ROLE role"
         );
         safeContracts[_for] = false;
+    }
+
+    function asset() external view returns (IERC20 _asset) {
+        return beltBNB;
+    }
+
+    function setPaused(bool _to) external onlyOwner {
+        if (_to) {
+            _pause();
+        } else {
+            _unpause();
+        }
     }
 }
