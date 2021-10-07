@@ -14,12 +14,14 @@ import { NavLink } from "react-router-dom";
 import { addChainToMetaMask } from "../../utils/metamask";
 import "./index.scss";
 
+const ADDRESSS_STORAGE_KEY = 'UserWalletAddress';
+
 function Header() {
   const { activateBrowserWallet, account, chainId } = useEthers();
   const { colorMode, toggleColorMode } = useColorMode();
 
   React.useEffect(() => {
-    const sessionAddress = sessionStorage.getItem("address");
+    const sessionAddress = localStorage.getItem(ADDRESSS_STORAGE_KEY);
 
     if (sessionAddress && !account) {
       activateBrowserWallet();
@@ -28,7 +30,7 @@ function Header() {
 
   React.useEffect(() => {
     if (account) {
-      sessionStorage.setItem("address", account);
+      localStorage.setItem(ADDRESSS_STORAGE_KEY, account);
     }
   }, [account]);
 
