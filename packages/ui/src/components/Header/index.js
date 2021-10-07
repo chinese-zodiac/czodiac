@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useEthers } from "@pdusedapp/core";
 import {
   useColorMode,
@@ -20,6 +20,7 @@ function Header() {
   const { activateBrowserWallet, account, chainId } = useEthers();
   const { colorMode, toggleColorMode } = useColorMode();
 
+// connection logic should be moved to hook
   React.useEffect(() => {
     const sessionAddress = localStorage.getItem(ADDRESSS_STORAGE_KEY);
 
@@ -108,7 +109,7 @@ function Header() {
           </>
         )}
       </div>
-      <Text className="version">v0.6.12</Text>
+      <Text className="version">v0.6.13</Text>
     </header>
   );
 }
