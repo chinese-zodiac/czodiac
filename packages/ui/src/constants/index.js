@@ -205,14 +205,14 @@ export const CZVAULTROUTER = {
   [CHAINS.BSC]: "0xe4548FE50F46766DD951c2ff5cB834D3e262007E"
 }
 
-export const CZVAULTPOOLS = {
+export const CZVAULTS = {
   [CHAINS.BSC] : [
     {
       name: "BNB",
-      description: "Autocompound BNB and claim CZF rewards.",
+      description: "Autocompound BNB and claim CZF rewards. This Antidump Vault uses Belt.fi.",
       address: CZFBELTVAULTBNB[CHAINS.BSC], // CzfVaultBeltBnb address
       isBnbVault: true, //Flag so UI knows whether to use router for BNB verses ERC20
-      assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (not used for BNB vault)
+      assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (not used for BNB vault but needed for prices)
       pid: 0,
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043", // CZF address
       rewardDecimals: 18,

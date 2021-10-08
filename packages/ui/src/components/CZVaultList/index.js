@@ -35,22 +35,18 @@ const czfarmLink = () =>
 
 function CZVaultList() {
   const { chainId } = useEthers();
-  const { pools } = useCZVaults();
+  const { vaults } = useCZVaults();
 
-  const [basisPoints, setBasisPoints] = useState(pools.map((p) => 10000));
-
-  const [currentDate] = useState(new Date());
-
-  const displayPools = (filter, pools) => {
+  const displayVaults = (filter, vaults) => {
     return (
-      !!pools &&
-      pools.length > 0 && (
+      !!vaults &&
+      vaults.length > 0 && (
         <>
-          {pools.map((pool, index) => {
-            if (!filter(pool)) return;
+          {vaults.map((vault, index) => {
+            if (!filter(vault)) return;
             return (
               <Box
-                key={"pid-" + pool.name}
+                key={"pid-" + vault.name}
                 border="solid 1px"
                 borderRadius="5px"
                 m="0px"
@@ -59,21 +55,22 @@ function CZVaultList() {
                 fontSize={{ base: "x-small", md: "md" }}
               >
                 <CZVault
-                  sendDeposit={pool.sendDeposit}
-                  sendWithdraw={pool.sendWithdraw}
-                  rewardAddress={pool.rewardAddress}
-                  rewardDecimals={pool.rewardDecimals}
-                  aprBasisPoints={pool.aprBasisPoints}
-                  rewardPerDay={pool.rewardPerDay}
-                  usdValue={pool.usdValue}
-                  usdPerDay={pool.usdPerDay}
-                  timeStart={pool.timeStart}
-                  timeEnd={pool.timeEnd}
-                  user={pool.user}
-                  name={pool.name}
-                  description={pool.description}
-                  isBnbVault={pool.isBnbVault}
-                  logo={pool.logo}
+                  sendDeposit={vault.sendDeposit}
+                  sendWithdraw={vault.sendWithdraw}
+                  sendClaim={vault.sendClaim}
+                  rewardAddress={vault.rewardAddress}
+                  rewardDecimals={vault.rewardDecimals}
+                  aprBasisPoints={vault.aprBasisPoints}
+                  rewardPerDay={vault.rewardPerDay}
+                  usdValue={vault.usdValue}
+                  usdPerDay={vault.usdPerDay}
+                  timeStart={vault.timeStart}
+                  timeEnd={vault.timeEnd}
+                  user={vault.user}
+                  name={vault.name}
+                  description={vault.description}
+                  isBnbVault={vault.isBnbVault}
+                  logo={vault.logo}
                 />
               </Box>
             );
@@ -85,23 +82,23 @@ function CZVaultList() {
 
   return (
     <>
-      <p>Earn partnered tokens by pooling {czfarmLink()}.</p>
+      <p>Earn autocompounding rewards and CZF without dumping on any projects.</p>
       <br />
-      {displayPools((pool) => true, pools)}
-      <Text fontWeight="bold">Pools Totals</Text>
-      {!!pools && pools.length > 0 ? (
+      {displayVaults((vault) => true, vaults)}
+      <Text fontWeight="bold">Vaults Totals</Text>
+      {!!vaults && vaults.length > 0 ? (
         <SimpleGrid columns="2" spacing="1">
-          <Text textAlign="right">Pool Count:</Text>
-          <Text textAlign="left">{pools.length}</Text>
+          <Text textAlign="right">Vault Count:</Text>
+          <Text textAlign="left">{vaults.length}</Text>
           <Text textAlign="right">Active USD/Day Rewards:</Text>
           {/* <Text textAlign="left">
             $
             {weiToShortString(
-              pools.reduce(
-                (prev, curr, index, pools) =>
-                  pools[index].timeStart <= currentDate &&
-                  pools[index].timeEnd >= currentDate
-                    ? prev.add(pools[index].usdPerDay)
+              vaults.reduce(
+                (prev, curr, index, vaults) =>
+                  vaults[index].timeStart <= currentDate &&
+                  vaults[index].timeEnd >= currentDate
+                    ? prev.add(vaults[index].usdPerDay)
                     : prev,
                 BigNumber.from("0")
               ),
@@ -112,8 +109,8 @@ function CZVaultList() {
           {/* <Text textAlign="left">
             $
             {weiToShortString(
-              pools.reduce(
-                (prev, curr, index, pools) => prev.add(pools[index].usdValue),
+              vaults.reduce(
+                (prev, curr, index, vaults) => prev.add(vaults[index].usdValue),
                 BigNumber.from("0")
               ),
               2
@@ -121,7 +118,7 @@ function CZVaultList() {
           </Text> */}
         </SimpleGrid>
       ) : (
-        <Box>Loading pools...</Box>
+        <Box>Loading vaults...</Box>
       )}
       <br />
       <Divider />

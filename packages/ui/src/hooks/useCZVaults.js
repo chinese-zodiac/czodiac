@@ -4,7 +4,7 @@ import {
   useContractCalls,
   MultiCallABI
 } from "@pdusedapp/core";
-import { CZVAULTPOOLS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, CZFBELTVAULTBNB, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
+import { CZVAULTS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, CZFBELTVAULTBNB, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, getDefaultProvider } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -18,9 +18,7 @@ const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
 const CHAIN = CHAINS.BSC;
 
 function useCZVaults() {
-  const pool = {
-    timestampStart: null,
-    timestampEnd: null,
+  const vault = {
     rewardPerSecond: null,
     totalAmount: null,
     totalAmountUSD: null,
@@ -39,13 +37,13 @@ function useCZVaults() {
 
   const sendDepositForVault = async (pid, wad) => {
     if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
-    const poolContract = new Contract(
+    const vaultRouterContract = new Contract(
       CZVAULTROUTER[CHAINS.BSC],
       czVaultRouterInterface,
       library
     ).connect(library.getSigner());
     try {
-      await poolContract.depositAndStakeBeltBNB(CZFARMMASTERROUTABLE[CHAIN], pid, {
+      await vaultRouterContract.depositAndStakeBeltBNB(CZFARMMASTERROUTABLE[CHAIN], pid, {
         value: wad
       });
     } catch (err) {
@@ -55,33 +53,48 @@ function useCZVaults() {
 
   const sendWithdrawForVault = async ( pid, wad) => {
     if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
-    const poolContract = new Contract(
+    const vaultRouterContract = new Contract(
       CZVAULTROUTER[CHAINS.BSC],
       czVaultRouterInterface,
       library
     ).connect(library.getSigner());
 
     try {
-      await poolContract.withdrawAndUnstakeBeltBNB(CZFARMMASTERROUTABLE[CHAIN], pid, wad);
+      await vaultRouterContract.withdrawAndUnstakeBeltBNB(CZFARMMASTERROUTABLE[CHAIN], pid, wad);
     } catch (err) {
       console.log(err);
     }
   };
 
+  const sendClaim = async (pid) => {
+    if (!account || !library || !CZFARMMASTERROUTABLE[CHAINS.BSC]) return;
+    const farmContract = new Contract(
+      CZFARMMASTERROUTABLE[CHAINS.BSC],
+      czFarmMasterRoutableInterface,
+      library
+    ).connect(library.getSigner());
+
+    try {
+      await farmContract.claim(pid);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
   const rewardBusdPrices = useBUSDPriceMulti(
-    !!CZVAULTPOOLS[chainId]
-      ? CZVAULTPOOLS[chainId].map((p) => p.rewardAddress)
+    !!CZVAULTS[chainId]
+      ? CZVAULTS[chainId].map((v) => v.rewardAddress)
       : []
   );
 
-  const [pools, setPools] = useState([]);
+  const [vaults, setVaults] = useState([]);
   const [calls, setCalls] = useState([]);
   const callResults = useContractCalls(calls) ?? [];
 
   useEffect(() => {
     const newCalls = [];
-    if (!CZVAULTPOOLS[chainId]) {
+    if (!CZVAULTS[chainId]) {
       setCalls(newCalls);
       return;
     }
@@ -92,7 +105,7 @@ function useCZVaults() {
       method: "czfPerBlock"
     });
 
-    CZVAULTPOOLS[chainId].forEach((p) => {
+    CZVAULTS[chainId].forEach((v) => {
       let user = "0x0000000000000000000000000000000000000000"; // Simplifies code by calling for 0x0 if no account
       if(!!account) user = account;
       newCalls.push({
@@ -105,13 +118,13 @@ function useCZVaults() {
         abi: czFarmMasterRoutableInterface,
         address: CZFARMMASTERROUTABLE[chainId],
         method: "userInfo",
-        args: [p.pid, user],
+        args: [v.pid, user],
       });
       newCalls.push({
         abi: czFarmMasterRoutableInterface,
         address: CZFARMMASTERROUTABLE[chainId],
         method: "pendingCzf",
-        args: [p.pid, user],
+        args: [v.pid, user],
       });
       newCalls.push({
         abi: ierc20Interface,
@@ -124,12 +137,12 @@ function useCZVaults() {
   }, [account, chainId]);
 
   useDeepCompareEffect(() => {
-    let newPools = [];
+    let newVaults = [];
     if (
       !callResults ||
       callResults.length === 0 ||
       !callResults[0] ||
-      !CZVAULTPOOLS[chainId] ||
+      !CZVAULTS[chainId] ||
       !czfBusdPrice
     ) {
       return;
@@ -137,78 +150,78 @@ function useCZVaults() {
 
     let rewardPerSecond = callResults[0][0];
 
-    CZVAULTPOOLS[chainId].forEach(async (p, index) => {
-      let o = (callResults.length - 1) * index; //Subtract 1 from call results for ethBal call
+    CZVAULTS[chainId].forEach(async (v, index) => {
+      let o = 4 * index; //Offset for cycling thru call results
 
-      p.sendDeposit = (wad) => sendDepositForVault(p.pid, wad);
-      p.sendWithdraw = (wad) => sendWithdrawForVault(p.pid, wad);
-      console.log(callResults)
-      p.user = {};
-      p.user.address = account;
-      p.user.bnbBal = callResults[1 + o][0];
+      v.sendDeposit = (wad) => sendDepositForVault(v.pid, wad);
+      v.sendWithdraw = (wad) => sendWithdrawForVault(v.pid, wad);
+      v.sendClaim = () => sendClaim(v.pid);
+
+      console.log("callResults",callResults)
+      v.user = {};
+      v.user.address = account;
+      console.log("o",o)
+      v.user.bnbBal = callResults[1 + o][0];
       //TODO get balance for bep20 token to deposit into non-BNB vaults
-      //p.user.tokenBal = ;
-      p.user.assetStaked = callResults[2 + o][0];
-      p.user.rewardPending = callResults[3 + o][0];
+      //v.user.tokenBal = ;
+      v.user.vaultAssetStaked = callResults[2 + o][0];
+      //TODO: Calculate base asset value of vaultAssetStaked (eg BNB value for beltBNB)
+      v.user.rewardPending = callResults[3 + o][0];
 
-      console.log('userInfo', callResults[2 + o]);
+      console.log('userInfo', callResults[4 + o]);
 
-      // p.timeStart = new Date(callResults[0 + o][0].toNumber() * 1000);
-      // p.timeEnd = new Date(callResults[1 + o][0].toNumber() * 1000);
-      // p.rewardPerSecond = callResults[2 + o][0];
-      // p.czfBal = callResults[3 + o][0];
-
-      // p.usdValue = p.czfBal.mul(czfBusdPrice).div(weiFactor);
-      // p.rewardPerDay = p.rewardPerSecond.mul(BigNumber.from("86400"));
+      // v.rewardPerSecond = callResults[2 + o][0];
+      // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);
+      // v.rewardPerDay = v.rewardPerSecond.mul(BigNumber.from("86400"));
       // if (!!rewardBusdPrices[index]) {
-      //   p.usdPerDay = p.rewardPerDay
+      //   v.usdPerDay = v.rewardPerDay
       //     .mul(rewardBusdPrices[index])
       //     .div(weiFactor);
       // } else {
-      //   p.usdPerDay = BigNumber.from("0");
+      //   v.usdPerDay = BigNumber.from("0");
       // }
 
       // //Fixes bug where TVL includes the CZF rewards in CZF->CZF pool
       // let tvlOffset = BigNumber.from("0");
       // if (
-      //   p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" &&
-      //   p.usdPerDay.gt(BigNumber.from("0"))
+      //   v.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" &&
+      //   v.usdPerDay.gt(BigNumber.from("0"))
       // ) {
       //   let seconds = 0;
-      //   if (new Date() >= p.timeStart && new Date() <= p.timeEnd) {
-      //     seconds = Math.floor((p.timeEnd - new Date()) / 1000);
-      //   } else if (new Date() < p.timeStart) {
-      //     seconds = Math.floor((p.timeEnd - p.timeStart) / 1000);
+      //   if (new Date() >= v.timeStart && new Date() <= v.timeEnd) {
+      //     seconds = Math.floor((v.timeEnd - new Date()) / 1000);
+      //   } else if (new Date() < v.timeStart) {
+      //     seconds = Math.floor((v.timeEnd - v.timeStart) / 1000);
       //   }
-      //   tvlOffset = p.usdPerDay.mul(
+      //   tvlOffset = v.usdPerDay.mul(
       //     BigNumber.from(seconds.toString()).div(BigNumber.from("86400"))
       //   );
-      //   p.usdValue = p.usdValue.sub(tvlOffset);
+      //   v.usdValue = v.usdValue.sub(tvlOffset);
       // }
 
-      // if (p.usdValue.gt(BigNumber.from("0"))) {
-      //   p.aprBasisPoints = p.usdPerDay
+      // if (v.usdValue.gt(BigNumber.from("0"))) {
+      //   v.aprBasisPoints = v.usdPerDay
       //     .mul(BigNumber.from("365"))
       //     .mul(BigNumber.from("10000"))
-      //     .div(p.usdValue);
+      //     .div(v.usdValue);
       // } else {
-      //   p.aprBasisPoints = BigNumber.from("0");
+      //   v.aprBasisPoints = BigNumber.from("0");
       // }
 
-      // if (p.usdValue.gt(BigNumber.from("0"))) {
-      //   p.aprBasisPoints = p.usdPerDay
+      // if (v.usdValue.gt(BigNumber.from("0"))) {
+      //   v.aprBasisPoints = v.usdPerDay
       //     .mul(BigNumber.from("365"))
       //     .mul(BigNumber.from("10000"))
-      //     .div(p.usdValue.add(tvlOffset));
+      //     .div(v.usdValue.add(tvlOffset));
       // } else {
-      //   p.aprBasisPoints = BigNumber.from("0");
+      //   v.aprBasisPoints = BigNumber.from("0");
       // }
 
       // if (
-      //   p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" &&
-      //   p.usdPerDay.gt(BigNumber.from("0"))
+      //   v.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" &&
+      //   v.usdPerDay.gt(BigNumber.from("0"))
       // ) {
-      //   p.usdValue = p.usdValue.add(
+      //   v.usdValue = v.usdValue.add(
       //     parseEther("288385966")
       //       .mul(czfBusdPrice)
       //       .div(weiFactor)
@@ -216,31 +229,31 @@ function useCZVaults() {
       // }
 
       // if (!!account && !!callResults[4 + o]) {
-      //   p.user = {};
-      //   p.user.czfStaked = callResults[4 + o][0];
-      //   p.user.rewardPending = callResults[5 + o][0];
-      //   p.user.czfBal = callResults[6 + o][0];
+      //   v.user = {};
+      //   v.user.czfStaked = callResults[4 + o][0];
+      //   v.user.rewardPending = callResults[5 + o][0];
+      //   v.user.czfBal = callResults[6 + o][0];
 
-      //   p.user.czfStakedUsd = p.user.czfStaked.mul(czfBusdPrice).div(weiFactor);
-      //   p.user.czfBalUsd = p.user.czfBal.mul(czfBusdPrice).div(weiFactor);
-      //   if (p.czfBal > 0) {
-      //     p.user.rewardPerDay = p.user.czfStaked
-      //       .mul(p.rewardPerDay)
-      //       .div(p.czfBal);
+      //   v.user.czfStakedUsd = v.user.czfStaked.mul(czfBusdPrice).div(weiFactor);
+      //   v.user.czfBalUsd = v.user.czfBal.mul(czfBusdPrice).div(weiFactor);
+      //   if (v.czfBal > 0) {
+      //     v.user.rewardPerDay = v.user.czfStaked
+      //       .mul(v.rewardPerDay)
+      //       .div(v.czfBal);
       //   } else {
-      //     p.user.rewardPerDay = BigNumber.from("0");
+      //     v.user.rewardPerDay = BigNumber.from("0");
       //   }
       // }
-      newPools.push(p);
+      newVaults.push(v);
     });
 
-    console.log({ pools: newPools });
-    setPools(newPools);
+    console.log({ vaults: newVaults });
+    setVaults(newVaults);
   }, [callResults, czfBusdPrice, rewardBusdPrices]);
 
   
   return {
-    pools,
+    vaults,
   };
 }
 

@@ -16,6 +16,7 @@ const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",text
 function CZVault({
   sendDeposit,
   sendWithdraw,
+  sendClaim,
   rewardAddress,
   rewardDecimals,
   aprBasisPoints,
@@ -79,10 +80,10 @@ function CZVault({
       </Button>
       <br />
       <Button m="10px" onClick={()=>{
-        sendWithdraw(user.bnbStaked);
+        sendWithdraw(user.vaultAssetStaked);
       }}>Withdraw All</Button>
       <Button m="10px" onClick={()=>{
-        sendWithdraw(BigNumber.from("0"));
+        sendClaim();
       }}>Claim CZF</Button>
 
       <Divider />
