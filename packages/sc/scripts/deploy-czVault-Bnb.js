@@ -24,6 +24,7 @@ async function main() {
   await czFarmMasterRoutable.deployed();
   console.log("CZFarmMasterRoutable deployed to:", czFarmMasterRoutable.address);
 
+  //TODO: CZF Vaults should have a unique ERC20 name and symbol
   const CzfBeltVault = await ethers.getContractFactory("CzfBeltVault");
   const czfBeltVault = await CzfBeltVault.deploy(
       beltFarm,
