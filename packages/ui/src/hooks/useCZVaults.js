@@ -4,7 +4,7 @@ import {
   useContractCalls,
   MultiCallABI
 } from "@pdusedapp/core";
-import { CZVAULTPOOLS, CZFARM_ADDRESSES, CZFARMMASTERROUTABLE, CZFBELTVAULTBNB, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
+import { CZVAULTPOOLS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, CZFBELTVAULTBNB, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, getDefaultProvider } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -37,10 +37,10 @@ function useCZVaults() {
   const czFarmMasterRoutableInterface = new Interface(czFarmMasterRoutable);
   const czVaultRouterInterface = new Interface(czVaultRouter);
 
-  const sendDepositForVault = async (poolAddress, pid, wad) => {
-    if (!account || !library || !poolAddress) return;
+  const sendDepositForVault = async (pid, wad) => {
+    if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
     const poolContract = new Contract(
-      poolAddress,
+      CZVAULTROUTER[CHAINS.BSC],
       czVaultRouterInterface,
       library
     ).connect(library.getSigner());
@@ -53,10 +53,10 @@ function useCZVaults() {
     }
   };
 
-  const sendWithdrawForVault = async (poolAddress, pid, wad) => {
-    if (!account || !library || !poolAddress) return;
+  const sendWithdrawForVault = async ( pid, wad) => {
+    if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
     const poolContract = new Contract(
-      poolAddress,
+      CZVAULTROUTER[CHAINS.BSC],
       czVaultRouterInterface,
       library
     ).connect(library.getSigner());
@@ -86,55 +86,42 @@ function useCZVaults() {
       return;
     }
 
+    newCalls.push({
+      abi: czFarmMasterRoutableInterface,
+      address: CZFARMMASTERROUTABLE[chainId],
+      method: "czfPerBlock"
+    });
+
     CZVAULTPOOLS[chainId].forEach((p) => {
-      let ca = p.address;
-      // newCalls.push({
-      //   abi: czFarmPoolInterface,
-      //   address: ca,
-      //   method: "timestampEnd",
-      // });
-      // newCalls.push({
-      //   abi: czFarmPoolInterface,
-      //   address: ca,
-      //   method: "rewardPerSecond",
-      // });
+      let user = "0x0000000000000000000000000000000000000000"; // Simplifies code by calling for 0x0 if no account
+      if(!!account) user = account;
       newCalls.push({
         abi: MultiCallABI,
         address: MUTICALL_ADDRESSES[chainId],
         method: "getEthBalance",
-        args: [ca]
+        args: [user]
       });
-      if (account) {
-        newCalls.push({
-          abi: MultiCallABI,
-          address: MUTICALL_ADDRESSES[chainId],
-          method: "getEthBalance",
-          args: [account]
-        });
-        newCalls.push({
-          abi: czFarmMasterRoutableInterface,
-          address: CZFARMMASTERROUTABLE[chainId],
-          method: "userInfo",
-          args: [p.pid, account],
-        });
-        newCalls.push({
-          abi: czFarmMasterRoutableInterface,
-          address: CZFARMMASTERROUTABLE[chainId],
-          method: "pendingCzf",
-          args: [p.pid, account],
-        });
-        newCalls.push({
-          abi: ierc20Interface,
-          address: CZFARM_ADDRESSES[chainId],
-          method: "balanceOf",
-          args: [account],
-        });
-      }
+      newCalls.push({
+        abi: czFarmMasterRoutableInterface,
+        address: CZFARMMASTERROUTABLE[chainId],
+        method: "userInfo",
+        args: [p.pid, user],
+      });
+      newCalls.push({
+        abi: czFarmMasterRoutableInterface,
+        address: CZFARMMASTERROUTABLE[chainId],
+        method: "pendingCzf",
+        args: [p.pid, user],
+      });
+      newCalls.push({
+        abi: ierc20Interface,
+        address: CZFARM_ADDRESSES[chainId],
+        method: "balanceOf",
+        args: [user],
+      });
     });
     setCalls(newCalls);
   }, [account, chainId]);
-
-  console.log({ callResults });
 
   useDeepCompareEffect(() => {
     let newPools = [];
@@ -148,19 +135,20 @@ function useCZVaults() {
       return;
     }
 
+    let rewardPerSecond = callResults[0][0];
+
     CZVAULTPOOLS[chainId].forEach(async (p, index) => {
-      let l = 5;
-      if (!account) l = 4;
-      let o = l * index;
+      let o = (callResults.length - 1) * index; //Subtract 1 from call results for ethBal call
 
-
-      p.sendDeposit = (wad) => sendDepositForVault(p.address, p.pid, wad);
-      p.sendWithdraw = (wad) => sendWithdrawForVault(p.address, p.pid, wad);
-
+      p.sendDeposit = (wad) => sendDepositForVault(p.pid, wad);
+      p.sendWithdraw = (wad) => sendWithdrawForVault(p.pid, wad);
+      console.log(callResults)
       p.user = {};
       p.user.address = account;
       p.user.bnbBal = callResults[1 + o][0];
-      p.user.bnbStaked = callResults[2 + o][0];
+      //TODO get balance for bep20 token to deposit into non-BNB vaults
+      //p.user.tokenBal = ;
+      p.user.assetStaked = callResults[2 + o][0];
       p.user.rewardPending = callResults[3 + o][0];
 
       console.log('userInfo', callResults[2 + o]);

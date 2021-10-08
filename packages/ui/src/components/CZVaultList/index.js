@@ -71,6 +71,8 @@ function CZVaultList() {
                   timeEnd={pool.timeEnd}
                   user={pool.user}
                   name={pool.name}
+                  description={pool.description}
+                  isBnbVault={pool.isBnbVault}
                   logo={pool.logo}
                 />
               </Box>

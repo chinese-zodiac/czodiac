@@ -30,6 +30,9 @@ function Home() {
     <Header />
     <LightMode>
       <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
+          <NavLink to="vaults">
+            <Button colorScheme="red">CZVaults</Button>
+          </NavLink>
           <NavLink to="czfarm">
             <Button colorScheme="red" >Earn On CZFarm</Button>
           </NavLink>
@@ -44,9 +47,6 @@ function Home() {
           </NavLink>
           <NavLink to="sale">
             <Button colorScheme="orange" >Sale (complete)</Button>
-          </NavLink>
-          <NavLink to="vaults">
-            <Button colorScheme="orange">CZVaults</Button>
           </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>

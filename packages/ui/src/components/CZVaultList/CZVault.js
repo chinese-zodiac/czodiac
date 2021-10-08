@@ -4,10 +4,12 @@ import { Box, Button, Icon, Link, Text, Heading, Image,
 import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
 import { CZFARM_ADDRESSES } from "../../constants";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import useCZVaults from "../../hooks/useCZVaults";
 import {weiToFixed, tokenAmtToShortString, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
+
+const {parseEther} = utils;
 
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 
@@ -24,6 +26,8 @@ function CZVault({
   timeEnd,
   user,
   name,
+  description,
+  isBnbVault,
   logo
 }) {
   const {chainId} = useEthers();
@@ -33,9 +37,10 @@ function CZVault({
 
   return (<>
       <Image src={logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
-      <Heading display="inline-block" as="h3" fontSize="2xl" >{tokenLink(rewardAddress,name)}</Heading>
+      <Heading display="inline-block" as="h3" fontSize="2xl" >{isBnbVault ? "BNB" : tokenLink(rewardAddress,name)}</Heading>
+      <Text>{description}</Text>
       <br/>
-      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get {name} on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${isBnbVault ? "BNB" : CZFARM_ADDRESSES[chainId] }`} textDecoration="underline">🖙🖙 Get {name} on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider
@@ -55,9 +60,22 @@ function CZVault({
       <Button onClick={()=>{
         let bp = BigNumber.from(10000);
         if(!!basisPoints) bp = basisPoints
-        sendDeposit(user.bnbBal.mul(bp).div(BigNumber.from(10000)));
+        if(isBnbVault){
+          if(user.bnbBal.gt(parseEther("0.025"))) {
+            sendDeposit(user.bnbBal.sub(parseEther("0.025")).mul(bp).div(BigNumber.from(10000)));
+          } else {
+            alert("Not enough BNB");
+          }
+        } else {
+          alert("TODO: NOT_IMPLEMENTED");
+        }    
       }}>
-        Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.bnbBal.mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.bnbBal,2)} {`${name}`})
+        {isBnbVault ? <>
+          Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.bnbBal.sub(parseEther("0.025")).mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.bnbBal.sub(parseEther("0.025")),2)} {`${name}`})
+        </> : <>
+          TODO: NOT_IMPLEMENTED
+        </>}
+        
       </Button>
       <br />
       <Button m="10px" onClick={()=>{
@@ -65,7 +83,7 @@ function CZVault({
       }}>Withdraw All</Button>
       <Button m="10px" onClick={()=>{
         sendWithdraw(BigNumber.from("0"));
-      }}>Claim {name}</Button>
+      }}>Claim CZF</Button>
 
       <Divider />
       <Text fontWeight="bold">Your stats</Text>

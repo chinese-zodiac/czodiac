@@ -209,12 +209,14 @@ export const CZVAULTPOOLS = {
   [CHAINS.BSC] : [
     {
       name: "BNB",
-      address: CZVAULTROUTER[CHAINS.BSC], // CzVaultRouter address
-      assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (incorrect..),
+      description: "Autocompound BNB and claim CZF rewards.",
+      address: CZFBELTVAULTBNB[CHAINS.BSC], // CzfVaultBeltBnb address
+      isBnbVault: true, //Flag so UI knows whether to use router for BNB verses ERC20
+      assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (not used for BNB vault)
       pid: 0,
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043", // CZF address
       rewardDecimals: 18,
-      logo: "https://s.belt.fi/info/BNB_icon.png" // BNB icon
+      logo: "./vault/BNB.png" // BNB icon
     },
   ],
 }
