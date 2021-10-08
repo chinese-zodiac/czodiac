@@ -5,13 +5,13 @@ import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
 import { CZFARM_ADDRESSES } from "../../constants";
 import { BigNumber } from "ethers";
-import useCZPools from "../../hooks/useCZPools";
+import useCZVaults from "../../hooks/useCZVaults";
 import {weiToFixed, tokenAmtToShortString, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 
-function CZPool({
+function CZVault({
   sendDeposit,
   sendWithdraw,
   rewardAddress,
@@ -35,7 +35,7 @@ function CZPool({
       <Image src={logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
       <Heading display="inline-block" as="h3" fontSize="2xl" >{tokenLink(rewardAddress,name)}</Heading>
       <br/>
-      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get {name} on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider
@@ -55,13 +55,13 @@ function CZPool({
       <Button onClick={()=>{
         let bp = BigNumber.from(10000);
         if(!!basisPoints) bp = basisPoints
-        sendDeposit(user.czfBal.mul(bp).div(BigNumber.from(10000)));
+        sendDeposit(user.bnbBal.mul(bp).div(BigNumber.from(10000)));
       }}>
-        Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.czfBal.mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.czfBal,2)} CZF)
+        Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.bnbBal.mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.bnbBal,2)} {`${name}`})
       </Button>
       <br />
       <Button m="10px" onClick={()=>{
-        sendWithdraw(user.czfStaked);
+        sendWithdraw(user.bnbStaked);
       }}>Withdraw All</Button>
       <Button m="10px" onClick={()=>{
         sendWithdraw(BigNumber.from("0"));
@@ -70,13 +70,13 @@ function CZPool({
       <Divider />
       <Text fontWeight="bold">Your stats</Text>
       <SimpleGrid columns="4" spacing="1" >
-        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.czfStaked,2)} CZF</Text>
-        <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} {name}</Text>
-        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.czfBal,2)} CZF</Text>
-        <Text textAlign="right">{name}/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPerDay,rewardDecimals,2)} {name}</Text>
+        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.bnbStaked,2)} {name}</Text>
+        <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
+        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {name}</Text>
+        <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPerDay,rewardDecimals,2)} CZF</Text>
       </SimpleGrid>
       <Text fontWeight="bold">Pool stats</Text>
-      <SimpleGrid columns="4" spacing="1" >
+      {/* <SimpleGrid columns="4" spacing="1" >
         <Text textAlign="right" >APR:</Text>
         <Text textAlign="left" >{aprBasisPoints.toNumber() / 100}%</Text>
         <Text textAlign="right" >{name}/day:</Text>
@@ -91,8 +91,8 @@ function CZPool({
         <Text textAlign="left" >{timeStart.toString()}</Text>
         <Text textAlign="right" >Closes:</Text>
         <Text textAlign="left" >{timeEnd.toString()}</Text>
-      </SimpleGrid>
+      </SimpleGrid> */}
   </>)
 }
 
-export default CZPool;
+export default CZVault;

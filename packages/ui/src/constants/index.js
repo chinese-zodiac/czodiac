@@ -104,22 +104,6 @@ export const CZFARMPOOLFACTORY_ADDRESSES = {
   [CHAINS.BSC]: "0xBA8A16Fd1Bc596F7BAFD0640c65d4281dA9d43DB"
 }
 
-export const CZVAULTPOOLS = {
-  [CHAINS.BSC] : [
-    // "beltFarm": "0xD4BbC80b9B102b77B21A06cb77E954049605E6c1",
-    // "beltBNB": "0xa8Bb71facdd46445644C277F9499Dd22f6F0A30C",
-    // "BELT": "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f",
-    // "beltBnbPoolId": 9,
-    {
-      name: "CzfBeltVault",
-      address: "0x7981fed94a74e3b92a8974b5fe20c9359b695d12", // CzfBeltVault address
-      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043", // BeltBNB or CZF address?
-      rewardDecimals: 18,
-      logo: "https://s.belt.fi/info/BNB_icon.png" // BeltBNB icon ( or CzfBeltVault address )
-    },
-  ],
-}
-
 export const CZFARMPOOLS = {
   [CHAINS.BSC] : [
     {
@@ -189,6 +173,10 @@ export const ORACLES = {
   }  
 }
 
+export const BNB = {
+  [CHAINS.BSC]: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+}
+
 export const CZUSD = {
   [CHAINS.BSC]: "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70"
 }
@@ -215,4 +203,18 @@ export const CZFBELTVAULTBNB = {
 
 export const CZVAULTROUTER = {
   [CHAINS.BSC]: "0xe4548FE50F46766DD951c2ff5cB834D3e262007E"
+}
+
+export const CZVAULTPOOLS = {
+  [CHAINS.BSC] : [
+    {
+      name: "BNB",
+      address: CZVAULTROUTER[CHAINS.BSC], // CzVaultRouter address
+      assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (incorrect..),
+      pid: 0,
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043", // CZF address
+      rewardDecimals: 18,
+      logo: "https://s.belt.fi/info/BNB_icon.png" // BNB icon
+    },
+  ],
 }

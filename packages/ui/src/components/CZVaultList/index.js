@@ -1,33 +1,12 @@
 import React, { useState } from "react";
 import {
   Box,
-  Button,
-  LightMode,
-  Icon,
   Link,
   Text,
-  Heading,
-  Image,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
   SimpleGrid,
   Divider,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
 } from "@chakra-ui/react";
-import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
-import {
-  CZODIAC_ADDRESSES,
-  BUSD_ADDRESSES,
-  WETH_ADDRESSES,
-  CZFARM_ADDRESSES,
-} from "../../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useBUSDPrice from "../../hooks/useBUSDPrice";
 import useCZVaults from "../../hooks/useCZVaults";
@@ -37,7 +16,7 @@ import {
   toShortString,
 } from "../../utils/bnDisplay";
 import "./index.scss";
-import CZPool from "../CZPool";
+import CZVault from "./CZVault";
 
 const tokenLink = (address, name) => {
   return (
@@ -50,6 +29,7 @@ const tokenLink = (address, name) => {
     </Link>
   );
 };
+
 const czfarmLink = () =>
   tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043", "$CZF");
 
@@ -78,7 +58,7 @@ function CZVaultList() {
                 p="20px"
                 fontSize={{ base: "x-small", md: "md" }}
               >
-                <CZPool
+                <CZVault
                   sendDeposit={pool.sendDeposit}
                   sendWithdraw={pool.sendWithdraw}
                   rewardAddress={pool.rewardAddress}
@@ -105,36 +85,14 @@ function CZVaultList() {
     <>
       <p>Earn partnered tokens by pooling {czfarmLink()}.</p>
       <br />
-      <Tabs>
-        <TabList variant="enclosed">
-          <Tab>Active</Tab>
-          <Tab>Launching</Tab>
-          <Tab>Expired</Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel p="0px" pt="20px">
-            {displayPools(
-              (pool) =>
-                pool.timeStart <= currentDate && pool.timeEnd >= currentDate,
-              pools
-            )}
-          </TabPanel>
-          <TabPanel p="0px" pt="20px">
-            {displayPools((pool) => pool.timeStart > currentDate, pools)}
-          </TabPanel>
-          <TabPanel p="0px" pt="20px">
-            {displayPools((pool) => pool.timeEnd < currentDate, pools)}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+      {displayPools((pool) => true, pools)}
       <Text fontWeight="bold">Pools Totals</Text>
       {!!pools && pools.length > 0 ? (
         <SimpleGrid columns="2" spacing="1">
           <Text textAlign="right">Pool Count:</Text>
           <Text textAlign="left">{pools.length}</Text>
           <Text textAlign="right">Active USD/Day Rewards:</Text>
-          <Text textAlign="left">
+          {/* <Text textAlign="left">
             $
             {weiToShortString(
               pools.reduce(
@@ -147,9 +105,9 @@ function CZVaultList() {
               ),
               2
             )}
-          </Text>
+          </Text> */}
           <Text textAlign="right">Total Value Locked:</Text>
-          <Text textAlign="left">
+          {/* <Text textAlign="left">
             $
             {weiToShortString(
               pools.reduce(
@@ -158,7 +116,7 @@ function CZVaultList() {
               ),
               2
             )}
-          </Text>
+          </Text> */}
         </SimpleGrid>
       ) : (
         <Box>Loading pools...</Box>
