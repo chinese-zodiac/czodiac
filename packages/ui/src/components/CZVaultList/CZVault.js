@@ -21,8 +21,8 @@ function CZVault({
   rewardDecimals,
   aprBasisPoints,
   rewardPerDay,
-  usdValue,
   usdPerDay,
+  feeBasis,
   czfPerDay,
   timeStart,
   timeEnd,
@@ -30,7 +30,8 @@ function CZVault({
   name,
   description,
   isBnbVault,
-  logo
+  logo,
+  baseAssetStakedBusd
 }) {
   const {chainId} = useEthers();
 
@@ -90,7 +91,7 @@ function CZVault({
       <Divider />
       <Text fontWeight="bold">Your stats</Text>
       <SimpleGrid columns="4" spacing="1" >
-        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,2)} {name}</Text>
+        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,8)} {name}</Text>
         <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
         <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {name}</Text>
         <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.czfPerDay,rewardDecimals,2)} CZF</Text>
@@ -101,10 +102,15 @@ function CZVault({
         <Text textAlign="left" >{aprBasisPoints.toNumber() / 100}%</Text>
         <Text textAlign="right" >{name}/day:</Text>
         <Text textAlign="left" >{tokenAmtToShortString(rewardPerDay,rewardDecimals,2)}</Text>
+        */}
         <Text textAlign="right" >TVL:</Text>
-        <Text textAlign="left" >${weiToShortString(usdValue,2)}</Text>*/}
+        <Text textAlign="left" >${weiToShortString(baseAssetStakedBusd,2)}</Text>    
+        <Text textAlign="right" >Deposit Fee:</Text>
+        <Text textAlign="left" >0.00%</Text> 
         <Text textAlign="right" >CZF/day:</Text>
-        <Text textAlign="left" >{tokenAmtToShortString(czfPerDay,rewardDecimals,2)} CZF</Text>     
+        <Text textAlign="left" >{tokenAmtToShortString(czfPerDay,rewardDecimals,2)} CZF</Text>
+        <Text textAlign="right" >Withdraw Fee:</Text>
+        <Text textAlign="left" >{!!feeBasis ? feeBasis / 100 : 0}%</Text>
       </SimpleGrid>
   </>)
 }

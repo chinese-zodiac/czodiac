@@ -55,23 +55,7 @@ function CZVaultList() {
                 fontSize={{ base: "x-small", md: "md" }}
               >
                 <CZVault
-                  sendDeposit={vault.sendDeposit}
-                  sendWithdraw={vault.sendWithdraw}
-                  sendClaim={vault.sendClaim}
-                  rewardAddress={vault.rewardAddress}
-                  rewardDecimals={vault.rewardDecimals}
-                  aprBasisPoints={vault.aprBasisPoints}
-                  rewardPerDay={vault.rewardPerDay}
-                  usdValue={vault.usdValue}
-                  usdPerDay={vault.usdPerDay}
-                  czfPerDay={vault.czfPerDay}
-                  timeStart={vault.timeStart}
-                  timeEnd={vault.timeEnd}
-                  user={vault.user}
-                  name={vault.name}
-                  description={vault.description}
-                  isBnbVault={vault.isBnbVault}
-                  logo={vault.logo}
+                  {...vault}
                 />
               </Box>
             );

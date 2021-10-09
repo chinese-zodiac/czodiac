@@ -209,6 +209,7 @@ export const CZVAULTS = {
       assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (not used for BNB vault but needed for prices)
       vaultAddress: "0xa9f458F907F628495773e10190EAc81078bABc03", //czfBeltBNB address
       strategyAddress: "0xa8bb71facdd46445644c277f9499dd22f6f0a30c", //beltBNB
+      lpCzfAddress: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE", //CZF-BNB : Used to calculate prices
       pid: 0,
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043", // CZF address
       rewardDecimals: 18,
