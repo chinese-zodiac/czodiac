@@ -1,0 +1,128 @@
+[
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_delaySeconds",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "delaySeconds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "pricePerFullShareLast",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "pricePerFullShareRecent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "_strategyToken",
+          "type": "address"
+        }
+      ],
+      "name": "start",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "_strategyToken",
+          "type": "address"
+        }
+      ],
+      "name": "update",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "updateTimeLast",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IBeltMultiStrategyToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "updateTimeRecent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]

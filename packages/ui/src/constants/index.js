@@ -199,11 +199,15 @@ export const CZFARMMASTERROUTABLE = {
 export const CZVAULTROUTER = {
   [CHAINS.BSC]: "0xe4548FE50F46766DD951c2ff5cB834D3e262007E"
 }
+export const BELTPRICEPERSHARELAST = {
+  [CHAINS.BSC]: "0xFd1B29b54A426B8153f471c5502Dc0F986ECB27c"
+}
 
 export const CZVAULTS = {
   [CHAINS.BSC] : [
     {
-      name: "BNB",
+      name: "BNB → BNB+CZF",
+      baseAssetName: "BNB",
       description: "Autocompound BNB and claim CZF rewards. This Antidump Vault uses Belt.fi.",
       isBnbVault: true, //Flag so UI knows whether to use router for BNB verses ERC20
       assetAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB address (not used for BNB vault but needed for prices)

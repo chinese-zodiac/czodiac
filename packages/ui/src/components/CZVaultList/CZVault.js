@@ -31,7 +31,9 @@ function CZVault({
   description,
   isBnbVault,
   logo,
-  baseAssetStakedBusd
+  baseAssetStakedBusd,
+  baseAssetName,
+  baseAssetPerDay
 }) {
   const {chainId} = useEthers();
 
@@ -40,10 +42,10 @@ function CZVault({
 
   return (<>
       <Image src={logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
-      <Heading display="inline-block" as="h3" fontSize="2xl" >{isBnbVault ? "BNB" : tokenLink(rewardAddress,name)}</Heading>
+      <Heading display="inline-block" as="h3" fontSize="2xl" >{name}</Heading>
       <Text>{description}</Text>
       <br/>
-      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${isBnbVault ? "BNB" : CZFARM_ADDRESSES[chainId] }`} textDecoration="underline">🖙🖙 Get {name} on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${isBnbVault ? "BNB" : CZFARM_ADDRESSES[chainId] }`} textDecoration="underline">🖙🖙 Get {baseAssetName} on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider
@@ -74,7 +76,7 @@ function CZVault({
         }    
       }}>
         {isBnbVault ? <>
-          Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.bnbBal.sub(parseEther("0.025")).mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.bnbBal.sub(parseEther("0.025")),2)} {`${name}`})
+          Stake {!!basisPoints ? (basisPoints/100).toFixed(2) : (100).toFixed(2)}% ({!!basisPoints ? weiToShortString(user.bnbBal.sub(parseEther("0.025")).mul(BigNumber.from(basisPoints)).div(BigNumber.from(10000)),2) : weiToShortString(user.bnbBal.sub(parseEther("0.025")),2)} {`${baseAssetName}`})
         </> : <>
           TODO: NOT_IMPLEMENTED
         </>}
@@ -91,9 +93,9 @@ function CZVault({
       <Divider />
       <Text fontWeight="bold">Your stats</Text>
       <SimpleGrid columns="4" spacing="1" >
-        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,8)} {name}</Text>
+        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,8)} {baseAssetName}</Text>
         <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
-        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {name}</Text>
+        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {baseAssetName}</Text>
         <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.czfPerDay,rewardDecimals,2)} CZF</Text>
       </SimpleGrid>
       <Text fontWeight="bold">Vault stats</Text>
@@ -111,6 +113,8 @@ function CZVault({
         <Text textAlign="left" >{tokenAmtToShortString(czfPerDay,rewardDecimals,2)} CZF</Text>
         <Text textAlign="right" >Withdraw Fee:</Text>
         <Text textAlign="left" >{!!feeBasis ? feeBasis / 100 : 0}%</Text>
+        <Text textAlign="right" >{baseAssetName}/day:</Text>
+        <Text textAlign="left" >{tokenAmtToShortString(baseAssetPerDay,rewardDecimals,2)} {baseAssetName}</Text>
       </SimpleGrid>
   </>)
 }

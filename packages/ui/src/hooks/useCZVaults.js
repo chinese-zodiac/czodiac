@@ -4,7 +4,7 @@ import {
   useContractCalls,
   MultiCallABI
 } from "@pdusedapp/core";
-import { CZVAULTS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
+import { CZVAULTS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, BNB, CHAINS, MUTICALL_ADDRESSES, BELTPRICEPERSHARELAST } from "../constants";
 import { Contract, utils, BigNumber, getDefaultProvider } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -12,6 +12,7 @@ import useBUSDPriceMulti from "./useBUSDPriceMulti";
 import czVaultRouter from "../abi/CZVaultRouter.json";
 import iBeltMultiStrategyToken from "../abi/IBeltMultiStrategyToken.json";
 import czFarmMasterRoutable from "../abi/CZFarmMasterRoutable.json";
+import beltPricePerShaerLast from "../abi/BeltPricePerShareLast.json";
 import czfBeltVault from "../abi/CzfBeltVault.json";
 import ierc20 from "../abi/ierc20.json";
 const { Interface } = utils;
@@ -38,6 +39,7 @@ function useCZVaults() {
   const czVaultRouterInterface = new Interface(czVaultRouter);
   const iBeltMultiStrategyTokenInterface = new Interface(iBeltMultiStrategyToken);
   const czfBeltVaultInterface = new Interface(czfBeltVault);
+  const beltPricePerShaerLastInterface = new Interface(beltPricePerShaerLast);
 
   const sendDepositForVault = async (pid, wad) => {
     if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
@@ -169,6 +171,24 @@ function useCZVaults() {
         method:'balanceOf',
         args: [v.lpCzfAddress]
       });
+      newCalls.push({
+        abi:beltPricePerShaerLastInterface,
+        address:BELTPRICEPERSHARELAST[chainId],
+        method:'pricePerFullShareLast',
+        args: [v.strategyAddress]
+      });
+      newCalls.push({
+        abi:beltPricePerShaerLastInterface,
+        address:BELTPRICEPERSHARELAST[chainId],
+        method:'updateTimeLast',
+        args: [v.strategyAddress]
+      });
+      newCalls.push({
+        abi:beltPricePerShaerLastInterface,
+        address:BELTPRICEPERSHARELAST[chainId],
+        method:'updateTimeRecent',
+        args: [v.strategyAddress]
+      });
     });
     setCalls(newCalls);
   }, [account, chainId]);
@@ -189,16 +209,16 @@ function useCZVaults() {
     let totalAllocPoint = callResults[1][0].toNumber();
     if(typeof(callResults[3]) == "undefined") return;
     CZVAULTS[chainId].forEach(async (v, index) => {
-      let o = 8 * index + 2; //Offset for cycling thru call results
+      let o = 11 * index + 2; //Offset for cycling thru call results
+      const currentTimestamp = Math.floor(Date.now() / 1000)
 
       v.sendDeposit = (wad) => sendDepositForVault(v.pid, wad);
       v.sendWithdraw = (wad) => sendWithdrawForVault(v.pid, wad);
       v.sendClaim = () => sendClaim(v.pid);
 
-      console.log("callResults",callResults)
       v.user = {};
       v.user.address = account;
-      console.log("o",o)
+
       v.user.bnbBal = callResults[0 + o][0];
       //TODO get balance for bep20 token to deposit into non-BNB vaults
       //v.user.tokenBal = ;
@@ -208,11 +228,18 @@ function useCZVaults() {
       v.allocPoint = callResults[4+o].allocPoint.toNumber();
       v.vaultAssetStaked = callResults[5 + o][0];
       v.feeBasis = callResults[6 + o][0].toNumber();
-      v.lpCzf = {
+      v.lpBaseCzf = {
         czfBal: callResults[7 + o][0],
         baseBal: callResults[8 + o][0]
       }
+      v.pricePerShareLast = callResults[9 + o][0];
+      v.pricePerShareUpdateLast = callResults[10 + o][0].toNumber();
+      v.pricePerShareUpdateRecent = callResults[11 + o][0].toNumber();
 
+      v.baseAssetPerDay = v.pricePerShare.sub(v.pricePerShareLast).mul(BigNumber.from("86400")).div(
+        BigNumber.from((currentTimestamp-v.pricePerShareUpdateLast).toString())
+        );
+      
       v.user.baseAssetStaked = v.user.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
       v.baseAssetStaked = v.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
 
@@ -222,7 +249,7 @@ function useCZVaults() {
       v.czfPerDay = v.czfPerBlock.mul(BigNumber.from("28800"));
       v.user.czfPerDay = v.user.czfPerBlock.mul(BigNumber.from("28800"));
 
-      v.baseAssetBusd = v.lpCzf.czfBal.mul(czfBusdPrice).div(v.lpCzf.baseBal);
+      v.baseAssetBusd = v.lpBaseCzf.czfBal.mul(czfBusdPrice).div(v.lpBaseCzf.baseBal);
       v.user.baseAssetStakedBusd = v.user.baseAssetStaked.mul(v.baseAssetBusd).div(weiFactor);
       v.baseAssetStakedBusd = v.baseAssetStaked.mul(v.baseAssetBusd).div(weiFactor);
 
@@ -303,7 +330,6 @@ function useCZVaults() {
       newVaults.push(v);
     });
 
-    console.log({ vaults: newVaults });
     setVaults(newVaults);
   }, [callResults, czfBusdPrice, rewardBusdPrices]);
 
