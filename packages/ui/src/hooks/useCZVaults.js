@@ -149,9 +149,9 @@ function useCZVaults() {
     }
 
     let rewardPerSecond = callResults[0][0];
-
+    if(typeof(callResults[1]) == "undefined") return;
     CZVAULTS[chainId].forEach(async (v, index) => {
-      let o = 4 * index; //Offset for cycling thru call results
+      let o = 4 * index + 1; //Offset for cycling thru call results
 
       v.sendDeposit = (wad) => sendDepositForVault(v.pid, wad);
       v.sendWithdraw = (wad) => sendWithdrawForVault(v.pid, wad);
@@ -161,14 +161,14 @@ function useCZVaults() {
       v.user = {};
       v.user.address = account;
       console.log("o",o)
-      v.user.bnbBal = callResults[1 + o][0];
+      v.user.bnbBal = callResults[0 + o][0];
       //TODO get balance for bep20 token to deposit into non-BNB vaults
       //v.user.tokenBal = ;
-      v.user.vaultAssetStaked = callResults[2 + o][0];
+      v.user.vaultAssetStaked = callResults[1 + o][0];
       //TODO: Calculate base asset value of vaultAssetStaked (eg BNB value for beltBNB)
-      v.user.rewardPending = callResults[3 + o][0];
+      v.user.rewardPending = callResults[2 + o][0];
 
-      console.log('userInfo', callResults[4 + o]);
+      console.log('userInfo', callResults[3 + o]);
 
       // v.rewardPerSecond = callResults[2 + o][0];
       // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);
