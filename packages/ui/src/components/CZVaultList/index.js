@@ -70,13 +70,13 @@ function CZVaultList() {
       <p>Earn autocompounding rewards and CZF without dumping on any projects.</p>
       <br />
       {displayVaults((vault) => true, vaults)}
-      <Text fontWeight="bold">Vaults Totals</Text>
-      {!!vaults && vaults.length > 0 ? (
+      {/*<Text fontWeight="bold">Vaults Totals</Text>*/}
+      {/*!!vaults && vaults.length > 0 ? (
         <SimpleGrid columns="2" spacing="1">
           <Text textAlign="right">Vault Count:</Text>
           <Text textAlign="left">{vaults.length}</Text>
           <Text textAlign="right">Active USD/Day Rewards:</Text>
-          {/* <Text textAlign="left">
+          { <Text textAlign="left">
             $
             {weiToShortString(
               vaults.reduce(
@@ -89,9 +89,9 @@ function CZVaultList() {
               ),
               2
             )}
-          </Text> */}
+          </Text> }
           <Text textAlign="right">Total Value Locked:</Text>
-          {/* <Text textAlign="left">
+          { <Text textAlign="left">
             $
             {weiToShortString(
               vaults.reduce(
@@ -100,11 +100,11 @@ function CZVaultList() {
               ),
               2
             )}
-          </Text> */}
+          </Text> }
         </SimpleGrid>
       ) : (
         <Box>Loading vaults...</Box>
-      )}
+      )*/}
       <br />
       <Divider />
     </>
