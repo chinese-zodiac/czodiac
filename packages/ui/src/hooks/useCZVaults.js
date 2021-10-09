@@ -4,7 +4,7 @@ import {
   useContractCalls,
   MultiCallABI
 } from "@pdusedapp/core";
-import { CZVAULTS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, CZFBELTVAULTBNB, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
+import { CZVAULTS, CZFARM_ADDRESSES, CZVAULTROUTER, CZFARMMASTERROUTABLE, BNB, CHAINS, MUTICALL_ADDRESSES } from "../constants";
 import { Contract, utils, BigNumber, getDefaultProvider } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -109,11 +109,6 @@ function useCZVaults() {
     newCalls.push({
         abi:czFarmMasterRoutableInterface,
         address:CZFARMMASTERROUTABLE[chainId],
-        method:'czfPerBlock'
-    });
-    newCalls.push({
-        abi:czFarmMasterRoutableInterface,
-        address:CZFARMMASTERROUTABLE[chainId],
         method:'totalAllocPoint'
     });
 
@@ -149,6 +144,12 @@ function useCZVaults() {
         method:'poolInfo',
         args: [v.pid]
       });
+      newCalls.push({
+        abi:ierc20Interface,
+        address:v.vaultAddress,
+        method:'balanceOf',
+        args: [CZFARMMASTERROUTABLE[chainId]]
+      });
     });
     setCalls(newCalls);
   }, [account, chainId]);
@@ -165,10 +166,11 @@ function useCZVaults() {
       return;
     }
 
-    let rewardPerSecond = callResults[0][0];
-    if(typeof(callResults[1]) == "undefined") return;
+    let czfPerBlock = callResults[0][0];
+    let totalAllocPoint = callResults[1][0].toNumber();
+    if(typeof(callResults[3]) == "undefined") return;
     CZVAULTS[chainId].forEach(async (v, index) => {
-      let o = 5 * index + 3; //Offset for cycling thru call results
+      let o = 6 * index + 2; //Offset for cycling thru call results
 
       v.sendDeposit = (wad) => sendDepositForVault(v.pid, wad);
       v.sendWithdraw = (wad) => sendWithdrawForVault(v.pid, wad);
@@ -183,10 +185,19 @@ function useCZVaults() {
       //v.user.tokenBal = ;
       v.user.vaultAssetStaked = callResults[1 + o][0];
       v.user.rewardPending = callResults[2 + o][0];
-      v.user.pricePerShare = callResults[3 + o][0];
+      v.pricePerShare = callResults[3 + o][0];
+      v.allocPoint = callResults[4+o].allocPoint.toNumber()
+      v.vaultAssetStaked = callResults[5 + o][0];
 
-      v.user.baseAssetStaked = v.user.vaultAssetStaked.mul(v.user.pricePerShare).div(weiFactor);
+      v.user.baseAssetStaked = v.user.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
+      v.baseAssetStaked = v.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
 
+
+      v.czfPerBlock = czfPerBlock.mul(v.allocPoint).div(totalAllocPoint);
+      v.user.czfPerBlock = v.czfPerBlock.mul(v.user.vaultAssetStaked).div(v.vaultAssetStaked);
+
+      v.czfPerDay = v.czfPerBlock.mul(BigNumber.from("28800"));
+      v.user.czfPerDay = v.user.czfPerBlock.mul(BigNumber.from("28800"));
 
       // v.rewardPerSecond = callResults[2 + o][0];
       // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);

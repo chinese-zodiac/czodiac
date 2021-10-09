@@ -64,6 +64,7 @@ function CZVaultList() {
                   rewardPerDay={vault.rewardPerDay}
                   usdValue={vault.usdValue}
                   usdPerDay={vault.usdPerDay}
+                  czfPerDay={vault.czfPerDay}
                   timeStart={vault.timeStart}
                   timeEnd={vault.timeEnd}
                   user={vault.user}

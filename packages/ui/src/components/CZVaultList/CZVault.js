@@ -23,6 +23,7 @@ function CZVault({
   rewardPerDay,
   usdValue,
   usdPerDay,
+  czfPerDay,
   timeStart,
   timeEnd,
   user,
@@ -92,25 +93,19 @@ function CZVault({
         <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,2)} {name}</Text>
         <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
         <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {name}</Text>
-        <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPerDay,rewardDecimals,2)} CZF</Text>
+        <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.czfPerDay,rewardDecimals,2)} CZF</Text>
       </SimpleGrid>
-      <Text fontWeight="bold">Pool stats</Text>
-      {/* <SimpleGrid columns="4" spacing="1" >
-        <Text textAlign="right" >APR:</Text>
+      <Text fontWeight="bold">Vault stats</Text>
+      <SimpleGrid columns="4" spacing="1" >
+        {/*<Text textAlign="right" >APR:</Text>
         <Text textAlign="left" >{aprBasisPoints.toNumber() / 100}%</Text>
         <Text textAlign="right" >{name}/day:</Text>
         <Text textAlign="left" >{tokenAmtToShortString(rewardPerDay,rewardDecimals,2)}</Text>
         <Text textAlign="right" >TVL:</Text>
-        <Text textAlign="left" >${weiToShortString(usdValue,2)}</Text>
-        <Text textAlign="right" >USD/day:</Text>
-        <Text textAlign="left" >${weiToShortString(usdPerDay,2)}</Text>     
+        <Text textAlign="left" >${weiToShortString(usdValue,2)}</Text>*/}
+        <Text textAlign="right" >CZF/day:</Text>
+        <Text textAlign="left" >{tokenAmtToShortString(czfPerDay,rewardDecimals,2)} CZF</Text>     
       </SimpleGrid>
-      <SimpleGrid columns="2" spacing="1" >
-        <Text textAlign="right" >Opens:</Text>
-        <Text textAlign="left" >{timeStart.toString()}</Text>
-        <Text textAlign="right" >Closes:</Text>
-        <Text textAlign="left" >{timeEnd.toString()}</Text>
-      </SimpleGrid> */}
   </>)
 }
 
