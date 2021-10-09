@@ -10,6 +10,7 @@ import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
 import useBUSDPriceMulti from "./useBUSDPriceMulti";
 import czVaultRouter from "../abi/CZVaultRouter.json";
+import iBeltMultiStrategyToken from "../abi/IBeltMultiStrategyToken.json";
 import czFarmMasterRoutable from "../abi/CZFarmMasterRoutable.json";
 import ierc20 from "../abi/ierc20.json";
 const { Interface } = utils;
@@ -34,6 +35,7 @@ function useCZVaults() {
   const ierc20Interface = new Interface(ierc20);
   const czFarmMasterRoutableInterface = new Interface(czFarmMasterRoutable);
   const czVaultRouterInterface = new Interface(czVaultRouter);
+  const iBeltMultiStrategyTokenInterface = new Interface(iBeltMultiStrategyToken);
 
   const sendDepositForVault = async (pid, wad) => {
     if (!account || !library || !CZVAULTROUTER[CHAINS.BSC]) return;
@@ -104,6 +106,16 @@ function useCZVaults() {
       address: CZFARMMASTERROUTABLE[chainId],
       method: "czfPerBlock"
     });
+    newCalls.push({
+        abi:czFarmMasterRoutableInterface,
+        address:CZFARMMASTERROUTABLE[chainId],
+        method:'czfPerBlock'
+    });
+    newCalls.push({
+        abi:czFarmMasterRoutableInterface,
+        address:CZFARMMASTERROUTABLE[chainId],
+        method:'totalAllocPoint'
+    });
 
     CZVAULTS[chainId].forEach((v) => {
       let user = "0x0000000000000000000000000000000000000000"; // Simplifies code by calling for 0x0 if no account
@@ -127,10 +139,15 @@ function useCZVaults() {
         args: [v.pid, user],
       });
       newCalls.push({
-        abi: ierc20Interface,
-        address: CZFARM_ADDRESSES[chainId],
-        method: "balanceOf",
-        args: [user],
+        abi: iBeltMultiStrategyTokenInterface, //TODO: Add support for non belt ABI
+        address: v.strategyAddress,
+        method: "getPricePerFullShare"
+      });
+      newCalls.push({
+        abi:czFarmMasterRoutableInterface,
+        address:CZFARMMASTERROUTABLE[chainId],
+        method:'poolInfo',
+        args: [v.pid]
       });
     });
     setCalls(newCalls);
@@ -151,7 +168,7 @@ function useCZVaults() {
     let rewardPerSecond = callResults[0][0];
     if(typeof(callResults[1]) == "undefined") return;
     CZVAULTS[chainId].forEach(async (v, index) => {
-      let o = 4 * index + 1; //Offset for cycling thru call results
+      let o = 5 * index + 3; //Offset for cycling thru call results
 
       v.sendDeposit = (wad) => sendDepositForVault(v.pid, wad);
       v.sendWithdraw = (wad) => sendWithdrawForVault(v.pid, wad);
@@ -165,10 +182,11 @@ function useCZVaults() {
       //TODO get balance for bep20 token to deposit into non-BNB vaults
       //v.user.tokenBal = ;
       v.user.vaultAssetStaked = callResults[1 + o][0];
-      //TODO: Calculate base asset value of vaultAssetStaked (eg BNB value for beltBNB)
       v.user.rewardPending = callResults[2 + o][0];
+      v.user.pricePerShare = callResults[3 + o][0];
 
-      console.log('userInfo', callResults[3 + o]);
+      v.user.baseAssetStaked = v.user.vaultAssetStaked.mul(v.user.pricePerShare).div(weiFactor);
+
 
       // v.rewardPerSecond = callResults[2 + o][0];
       // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);

@@ -89,7 +89,7 @@ function CZVault({
       <Divider />
       <Text fontWeight="bold">Your stats</Text>
       <SimpleGrid columns="4" spacing="1" >
-        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.bnbStaked,2)} {name}</Text>
+        <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,2)} {name}</Text>
         <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
         <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {name}</Text>
         <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPerDay,rewardDecimals,2)} CZF</Text>
