@@ -235,16 +235,16 @@ function useCZVaults() {
       v.pricePerShareLast = callResults[9 + o][0];
       v.pricePerShareUpdateLast = callResults[10 + o][0].toNumber();
       v.pricePerShareUpdateRecent = callResults[11 + o][0].toNumber();
-
-      v.baseAssetPerDay = v.pricePerShare.sub(v.pricePerShareLast).mul(BigNumber.from("86400")).div(
-        BigNumber.from((currentTimestamp-v.pricePerShareUpdateLast).toString())
-        );
-      
       v.user.baseAssetStaked = v.user.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
       v.baseAssetStaked = v.vaultAssetStaked.mul(v.pricePerShare).div(weiFactor);
 
       v.czfPerBlock = czfPerBlock.mul(v.allocPoint).div(totalAllocPoint);
       v.user.czfPerBlock = v.czfPerBlock.mul(v.user.vaultAssetStaked).div(v.vaultAssetStaked);
+
+      v.baseAssetPerUnitPerDay = v.pricePerShare.sub(v.pricePerShareLast).mul(BigNumber.from("86400")).div(
+        BigNumber.from((currentTimestamp-v.pricePerShareUpdateLast).toString()));
+      v.baseAssetPerDay = v.baseAssetPerUnitPerDay.mul(v.baseAssetStaked).div(weiFactor);
+      v.user.baseAssetPerDay = v.baseAssetPerUnitPerDay.mul(v.user.baseAssetStaked).div(weiFactor);
 
       v.czfPerDay = v.czfPerBlock.mul(BigNumber.from("28800"));
       v.user.czfPerDay = v.user.czfPerBlock.mul(BigNumber.from("28800"));
@@ -252,6 +252,12 @@ function useCZVaults() {
       v.baseAssetBusd = v.lpBaseCzf.czfBal.mul(czfBusdPrice).div(v.lpBaseCzf.baseBal);
       v.user.baseAssetStakedBusd = v.user.baseAssetStaked.mul(v.baseAssetBusd).div(weiFactor);
       v.baseAssetStakedBusd = v.baseAssetStaked.mul(v.baseAssetBusd).div(weiFactor);
+
+      v.baseAssetAprBasis = v.baseAssetPerUnitPerDay.mul("3650000").div(weiFactor).toNumber()
+      v.czfAprBasis = v.czfPerDay.mul(czfBusdPrice).mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(v.baseAssetBusd).div(weiFactor).toNumber();
+      v.baseAssetApyBasis = Math.floor((Math.pow(1+v.baseAssetAprBasis/(365*10000),365)-1)*10000);
+      v.aprBasis = v.czfAprBasis + v.baseAssetAprBasis;
+      v.apyBasis = v.czfAprBasis + v.baseAssetApyBasis;
 
       // v.rewardPerSecond = callResults[2 + o][0];
       // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);

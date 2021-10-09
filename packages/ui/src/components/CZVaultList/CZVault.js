@@ -33,7 +33,8 @@ function CZVault({
   logo,
   baseAssetStakedBusd,
   baseAssetName,
-  baseAssetPerDay
+  baseAssetPerDay,
+  apyBasis
 }) {
   const {chainId} = useEthers();
 
@@ -94,9 +95,10 @@ function CZVault({
       <Text fontWeight="bold">Your stats</Text>
       <SimpleGrid columns="4" spacing="1" >
         <Text textAlign="right">Staked:</Text><Text textAlign="left">{weiToShortString(user.baseAssetStaked,8)} {baseAssetName}</Text>
-        <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
-        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {baseAssetName}</Text>
         <Text textAlign="right">CZF/DAY:</Text><Text textAlign="left">{tokenAmtToShortString(user.czfPerDay,rewardDecimals,2)} CZF</Text>
+        <Text textAlign="right">Wallet:</Text><Text textAlign="left">{weiToShortString(user.bnbBal,2)} {baseAssetName}</Text>
+        <Text textAlign="right">{baseAssetName}/DAY:</Text><Text textAlign="left">{weiToShortString(user.baseAssetPerDay,2)} {baseAssetName}</Text>
+        <Text textAlign="right">Claimable:</Text><Text textAlign="left">{tokenAmtToShortString(user.rewardPending,rewardDecimals,2)} CZF</Text>
       </SimpleGrid>
       <Text fontWeight="bold">Vault stats</Text>
       <SimpleGrid columns="4" spacing="1" >
@@ -107,14 +109,16 @@ function CZVault({
         */}
         <Text textAlign="right" >TVL:</Text>
         <Text textAlign="left" >${weiToShortString(baseAssetStakedBusd,2)}</Text>    
-        <Text textAlign="right" >Deposit Fee:</Text>
-        <Text textAlign="left" >0.00%</Text> 
+        <Text textAlign="right" >APY:</Text>
+        <Text textAlign="left" >{apyBasis/100}%</Text> 
         <Text textAlign="right" >CZF/day:</Text>
         <Text textAlign="left" >{tokenAmtToShortString(czfPerDay,rewardDecimals,2)} CZF</Text>
         <Text textAlign="right" >Withdraw Fee:</Text>
         <Text textAlign="left" >{!!feeBasis ? feeBasis / 100 : 0}%</Text>
         <Text textAlign="right" >{baseAssetName}/day:</Text>
         <Text textAlign="left" >{tokenAmtToShortString(baseAssetPerDay,rewardDecimals,2)} {baseAssetName}</Text>
+        <Text textAlign="right" >Deposit Fee:</Text>
+        <Text textAlign="left" >0.00%</Text> 
       </SimpleGrid>
   </>)
 }
