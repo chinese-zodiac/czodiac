@@ -44,7 +44,7 @@ function CZPoolsList() {
               name={pool.name}
               logo={pool.logo}
             />
-        </Box>        
+        </Box>
       )})}</>)
   }
 

@@ -14,4 +14,8 @@ interface IBeltMultiStrategyToken is IERC20 {
     function withdraw(uint256 _shares, uint256 _minAmount) external;
 
     function withdrawBNB(uint256 _shares, uint256 _minAmount) external;
+
+    function getPricePerFullShare() external view returns (uint256);
+
+    function sharesToAmount(uint256 _shares) external view returns (uint256);
 }

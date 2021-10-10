@@ -30,6 +30,9 @@ function Home() {
     <Header />
     <LightMode>
       <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
+          <NavLink to="vaults">
+            <Button colorScheme="red">CZVaults</Button>
+          </NavLink>
           <NavLink to="czfarm">
             <Button colorScheme="red" >Earn On CZFarm</Button>
           </NavLink>

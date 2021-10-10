@@ -27,9 +27,6 @@ function CZPool({
   logo
 }) {
   const {chainId} = useEthers();
-  const {
-    pools
-  } = useCZPools();
 
   const [basisPoints, setBasisPoints] = useState(10000)
 
