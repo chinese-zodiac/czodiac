@@ -254,10 +254,11 @@ function useCZVaults() {
       v.baseAssetStakedBusd = v.baseAssetStaked.mul(v.baseAssetBusd).div(weiFactor);
 
       v.baseAssetAprBasis = v.baseAssetPerUnitPerDay.mul("3650000").div(weiFactor).toNumber()
-      v.czfAprBasis = v.czfPerDay.mul(czfBusdPrice).mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(v.baseAssetBusd).div(weiFactor).toNumber();
+      v.czfAprBasis = v.czfPerDay.mul(czfBusdPrice).mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(v.baseAssetStakedBusd).div(weiFactor).toNumber();
       v.baseAssetApyBasis = Math.floor((Math.pow(1+v.baseAssetAprBasis/(365*10000),365)-1)*10000);
       v.aprBasis = v.czfAprBasis + v.baseAssetAprBasis;
       v.apyBasis = v.czfAprBasis + v.baseAssetApyBasis;
+      console.log(v.aprBasis, v.apyBasis, v.baseAssetApyBasis)
 
       // v.rewardPerSecond = callResults[2 + o][0];
       // v.usdValue = v.czfBal.mul(czfBusdPrice).div(weiFactor);
