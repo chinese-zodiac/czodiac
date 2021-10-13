@@ -156,6 +156,12 @@ export const CZFARMPOOLS = {
       logo: "./pool/FINS.png"
     }/*,
     {
+      name: "PRHO",
+      address: "0x6C7509d6a87D73B7AcaD0EFB9ea155369a2EC65c",
+      rewardAddress: "0x84a4a0df19f80fe00c856c354f05062d281e1a92",
+      logo: "./pool/PRHO.png"
+    }*//*,
+    {
       name: "DST",
       address: "0x288739594E0cab36c492CE0BF349F86183C7631f",
       rewardAddress: "0x3969fe107bae2537cb58047159a83c33dfbd73f9",
