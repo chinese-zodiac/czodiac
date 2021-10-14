@@ -125,7 +125,7 @@ export const CZFARMPOOLS = {
       address: "0xB7987823D1208A75780Be7d2C171A5c74fDbb74b",
       rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
       rewardDecimals: 18,
-      logo: "./pool/farmageddon.png"
+      logo: "./pool/FG.png"
     },
     {
       name: "GHD",
@@ -154,6 +154,20 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x1b219Aca875f8C74c33CFF9fF98f3a9b62fCbff5",
       rewardDecimals: 18,
       logo: "./pool/FINS.png"
+    },
+    {
+      name: "FG",
+      address: "0xD471F0286f74034F91ec3948745A3b7525ed46F4",
+      rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
+      rewardDecimals: 18,
+      logo: "./pool/FG.png"
+    },
+    {
+      name: "FRT",
+      address: "0x88270372aAdf1a5deFf17942f39C581b3F46C80B",
+      rewardAddress: "0xd51237a6f3219d186f0c8d8dd957b1bcb3ce5d48",
+      rewardDecimals: 18,
+      logo: "./pool/FRT.png"
     }/*,
     {
       name: "PRHO",
