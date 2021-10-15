@@ -40,7 +40,7 @@ function useBUSDPriceMulti(addresses) {
       if(!!busdPairs && busdPairs.length>0 && "0x0000000000000000000000000000000000000000" != busdPairs[0]) {
         const busdBalances = await Promise.all(busdPairs.map((pair)=>busdContract.balanceOf(pair)));
         pricePromises = busdBalances.map((busdBalance, index)=>{
-          if(busdBalance.gt(parseEther("500"))) {
+          if(busdBalance.gt(parseEther("100"))) {
             return tokenContracts[index].balanceOf(busdPairs[index]).then((res)=>busdBalance.mul(parseEther("1")).div(res))
            } else {
              if(!!wbnbPairs && wbnbPairs.length>0 && "0x0000000000000000000000000000000000000000" != wbnbPairs[index]){
