@@ -159,7 +159,7 @@ export const CZFARMPOOLS = {
       name: "FG",
       address: "0xD471F0286f74034F91ec3948745A3b7525ed46F4",
       rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
-      rewardDecimals: 18,
+      rewardDecimals: 9,
       logo: "./pool/FG.png"
     },
     {
