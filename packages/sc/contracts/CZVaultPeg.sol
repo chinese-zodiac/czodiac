@@ -82,6 +82,7 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
             ? delta * rewardMultiplier
             : (delta * rewardMultiplier * (block.timestamp - lastUpdate)) /
                 delaySeconds;
+        lastUpdate = block.timestamp;
         czf.mint(msg.sender, czfToMint);
     }
 
