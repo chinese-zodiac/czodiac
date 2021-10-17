@@ -12,6 +12,7 @@ import "./interfaces/IBeltLP.sol";
 import "./interfaces/IAmmRouter01.sol";
 import "./interfaces/IAmmPair.sol";
 import "./CZUsd.sol";
+import "./CZFarm.sol";
 import "./CZFarmMasterRoutable.sol";
 import "./libs/Babylonian.sol";
 
@@ -23,6 +24,7 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
     IERC20 public busd;
     ICZVault public vault;
     CZUsd public czusd;
+    CZFarm public czf;
     IAmmRouter01 public router;
     IAmmPair public czusdBusdPair;
 
@@ -32,6 +34,10 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
 
     uint256 public netBusd;
 
+    uint256 public lastUpdate;
+    uint256 public delaySeconds;
+    uint256 public rewardMultiplier;
+
     constructor(
         IBeltLP _belt4LP,
         IERC20 _belt4,
@@ -40,7 +46,10 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
         CZUsd _czusd,
         IAmmRouter01 _router,
         IAmmPair _czusdBusdPair,
-        uint256 _maxDelta
+        uint256 _maxDelta,
+        CZFarm _czf,
+        uint256 _delaySeconds,
+        uint256 _rewardMultiplier
     ) {
         belt4LP = _belt4LP;
         belt4 = _belt4;
@@ -50,32 +59,45 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
         router = _router;
         czusdBusdPair = _czusdBusdPair;
         maxDelta = _maxDelta;
+        lastUpdate = block.timestamp;
+        czf = _czf;
+        delaySeconds = _delaySeconds;
+        rewardMultiplier = _rewardMultiplier;
     }
 
-    function peg() external whenNotPaused {
+    function repeg() external whenNotPaused {
         czusdBusdPair.sync();
         uint256 lpCzusdWad = czusd.balanceOf(address(czusdBusdPair));
         uint256 lpBusdWad = busd.balanceOf(address(czusdBusdPair));
+        uint256 delta;
         if (lpCzusdWad == lpBusdWad) return;
         if (lpCzusdWad < lpBusdWad) {
             //less CZUSD means CZUSD is too expensive
-            _correctOverPeg(lpCzusdWad, lpBusdWad);
+            delta = _correctOverPeg(lpCzusdWad, lpBusdWad);
         } else {
             //more CZUSD means CZUSD is too cheap
-            _correctUnderPeg(lpCzusdWad, lpBusdWad);
+            delta = _correctUnderPeg(lpCzusdWad, lpBusdWad);
         }
+        uint256 czfToMint = block.timestamp > lastUpdate + delaySeconds
+            ? delta * rewardMultiplier
+            : (delta * rewardMultiplier * (block.timestamp - lastUpdate)) /
+                delaySeconds;
+        czf.mint(msg.sender, czfToMint);
     }
 
-    function _correctOverPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad) internal {
+    function _correctOverPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad)
+        internal
+        returns (uint256 delta_)
+    {
         require(_lpCzusdWad < _lpBusdWad, "CZVaultPeg: Not over peg");
-        uint256 delta = Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpCzusdWad;
-        if (delta > maxDelta) delta = maxDelta;
-        czusd.mint(address(this), delta);
+        delta_ = Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpCzusdWad;
+        if (delta_ > maxDelta) delta_ = maxDelta;
+        czusd.mint(address(this), delta_);
         address[] memory path = new address[](2);
         path[0] = address(czusd);
         path[1] = address(busd);
         router.swapExactTokensForTokens(
-            delta,
+            delta_,
             0,
             path,
             address(this),
@@ -86,16 +108,17 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
 
     function _correctUnderPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad)
         internal
+        returns (uint256 delta_)
     {
         require(_lpCzusdWad > _lpBusdWad, "CZVaultPeg: Not under peg");
-        uint256 delta = Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpBusdWad;
-        if (delta > maxDelta) delta = maxDelta;
-        _withdrawBusd(delta);
+        delta_ = Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpBusdWad;
+        if (delta_ > maxDelta) delta_ = maxDelta;
+        _withdrawBusd(delta_);
         address[] memory path = new address[](2);
         path[0] = address(busd);
         path[1] = address(czusd);
         router.swapExactTokensForTokens(
-            delta,
+            delta_,
             0,
             path,
             address(this),
@@ -139,5 +162,13 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
 
     function setMaxDelta(uint256 _to) external onlyOwner {
         maxDelta = _to;
+    }
+
+    function setDelaySeconds(uint256 _to) external onlyOwner {
+        delaySeconds = _to;
+    }
+
+    function setRewardMultiplier(uint256 _to) external onlyOwner {
+        rewardMultiplier = _to;
     }
 }
