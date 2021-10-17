@@ -36,6 +36,11 @@ const DEX = {
     name: "Jetswap",
     shortName: "JETS",
     baseUrl: "https://exchange.jetswap.finance/#/"
+  },
+  BABY: {
+    name: "Babyswap",
+    shortName: "BABY",
+    baseUrl: "https://exchange.babyswap.finance/#/"
   }
 }
 const farmLps = [
@@ -51,6 +56,8 @@ const farmLps = [
   "0xdca1ad23bf713fb8277e99f3bd5d1ee4e6b65332",
   "0x41063A1AEFE6d6f4b44a2b030bB259673dCA8bA6", //CZF/IF1 -PCS
   "0x425183B75687a54e1D77eE7580ec42FfEB6610bF", //CZF/BRY -PCS
+  //"0x0fe1E1Ee88516d7FAa13B9365126778c3bFD585A", //CZF/PRHO -PCS
+  //"0x4394Ab6678fd7bc6ce658558072CcE6a371B7de0", //CZF/GM1 -BABY
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -70,6 +77,8 @@ const farmDex = [
   DEX.CAFE,
   DEX.PCS,
   DEX.PCS,
+  //DEX.PCS,
+  //DEX.BABY,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -190,6 +199,26 @@ const farmTokens = [
       symbol:"BRY"
     }
   ],
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x84a4a0df19f80fe00c856c354f05062d281e1a92",
+      symbol:"PRHO"
+    }
+  ]*/
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x0E52d24c87A5ca4F37E3eE5E16EF5913fb0cCEEB",
+      symbol:"GAME1"
+    }
+  ]*/,
   /*[
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
