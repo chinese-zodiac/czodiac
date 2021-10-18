@@ -18,7 +18,10 @@
     "czFarmMasterRoutable ": "0xb302842797486e3D0314E78E1844b97b3350F7F1",
     "czfBeltVaultBnb": "0xa9f458F907F628495773e10190EAc81078bABc03",
     "czVaultRouter": "0xe4548FE50F46766DD951c2ff5cB834D3e262007E",
-    "4BeltLP": "0xF6e65B33370Ee6A49eB0dbCaA9f43839C1AC04d5",
-    "4Belt": "0x9cb73f20164e399958261c289eb5f9846f4d1404",
-    "belt4BeltPoolId": 3
+    "Belt4LP": "0xF6e65B33370Ee6A49eB0dbCaA9f43839C1AC04d5",
+    "Belt4": "0x9cb73f20164e399958261c289eb5f9846f4d1404",
+    "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+    "belt4BeltPoolId": 3,
+    "czusdBusdPairPCS": "0xd7c6fc00fae64cb7d242186bfd21e31c5b175671",
+    "czusd": "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70"
 }
