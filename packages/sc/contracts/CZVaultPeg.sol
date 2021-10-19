@@ -123,7 +123,7 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
             block.timestamp
         );
         console.log(busd.balanceOf(address(this)));
-        //_depositBusd();
+        _depositBusd();
     }
 
     function _correctUnderPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad)
