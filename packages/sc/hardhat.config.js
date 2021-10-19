@@ -26,13 +26,13 @@ module.exports = {
     ],
   },
   mocha: {
-    timeout: 1000000,
+    timeout: 5000000,
   },
   networks: {
     hardhat: {
       forking: {
         url: `https://speedy-nodes-nyc.moralis.io/${networkConfig.moralisRpcKey}/bsc/mainnet/archive`,
-        blockNumber:  11504400
+        blockNumber:  11900000
       }
     },
     rinkeby: {
