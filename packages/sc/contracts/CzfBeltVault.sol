@@ -53,8 +53,10 @@ contract CzfBeltVault is
         address _beltFarm,
         address _beltBNB,
         uint256 _beltPoolId,
-        address _belt
-    ) ERC20("CzfBeltVault", "CzfBeltVault") Ownable() {
+        address _belt,
+        string memory _name,
+        string memory _symbol
+    ) ERC20(_name, _symbol) Ownable() {
         beltFarm = IBeltFarm(_beltFarm);
         beltBNB = IERC20(_beltBNB);
         belt = IERC20(_belt);

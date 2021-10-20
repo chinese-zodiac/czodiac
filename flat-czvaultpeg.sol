@@ -34,12 +34,14 @@ SPDX-License-Identifier: GPL-3.0
 ░░╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋╋░░
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Authored by Plastic Digits, Anthony Nguyen
+Authored by Plastic Digits
 Credit to OpenZeppelin, reflect.finance, split.network, bubbadefi.finance, uniswapv2, olive.cash, pancakeswap,
-iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, Compound, and of course my friends at d0rg plus everyone
-else who released the truly open source code used in this project.
+iron.finance, Wex/WaultSwap, Yearn, minime, Alchemix, and of course my friends at d0rg plus everyone else who
+released the truly open source code used in this project.
 
 */
+
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
@@ -102,7 +104,7 @@ abstract contract ReentrancyGuard {
 
 // File @openzeppelin/contracts/utils/Context.sol@v4.3.2
 
-// // pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Provides information about the current execution context, including the
@@ -126,7 +128,7 @@ abstract contract Context {
 
 // File @openzeppelin/contracts/security/Pausable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -215,7 +217,7 @@ abstract contract Pausable is Context {
 
 // File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -306,7 +308,7 @@ interface IERC20 {
 
 // File @openzeppelin/contracts/utils/Address.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Collection of functions related to the address type
@@ -560,7 +562,7 @@ library Address {
 
 // File @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @title SafeERC20
@@ -688,7 +690,7 @@ library SafeERC20 {
 
 // File @openzeppelin/contracts/access/Ownable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -765,7 +767,7 @@ abstract contract Ownable is Context {
 // File contracts/interfaces/ICZVault.sol
 
 // Authored by Plastic Digits
-// pragma solidity ^0.8.4;
+//pragma solidity ^0.8.4;
 interface ICZVault is IERC20 {
     function asset() external returns (IERC20 _asset);
 
@@ -774,273 +776,310 @@ interface ICZVault is IERC20 {
     function withdraw(address _to, uint256 _wad) external;
 }
 
-// File contracts/interfaces/IBeltMultiStrategyToken.sol
+// File contracts/interfaces/IBeltLP.sol
 
 // Authored by Plastic Digits
 // Credit to Belt
-// pragma solidity ^0.8.4;
-interface IBeltMultiStrategyToken is IERC20 {
-    function token() external view returns (address);
+//pragma solidity ^0.8.4;
+interface IBeltLP {
+    function underlying_coins(int128 i) external view returns (address);
 
-    function deposit(uint256 _amount, uint256 _minShares) external;
+    function add_liquidity(uint256[4] memory uamounts, uint256 min_mint_amount)
+        external;
 
-    function depositBNB(uint256 _minShares) external payable;
+    function remove_liquidity(uint256 _amount, uint256[4] memory min_amounts)
+        external;
 
-    function withdraw(uint256 _shares, uint256 _minAmount) external;
-
-    function withdrawBNB(uint256 _shares, uint256 _minAmount) external;
+    function remove_liquidity_one_coin(
+        uint256 _token_amount,
+        int128 i,
+        uint256 min_uamount
+    ) external;
 }
 
-// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.3.2
+// File contracts/interfaces/IAmmRouter01.sol
 
-// pragma solidity ^0.8.0;
+// Authored by Plastic Digits
+// Credit to Pancakeswap
+//pragma solidity ^0.8.4;
 
-// CAUTION
-// This version of SafeMath should only be used with Solidity 0.8 or later,
-// because it relies on the compiler's built in overflow checks.
+interface IAmmRouter01 {
+    function factory() external pure returns (address);
 
-/**
- * @dev Wrappers over Solidity's arithmetic operations.
- *
- * NOTE: `SafeMath` is no longer needed starting with Solidity 0.8. The compiler
- * now has built in overflow checking.
- */
-library SafeMath {
-    /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryAdd(uint256 a, uint256 b)
-        internal
-        pure
-        returns (bool, uint256)
-    {
-        unchecked {
-            uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
-        }
-    }
+    function WETH() external pure returns (address);
 
-    /**
-     * @dev Returns the substraction of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function trySub(uint256 a, uint256 b)
-        internal
-        pure
-        returns (bool, uint256)
-    {
-        unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
-        }
-    }
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 amountADesired,
+        uint256 amountBDesired,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline
+    )
+        external
+        returns (
+            uint256 amountA,
+            uint256 amountB,
+            uint256 liquidity
+        );
 
-    /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMul(uint256 a, uint256 b)
-        internal
-        pure
-        returns (bool, uint256)
-    {
-        unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
-        }
-    }
+    function addLiquidityETH(
+        address token,
+        uint256 amountTokenDesired,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
+        address to,
+        uint256 deadline
+    )
+        external
+        payable
+        returns (
+            uint256 amountToken,
+            uint256 amountETH,
+            uint256 liquidity
+        );
 
-    /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryDiv(uint256 a, uint256 b)
-        internal
-        pure
-        returns (bool, uint256)
-    {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
-        }
-    }
+    function removeLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline
+    ) external returns (uint256 amountA, uint256 amountB);
 
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMod(uint256 a, uint256 b)
-        internal
-        pure
-        returns (bool, uint256)
-    {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
-        }
-    }
+    function removeLiquidityETH(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
+        address to,
+        uint256 deadline
+    ) external returns (uint256 amountToken, uint256 amountETH);
 
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     *
-     * - Addition cannot overflow.
-     */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a + b;
-    }
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (uint256 amountA, uint256 amountB);
 
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a - b;
-    }
+    function removeLiquidityETHWithPermit(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (uint256 amountToken, uint256 amountETH);
 
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     *
-     * - Multiplication cannot overflow.
-     */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a * b;
-    }
+    function swapExactTokensForTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator.
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a / b;
-    }
+    function swapTokensForExactTokens(
+        uint256 amountOut,
+        uint256 amountInMax,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a % b;
-    }
+    function swapExactETHForTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts);
 
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-     * overflow (when the result is negative).
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {trySub}.
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b <= a, errorMessage);
-            return a - b;
-        }
-    }
+    function swapTokensForExactETH(
+        uint256 amountOut,
+        uint256 amountInMax,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a / b;
-        }
-    }
+    function swapExactTokensForETH(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting with custom message when dividing by zero.
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {tryMod}.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a % b;
-        }
-    }
+    function swapETHForExactTokens(
+        uint256 amountOut,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts);
+
+    function quote(
+        uint256 amountA,
+        uint256 reserveA,
+        uint256 reserveB
+    ) external pure returns (uint256 amountB);
+
+    function getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) external pure returns (uint256 amountOut);
+
+    function getAmountIn(
+        uint256 amountOut,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) external pure returns (uint256 amountIn);
+
+    function getAmountsOut(uint256 amountIn, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts);
+
+    function getAmountsIn(uint256 amountOut, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts);
+}
+
+// File contracts/interfaces/IAmmPair.sol
+
+// Authored by Plastic Digits
+// Credit to Pancakeswap
+//pragma solidity ^0.8.4;
+
+interface IAmmPair {
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    function name() external pure returns (string memory);
+
+    function symbol() external pure returns (string memory);
+
+    function decimals() external pure returns (uint8);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address owner) external view returns (uint256);
+
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
+
+    function approve(address spender, uint256 value) external returns (bool);
+
+    function transfer(address to, uint256 value) external returns (bool);
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool);
+
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
+
+    function PERMIT_TYPEHASH() external pure returns (bytes32);
+
+    function nonces(address owner) external view returns (uint256);
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Burn(
+        address indexed sender,
+        uint256 amount0,
+        uint256 amount1,
+        address indexed to
+    );
+    event Swap(
+        address indexed sender,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address indexed to
+    );
+    event Sync(uint112 reserve0, uint112 reserve1);
+
+    function MINIMUM_LIQUIDITY() external pure returns (uint256);
+
+    function factory() external view returns (address);
+
+    function token0() external view returns (address);
+
+    function token1() external view returns (address);
+
+    function getReserves()
+        external
+        view
+        returns (
+            uint112 reserve0,
+            uint112 reserve1,
+            uint32 blockTimestampLast
+        );
+
+    function price0CumulativeLast() external view returns (uint256);
+
+    function price1CumulativeLast() external view returns (uint256);
+
+    function kLast() external view returns (uint256);
+
+    function mint(address to) external returns (uint256 liquidity);
+
+    function burn(address to)
+        external
+        returns (uint256 amount0, uint256 amount1);
+
+    function swap(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        bytes calldata data
+    ) external;
+
+    function skim(address to) external;
+
+    function sync() external;
+
+    function initialize(address, address) external;
 }
 
 // File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Interface for the optional metadata functions from the ERC20 standard.
@@ -1066,7 +1105,7 @@ interface IERC20Metadata is IERC20 {
 
 // File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -1461,7 +1500,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 // File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Extension of {ERC20} that allows token holders to destroy both their own
@@ -1504,7 +1543,7 @@ abstract contract ERC20Burnable is Context, ERC20 {
 
 // File @openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev ERC20 token with pausable token transfers, minting and burning.
@@ -1534,7 +1573,7 @@ abstract contract ERC20Pausable is ERC20, Pausable {
 
 // File @openzeppelin/contracts/access/IAccessControl.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev External interface of AccessControl declared to support ERC165 detection.
@@ -1637,7 +1676,7 @@ interface IAccessControl {
 
 // File @openzeppelin/contracts/access/IAccessControlEnumerable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev External interface of AccessControlEnumerable declared to support ERC165 detection.
@@ -1669,7 +1708,7 @@ interface IAccessControlEnumerable is IAccessControl {
 
 // File @openzeppelin/contracts/utils/Strings.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev String operations.
@@ -1740,7 +1779,7 @@ library Strings {
 
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Interface of the ERC165 standard, as defined in the
@@ -1765,7 +1804,7 @@ interface IERC165 {
 
 // File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of the {IERC165} interface.
@@ -1798,7 +1837,7 @@ abstract contract ERC165 is IERC165 {
 
 // File @openzeppelin/contracts/access/AccessControl.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -2034,7 +2073,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 
 // File @openzeppelin/contracts/utils/structs/EnumerableSet.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Library for managing
@@ -2450,7 +2489,7 @@ library EnumerableSet {
 
 // File @openzeppelin/contracts/access/AccessControlEnumerable.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.
@@ -2563,7 +2602,7 @@ abstract contract AccessControlEnumerable is
 
 // File @openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol@v4.3.2
 
-// pragma solidity ^0.8.0;
+//pragma solidity ^0.8.0;
 
 /**
  * @dev {ERC20} token, including:
@@ -2661,10 +2700,91 @@ contract ERC20PresetMinterPauser is
     }
 }
 
+// File contracts/CZUsd.sol
+
+// Authored by Plastic Digits
+
+/*
+CZUSD consists of three core smart contracts: 
+CZUsd for the BEP20 stablecoin; 
+CZUsdBorrow for depositing collateral, minting new CZUSD against that collateral, 
+and repaying CZUSD to release collateral; 
+and CZUsdStablization which mints/burns CZUSD and CZF from the CZUSD/CZF pool 
+in an economically neutral way to maintain the CZUSD peg within set bounds.
+Additionally CZUSD integrates with several peripheral contracts; 
+CZF, the equity token for the algorithmic stabilization; 
+IERC20 collalteral tokens, 
+and Pancakeswap TWAP oracles for determining both CZUSD and collateral prices.
+*/
+//pragma solidity ^0.8.4;
+contract CZUsd is Context, ERC20PresetMinterPauser, Ownable {
+    bytes32 public constant SAFE_GRANTER_ROLE = keccak256("SAFE_GRANTER_ROLE");
+    using SafeERC20 for IERC20;
+    mapping(address => bool) safeContracts;
+
+    constructor() ERC20PresetMinterPauser("CZUSD", "CZUSD") Ownable() {
+        _setupRole(SAFE_GRANTER_ROLE, _msgSender());
+    }
+
+    function recoverERC20(address tokenAddress) external onlyOwner {
+        IERC20(tokenAddress).safeTransfer(
+            _msgSender(),
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+        if (
+            safeContracts[_msgSender()] &&
+            from != address(0) &&
+            to != address(0)
+        ) {
+            _approve(from, _msgSender(), amount);
+        }
+    }
+
+    function burnFrom(address account, uint256 amount) public virtual override {
+        if (!safeContracts[_msgSender()]) {
+            uint256 currentAllowance = allowance(account, _msgSender());
+            require(
+                currentAllowance >= amount,
+                "ERC20: burn amount exceeds allowance"
+            );
+            _approve(account, _msgSender(), currentAllowance - amount);
+        }
+        _burn(account, amount);
+    }
+
+    function burn(uint256 amount) public virtual override {
+        _burn(_msgSender(), amount);
+    }
+
+    function setContractSafe(address _for) external {
+        require(
+            hasRole(SAFE_GRANTER_ROLE, _msgSender()),
+            "CZFarm: must have SAFE_GRANTER_ROLE role"
+        );
+        safeContracts[_for] = true;
+    }
+
+    function setContractUnsafe(address _for) external {
+        require(
+            hasRole(SAFE_GRANTER_ROLE, _msgSender()),
+            "CZFarm: must have SAFE_GRANTER_ROLE role"
+        );
+        safeContracts[_for] = false;
+    }
+}
+
 // File contracts/CZFarm.sol
 
 // Authored by Plastic Digits
-// pragma solidity ^0.8.4;
+//pragma solidity ^0.8.4;
 contract CZFarm is Context, ERC20PresetMinterPauser, Ownable {
     bytes32 public constant SAFE_GRANTER_ROLE = keccak256("SAFE_GRANTER_ROLE");
     using SafeERC20 for IERC20;
@@ -2729,12 +2849,259 @@ contract CZFarm is Context, ERC20PresetMinterPauser, Ownable {
     }
 }
 
+// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.3.2
+
+//pragma solidity ^0.8.0;
+
+// CAUTION
+// This version of SafeMath should only be used with Solidity 0.8 or later,
+// because it relies on the compiler's built in overflow checks.
+
+/**
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SafeMath` is no longer needed starting with Solidity 0.8. The compiler
+ * now has built in overflow checking.
+ */
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryAdd(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the substraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function trySub(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMul(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryDiv(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMod(uint256 a, uint256 b)
+        internal
+        pure
+        returns (bool, uint256)
+    {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a + b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a * b;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator.
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a % b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b <= a, errorMessage);
+            return a - b;
+        }
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a / b;
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a % b;
+        }
+    }
+}
+
 // File contracts/CZFarmMasterRoutable.sol
 
 // Authored by Plastic Digits
 // Credit to Wex/WaultSwap, Synthetix
 //This variant can have an approved router, set by owner, which can deposit/withdraw on behalf of users to reduce the number of required tx.
-// pragma solidity ^0.8.4;
+//pragma solidity ^0.8.4;
 contract CZFarmMasterRoutable is Ownable {
     using SafeMath for uint256;
 
@@ -3051,252 +3418,225 @@ contract CZFarmMasterRoutable is Ownable {
     }
 }
 
-// File contracts/CZVaultRouter.sol
+// File contracts/libs/Babylonian.sol
 
 // Authored by Plastic Digits
-// pragma solidity ^0.8.4;
-contract CZVaultRouter is ReentrancyGuard, Ownable, Pausable {
-    using SafeERC20 for IERC20;
+// Credit to Uniswap
+//pragma solidity ^0.8.4;
 
-    fallback() external payable {}
-
-    receive() external payable {}
-
-    function depositAndStake(
-        CZFarmMasterRoutable _master,
-        uint256 _pid,
-        uint256 _wad
-    ) external whenNotPaused {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-        ICZVault vault = ICZVault(address(vaultAddress));
-        vault.asset().transferFrom(msg.sender, address(this), _wad);
-        vault.deposit(address(this), _wad);
-        _master.depositRoutable(_pid, _wad, true, msg.sender, address(this));
-    }
-
-    function withdrawAndUnstake(
-        CZFarmMasterRoutable _master,
-        uint256 _pid,
-        uint256 _wad
-    ) external whenNotPaused {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-        ICZVault vault = ICZVault(address(vaultAddress));
-        _master.withdrawRoutable(_pid, _wad, true, msg.sender, address(this));
-        vault.withdraw(msg.sender, vault.asset().balanceOf(address(this)));
-    }
-
-    function depositAndStakeBeltBNB(CZFarmMasterRoutable _master, uint256 _pid)
-        external
-        payable
-        whenNotPaused
-    {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-
-        ICZVault vault = ICZVault(address(vaultAddress));
-
-        IBeltMultiStrategyToken(address(vault.asset())).depositBNB{
-            value: msg.value
-        }(0);
-
-        uint256 _beltWad = vault.asset().balanceOf(address(this));
-
-        vault.asset().approve(address(vault), _beltWad);
-
-        vault.deposit(address(this), _beltWad);
-
-        _master.depositRoutable(
-            _pid,
-            _beltWad,
-            true,
-            msg.sender,
-            address(this)
-        );
-    }
-
-    function withdrawAndUnstakeBeltBNB(
-        CZFarmMasterRoutable _master,
-        uint256 _pid,
-        uint256 _wad
-    ) external nonReentrant whenNotPaused {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-        ICZVault vault = ICZVault(address(vaultAddress));
-
-        _master.withdrawRoutable(_pid, _wad, true, msg.sender, address(this));
-
-        vault.withdraw(address(this), vault.balanceOf(address(this)));
-
-        IBeltMultiStrategyToken(address(vault.asset())).withdrawBNB(
-            vault.asset().balanceOf(address(this)),
-            0
-        );
-
-        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
-        require(sent, "CZVaultRouter: Transfer failed");
-    }
-
-    function depositAndStakeBeltToken(
-        CZFarmMasterRoutable _master,
-        uint256 _pid,
-        uint256 _wad
-    ) external whenNotPaused {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-        ICZVault vault = ICZVault(address(vaultAddress));
-        IBeltMultiStrategyToken(address(vault.asset())).deposit(_wad, 0);
-        uint256 _beltWad = vault.asset().balanceOf(address(this));
-        vault.deposit(address(this), _beltWad);
-        _master.depositRoutable(
-            _pid,
-            _beltWad,
-            true,
-            msg.sender,
-            address(this)
-        );
-    }
-
-    function withdrawAndUnstakeBeltToken(
-        CZFarmMasterRoutable _master,
-        uint256 _pid,
-        uint256 _wad
-    ) external whenNotPaused {
-        (IERC20 vaultAddress, , , ) = _master.poolInfo(_pid);
-        ICZVault vault = ICZVault(address(vaultAddress));
-        _master.withdrawRoutable(_pid, _wad, true, msg.sender, address(this));
-        vault.withdraw(address(this), vault.asset().balanceOf(address(this)));
-        IBeltMultiStrategyToken stratToken = IBeltMultiStrategyToken(
-            address(vault.asset())
-        );
-        stratToken.withdraw(_wad, 0);
-        IERC20 token = IERC20(stratToken.token());
-        token.transfer(msg.sender, token.balanceOf(address(this)));
-    }
-
-    function recoverERC20(address tokenAddress) external onlyOwner {
-        IERC20(tokenAddress).safeTransfer(
-            _msgSender(),
-            IERC20(tokenAddress).balanceOf(address(this))
-        );
-    }
-
-    function recoverEther() external onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
-    function setPaused(bool _to) external onlyOwner {
-        if (_to) {
-            _pause();
-        } else {
-            _unpause();
+// computes square roots using the babylonian method
+// https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
+library Babylonian {
+    // credit for this implementation goes to
+    // https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/ABDKMath64x64.sol#L687
+    function sqrt(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 0;
+        // this block is equivalent to r = uint256(1) << (BitMath.mostSignificantBit(x) / 2);
+        // however that code costs significantly more gas
+        uint256 xx = x;
+        uint256 r = 1;
+        if (xx >= 0x100000000000000000000000000000000) {
+            xx >>= 128;
+            r <<= 64;
         }
+        if (xx >= 0x10000000000000000) {
+            xx >>= 64;
+            r <<= 32;
+        }
+        if (xx >= 0x100000000) {
+            xx >>= 32;
+            r <<= 16;
+        }
+        if (xx >= 0x10000) {
+            xx >>= 16;
+            r <<= 8;
+        }
+        if (xx >= 0x100) {
+            xx >>= 8;
+            r <<= 4;
+        }
+        if (xx >= 0x10) {
+            xx >>= 4;
+            r <<= 2;
+        }
+        if (xx >= 0x8) {
+            r <<= 1;
+        }
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1;
+        r = (r + x / r) >> 1; // Seven iterations should be enough
+        uint256 r1 = x / r;
+        return (r < r1 ? r : r1);
     }
 }
 
-interface IBeltFarm {
-    function deposit(uint256 _pid, uint256 _wantAmt) external;
+// File contracts/CZVaultPeg.sol
 
-    function withdraw(uint256 _pid, uint256 _wantAmt) external;
-}
-
-contract CzfBeltVault is
-    ERC20,
-    Ownable,
-    ReentrancyGuard,
-    AccessControlEnumerable,
-    Pausable
-{
+// Authored by Plastic Digits
+//pragma solidity ^0.8.4;
+contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
     using SafeERC20 for IERC20;
-    bytes32 public constant SAFE_GRANTER_ROLE = keccak256("SAFE_GRANTER_ROLE");
-    mapping(address => bool) safeContracts;
 
-    IBeltFarm public beltFarm;
-    IERC20 public beltBNB;
-    IERC20 public belt;
+    IBeltLP public belt4LP;
+    IERC20 public belt4;
+    IERC20 public busd;
+    ICZVault public vault;
+    CZUsd public czusd;
+    CZFarm public czf;
+    IAmmRouter01 public router;
+    IAmmPair public czusdBusdPair;
+
+    uint256 public maxDelta;
+
+    uint128 public constant busdIndex = 3;
+
+    uint256 public netBusd;
+
+    uint256 public lastUpdate;
+    uint256 public delaySeconds;
+    uint256 public rewardMultiplier;
     uint256 public feeBasis;
 
-    uint256 public beltPoolId;
-
-    event Deposit(address _for, uint256 _pid, uint256 _amt);
-    event Withdraw(address _for, uint256 _pid, uint256 _amt);
-    event Fee(address _for, uint256 _pid, uint256 _amt);
-
     constructor(
-        address _beltFarm,
-        address _beltBNB,
-        uint256 _beltPoolId,
-        address _belt,
-        string memory _name,
-        string memory _symbol
-    ) ERC20(_name, _symbol) Ownable() {
-        beltFarm = IBeltFarm(_beltFarm);
-        beltBNB = IERC20(_beltBNB);
-        belt = IERC20(_belt);
-        beltPoolId = _beltPoolId;
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(SAFE_GRANTER_ROLE, msg.sender);
-    }
-
-    // 1) Transfers _wad beltBnb from msg.sender
-    // 2) Stakes _wad beltBnb to beltFarm
-    // 3) Mints _wad of CzfBeltVault to _for
-    // NOTE: This contract must be approved for beltBNB first.
-    // NOTE: If this fails, double check the pid
-    function deposit(address _for, uint256 _wad)
-        external
-        nonReentrant
-        whenNotPaused
-    {
-        beltBNB.transferFrom(msg.sender, address(this), _wad);
-
-        beltBNB.approve(address(beltFarm), _wad);
-        beltFarm.deposit(beltPoolId, _wad);
-
-        _mint(_for, _wad);
-
-        emit Deposit(msg.sender, beltPoolId, _wad);
-    }
-
-    //1) Burns _wad CzfBeltVault from msg.sender.
-    //2) Unstakes _wad beltBnb from beltFarm
-    //3) Transfers _wad beltBNB from self to _for.
-    //NOTE: This contract must be approved for CzfBeltVault first.
-    function withdraw(address _for, uint256 _wad) external whenNotPaused {
-        _burn(msg.sender, _wad);
-
-        uint256 fee = (_wad * feeBasis) / 10000;
-        uint256 withdrawAmt = _wad - fee;
-
-        beltFarm.withdraw(beltPoolId, withdrawAmt);
-        beltBNB.transfer(_for, withdrawAmt);
-
-        emit Withdraw(msg.sender, beltPoolId, withdrawAmt);
-        emit Fee(msg.sender, beltPoolId, fee);
-    }
-
-    //1) Harvests BELT from beltFarm.
-    //2) Transfers all BELT in this contract to _pool
-    //NOTE: This can only be called by owner.
-    function harvest(address _pool) external onlyOwner whenNotPaused {
-        beltFarm.withdraw(beltPoolId, 0);
-
-        belt.transfer(_pool, belt.balanceOf(address(this)));
-    }
-
-    function updateBeltFarm(address _beltFarm) external onlyOwner {
-        beltFarm = IBeltFarm(_beltFarm);
-    }
-
-    function updateBeltPoolId(uint256 _beltPoolId) external onlyOwner {
-        beltPoolId = _beltPoolId;
-    }
-
-    function setFeeBasis(uint256 _feeBasis) external onlyOwner {
+        IBeltLP _belt4LP,
+        IERC20 _belt4,
+        IERC20 _busd,
+        ICZVault _vault,
+        CZUsd _czusd,
+        IAmmRouter01 _router,
+        IAmmPair _czusdBusdPair,
+        uint256 _maxDelta,
+        CZFarm _czf,
+        uint256 _delaySeconds,
+        uint256 _rewardMultiplier,
+        uint256 _feeBasis
+    ) {
+        belt4LP = _belt4LP;
+        belt4 = _belt4;
+        busd = _busd;
+        vault = _vault;
+        czusd = _czusd;
+        router = _router;
+        czusdBusdPair = _czusdBusdPair;
+        maxDelta = _maxDelta;
+        lastUpdate = block.timestamp;
+        czf = _czf;
+        delaySeconds = _delaySeconds;
+        rewardMultiplier = _rewardMultiplier;
         feeBasis = _feeBasis;
-        require(
-            feeBasis < 5000,
-            "CzfBeltVault: Fee can never be more than 50%"
-        );
     }
 
-    //Utility methods & safe contract methods
+    function repeg() external whenNotPaused {
+        czusdBusdPair.sync();
+        uint256 lpCzusdWad = czusd.balanceOf(address(czusdBusdPair));
+        uint256 lpBusdWad = busd.balanceOf(address(czusdBusdPair));
+        uint256 delta;
+        if (lpCzusdWad == lpBusdWad) return;
+        if (lpCzusdWad < lpBusdWad) {
+            //less CZUSD means CZUSD is too expensive
+            delta = _correctOverPeg(lpCzusdWad, lpBusdWad);
+        } else {
+            //more CZUSD means CZUSD is too cheap
+            delta = _correctUnderPeg(lpCzusdWad, lpBusdWad);
+        }
+        _syncDifference();
+        uint256 czfToMint = block.timestamp > lastUpdate + delaySeconds
+            ? delta * rewardMultiplier
+            : (delta * rewardMultiplier * (block.timestamp - lastUpdate)) /
+                delaySeconds;
+        lastUpdate = block.timestamp;
+        czf.mint(msg.sender, czfToMint);
+    }
+
+    function _correctOverPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad)
+        internal
+        returns (uint256 delta_)
+    {
+        require(_lpCzusdWad < _lpBusdWad, "CZVaultPeg: Not over peg");
+        delta_ =
+            ((Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpCzusdWad) *
+                (20000 + feeBasis)) /
+            20000;
+        if (delta_ > maxDelta) delta_ = maxDelta;
+        czusd.mint(address(this), delta_);
+        address[] memory path = new address[](2);
+        path[0] = address(czusd);
+        path[1] = address(busd);
+        czusd.approve(address(router), delta_);
+        router.swapExactTokensForTokens(
+            delta_,
+            delta_,
+            path,
+            address(this),
+            block.timestamp
+        );
+        _depositBusd();
+    }
+
+    function _correctUnderPeg(uint256 _lpCzusdWad, uint256 _lpBusdWad)
+        internal
+        returns (uint256 delta_)
+    {
+        require(_lpCzusdWad > _lpBusdWad, "CZVaultPeg: Not under peg");
+        delta_ =
+            ((Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpBusdWad) *
+                (10000 + feeBasis / 2)) /
+            10000;
+        if (delta_ > maxDelta) delta_ = maxDelta;
+        _withdrawBusd(delta_);
+        address[] memory path = new address[](2);
+        path[0] = address(busd);
+        path[1] = address(czusd);
+        busd.approve(address(router), delta_);
+        router.swapExactTokensForTokens(
+            delta_,
+            delta_,
+            path,
+            address(this),
+            block.timestamp
+        );
+        czusd.burn(czusd.balanceOf(address(this)));
+    }
+
+    function _depositBusd() internal {
+        uint256[4] memory uamounts;
+        uamounts[busdIndex] = busd.balanceOf(address(this));
+        busd.approve(address(belt4LP), uamounts[busdIndex]);
+        belt4LP.add_liquidity(uamounts, 0);
+        uint256 belt4Wad = belt4.balanceOf(address(this));
+        belt4.approve(address(vault), belt4Wad);
+        vault.deposit(address(this), belt4Wad);
+        netBusd += uamounts[busdIndex];
+    }
+
+    function _withdrawBusd(uint256 _wad) internal {
+        uint256 busdBeforeWithdraw = busd.balanceOf(address(this));
+        belt4.approve(address(belt4LP), ~uint256(0));
+        belt4LP.remove_liquidity_one_coin(_wad, int128(busdIndex), ~uint256(0));
+        netBusd -= (busd.balanceOf(address(this)) - busdBeforeWithdraw);
+    }
+
+    function _syncDifference() internal {
+        //due to small errors, the pools can be different by a small amount after syncing.
+        //This will correct the issue.
+        uint256 lpCzusdWad = czusd.balanceOf(address(czusdBusdPair));
+        uint256 lpBusdWad = busd.balanceOf(address(czusdBusdPair));
+        if (lpCzusdWad == lpBusdWad) return;
+        if (lpCzusdWad > lpBusdWad && lpCzusdWad - lpBusdWad < 0.1 ether) {
+            czusd.burnFrom(address(czusdBusdPair), lpCzusdWad - lpBusdWad);
+            czusdBusdPair.sync();
+            return;
+        }
+        if (lpCzusdWad < lpBusdWad && lpBusdWad - lpCzusdWad < 0.1 ether) {
+            czusd.mint(address(czusdBusdPair), lpBusdWad - lpCzusdWad);
+            czusdBusdPair.sync();
+            return;
+        }
+    }
 
     function recoverERC20(address tokenAddress) external onlyOwner {
         IERC20(tokenAddress).safeTransfer(
@@ -3305,46 +3645,23 @@ contract CzfBeltVault is
         );
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, amount);
-        if (
-            safeContracts[_msgSender()] &&
-            from != address(0) &&
-            to != address(0)
-        ) {
-            _approve(from, _msgSender(), amount);
-        }
-    }
-
-    function setContractSafe(address _for) external {
-        require(
-            hasRole(SAFE_GRANTER_ROLE, _msgSender()),
-            "CZFarm: must have SAFE_GRANTER_ROLE role"
-        );
-        safeContracts[_for] = true;
-    }
-
-    function setContractUnsafe(address _for) external {
-        require(
-            hasRole(SAFE_GRANTER_ROLE, _msgSender()),
-            "CZFarm: must have SAFE_GRANTER_ROLE role"
-        );
-        safeContracts[_for] = false;
-    }
-
-    function asset() external view returns (IERC20 _asset) {
-        return beltBNB;
-    }
-
     function setPaused(bool _to) external onlyOwner {
         if (_to) {
             _pause();
         } else {
             _unpause();
         }
+    }
+
+    function setMaxDelta(uint256 _to) external onlyOwner {
+        maxDelta = _to;
+    }
+
+    function setDelaySeconds(uint256 _to) external onlyOwner {
+        delaySeconds = _to;
+    }
+
+    function setRewardMultiplier(uint256 _to) external onlyOwner {
+        rewardMultiplier = _to;
     }
 }

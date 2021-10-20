@@ -2,8 +2,6 @@
 // Authored by Plastic Digits
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -74,28 +72,21 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
         czusdBusdPair.sync();
         uint256 lpCzusdWad = czusd.balanceOf(address(czusdBusdPair));
         uint256 lpBusdWad = busd.balanceOf(address(czusdBusdPair));
-        console.log("czusd", lpCzusdWad);
-        console.log("busd", lpBusdWad);
         uint256 delta;
         if (lpCzusdWad == lpBusdWad) return;
         if (lpCzusdWad < lpBusdWad) {
             //less CZUSD means CZUSD is too expensive
-            console.log("CZUSD over peg");
             delta = _correctOverPeg(lpCzusdWad, lpBusdWad);
         } else {
-            console.log("CZUSD under peg");
             //more CZUSD means CZUSD is too cheap
             delta = _correctUnderPeg(lpCzusdWad, lpBusdWad);
         }
-        console.log("sync");
         _syncDifference();
-        console.log("Minting czf");
         uint256 czfToMint = block.timestamp > lastUpdate + delaySeconds
             ? delta * rewardMultiplier
             : (delta * rewardMultiplier * (block.timestamp - lastUpdate)) /
                 delaySeconds;
         lastUpdate = block.timestamp;
-        console.log("czfToMint", czfToMint);
         czf.mint(msg.sender, czfToMint);
     }
 
@@ -108,7 +99,6 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
             ((Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpCzusdWad) *
                 (20000 + feeBasis)) /
             20000;
-        console.log("czusd", delta_);
         if (delta_ > maxDelta) delta_ = maxDelta;
         czusd.mint(address(this), delta_);
         address[] memory path = new address[](2);
@@ -122,7 +112,6 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
             address(this),
             block.timestamp
         );
-        console.log(busd.balanceOf(address(this)));
         _depositBusd();
     }
 
@@ -135,7 +124,6 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
             ((Babylonian.sqrt(_lpCzusdWad * _lpBusdWad) - _lpBusdWad) *
                 (10000 + feeBasis / 2)) /
             10000;
-        console.log("Delta", delta_);
         if (delta_ > maxDelta) delta_ = maxDelta;
         _withdrawBusd(delta_);
         address[] memory path = new address[](2);
@@ -155,15 +143,12 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
     function _depositBusd() internal {
         uint256[4] memory uamounts;
         uamounts[busdIndex] = busd.balanceOf(address(this));
-        console.log("busd", uamounts[busdIndex]);
         busd.approve(address(belt4LP), uamounts[busdIndex]);
         belt4LP.add_liquidity(uamounts, 0);
         uint256 belt4Wad = belt4.balanceOf(address(this));
         belt4.approve(address(vault), belt4Wad);
-        console.log("belt4wad", belt4Wad);
         vault.deposit(address(this), belt4Wad);
         netBusd += uamounts[busdIndex];
-        console.log("netBusd", netBusd);
     }
 
     function _withdrawBusd(uint256 _wad) internal {

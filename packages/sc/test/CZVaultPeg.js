@@ -49,7 +49,9 @@ describe("CzVaultPeg", function() {
       beltFarm,
       Belt4,
       belt4BeltPoolId,
-      BELT
+      BELT,
+      "CzVault4Belt",
+      "CZV4BELT"
     );
 
     const CZVaultPeg = await ethers.getContractFactory("CZVaultPeg");
@@ -94,12 +96,16 @@ describe("CzVaultPeg", function() {
       console.log("attempting repeg...");
       await czVaultPeg.repeg();
       console.log("...repeg complete.")
-    })
+    });
     it("Should set pair to equal amount of busd and czusd", async function() {
       const busdBal = await busdSc.balanceOf(czusdBusdPairPCS);
       const czusdBal = await czusdSc.balanceOf(czusdBusdPairPCS);
-      console.log("busd",formatEther(busdBal),"czusd",formatEther(czusdBal));
       expect(busdBal).eq(czusdBal);
+    });
+    it("Should mint CZF to repegger", async function() {
+      const czfBal = await czfSc.balanceOf(owner.address);
+      console.log("czf",formatEther(czfBal));
+      expect(czfBal).gt(0);
     });
   });
 
