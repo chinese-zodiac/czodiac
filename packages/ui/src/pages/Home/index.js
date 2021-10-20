@@ -74,7 +74,7 @@ function Home() {
           </SimpleGrid>
       </Box>
     </LightMode>
-    <Button ml="auto" mr="auto" display="block" onClick={sendRepeg} >Repeg CZUSD</Button>
+    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepeg()} >Repeg CZUSD</Button>
     <br/><br/>
     <Footer />
 </>);
