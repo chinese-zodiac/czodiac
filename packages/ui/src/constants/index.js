@@ -257,9 +257,9 @@ export const CZVAULTS = {
     },
   ],
 }
-export const CZVaultPeg = {
+export const CZVAULTPEG = {
   [CHAINS.BSC]: "0xC9bDd74982901F3C231837a07002FA91084B8Abf"
 }
-export const CZVault4Belt = {
+export const CZVAULT4BELT = {
   [CHAINS.BSC]: "0xceE0C6a66df916991F3C730108CF8672157380b7"
 }
