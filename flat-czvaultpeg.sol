@@ -3494,12 +3494,11 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
 
     uint128 public constant busdIndex = 3;
 
-    uint256 public netBusd;
-
     uint256 public lastUpdate;
     uint256 public delaySeconds;
     uint256 public rewardMultiplier;
     uint256 public feeBasis;
+    uint256 public withdrawBusdMultiplierBasis;
 
     constructor(
         IBeltLP _belt4LP,
@@ -3610,14 +3609,16 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
         uint256 belt4Wad = belt4.balanceOf(address(this));
         belt4.approve(address(vault), belt4Wad);
         vault.deposit(address(this), belt4Wad);
-        netBusd += uamounts[busdIndex];
     }
 
     function _withdrawBusd(uint256 _wad) internal {
-        uint256 busdBeforeWithdraw = busd.balanceOf(address(this));
-        belt4.approve(address(belt4LP), ~uint256(0));
-        belt4LP.remove_liquidity_one_coin(_wad, int128(busdIndex), ~uint256(0));
-        netBusd -= (busd.balanceOf(address(this)) - busdBeforeWithdraw);
+        vault.withdraw(
+            address(this),
+            (_wad * (10000 + withdrawBusdMultiplierBasis)) / 10000
+        );
+        uint256 belt4Bal = belt4.balanceOf(address(this));
+        belt4.approve(address(belt4LP), belt4Bal);
+        belt4LP.remove_liquidity_one_coin(belt4Bal, int128(busdIndex), _wad);
     }
 
     function _syncDifference() internal {
@@ -3663,5 +3664,9 @@ contract CZVaultPeg is ReentrancyGuard, Ownable, Pausable {
 
     function setRewardMultiplier(uint256 _to) external onlyOwner {
         rewardMultiplier = _to;
+    }
+
+    function setWithdrawBusdMultiplierBasis(uint256 _to) external onlyOwner {
+        withdrawBusdMultiplierBasis = _to;
     }
 }

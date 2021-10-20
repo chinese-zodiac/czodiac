@@ -23,8 +23,7 @@ async function main() {
   czfSc = await ethers.getContractAt("CZFarm", czf);
   czusdSc = await ethers.getContractAt("CZUsd", czusd);
 
-  //TODO: CZF Vaults should have a unique ERC20 name and symbol
-  const CzfBeltVault = await ethers.getContractFactory("CzfBeltVault");
+  /*const CzfBeltVault = await ethers.getContractFactory("CzfBeltVault");
     czfBeltVault = await CzfBeltVault.deploy(
       beltFarm,
       Belt4,
@@ -34,7 +33,8 @@ async function main() {
       "CZV4BELT"
     );
   await czfBeltVault.deployed();
-  console.log("CzfBeltVault (4belt) deployed to:", czfBeltVault.address);
+  console.log("CzfBeltVault (4belt) deployed to:", czfBeltVault.address);*/
+  czfBeltVault =  await ethers.getContractAt("CzfBeltVault", "0xceE0C6a66df916991F3C730108CF8672157380b7")
 
   const CZVaultPeg = await ethers.getContractFactory("CZVaultPeg");
     czVaultPeg = await CZVaultPeg.deploy(
@@ -55,6 +55,7 @@ async function main() {
   await czVaultPeg.deployed();
   console.log("CZVaultPeg deployed to:", czVaultPeg.address);
 
+
   console.log("Grant roles");
   await czfSc
     .grantRole(ethers.utils.id("MINTER_ROLE"), czVaultPeg.address);
@@ -62,6 +63,8 @@ async function main() {
     .grantRole(ethers.utils.id("MINTER_ROLE"), czVaultPeg.address);
   await czusdSc
     .setContractSafe(czVaultPeg.address);
+  await czVaultPeg
+      .setWithdrawBusdMultiplierBasis(500);
   console.log("Complete");
 
 }
