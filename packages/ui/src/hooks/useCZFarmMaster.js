@@ -57,6 +57,9 @@ const farmLps = [
   "0x41063A1AEFE6d6f4b44a2b030bB259673dCA8bA6", //CZF/IF1 -PCS
   "0x425183B75687a54e1D77eE7580ec42FfEB6610bF", //CZF/BRY -PCS
   "0x4394Ab6678fd7bc6ce658558072CcE6a371B7de0", //CZF/GM1 -BABY
+  "0x9C8bae84261eA499c628a4aaD925564766210e64", //CZF/BTCB -PCS
+  "0xEcEEC5745Acf050A3a464fd2FAF64c1d683c8616", //CZF/ETH -PCS
+  "0x13573b1970611bb401f0B75994C80E16c8F56C35", //CZF/CAKE -PCS
   //"0x0fe1E1Ee88516d7FAa13B9365126778c3bFD585A", //CZF/PRHO -PCS
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
@@ -78,6 +81,9 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.BABY,
+  DEX.PCS,
+  DEX.PCS,
+  DEX.PCS,
   //DEX.PCS,
   //DEX.SHRK,
   //DEX.DONK,
@@ -207,6 +213,36 @@ const farmTokens = [
     {
       address:"0x0E52d24c87A5ca4F37E3eE5E16EF5913fb0cCEEB",
       symbol:"GAME1"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
+      symbol:"BTCB"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+      symbol:"ETH"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+      symbol:"CAKE"
     }
   ],
   /*[
