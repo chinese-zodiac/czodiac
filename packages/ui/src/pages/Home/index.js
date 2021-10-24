@@ -45,23 +45,20 @@ function Home() {
     <Header />
     <LightMode>
       <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
+          <NavLink to="stimfarms">
+            <Button colorScheme="purple">★ Stim Farms</Button>
+          </NavLink>
           <NavLink to="vaults">
-            <Button colorScheme="red">CZVaults</Button>
+            <Button colorScheme="red">★ Antidump Vaults</Button>
           </NavLink>
           <NavLink to="czfarm">
-            <Button colorScheme="red" >Earn On CZFarm</Button>
+            <Button colorScheme="red" >★ v1Pools, v1Farms</Button>
           </NavLink>
           <NavLink to="czusd">
-            <Button colorScheme="red" >Borrow CZUsd</Button>
+            <Button colorScheme="red" >Exempt Borrow</Button>
           </NavLink>
           <NavLink to="tigerhunt">
-            <Button colorScheme="red" >Play Tiger Hunt</Button>
-          </NavLink>
-          <NavLink to="swap">
-            <Button colorScheme="orange" >OxZ{"->"}TigZ (complete)</Button>
-          </NavLink>
-          <NavLink to="sale">
-            <Button colorScheme="orange" >Sale (complete)</Button>
+            <Button colorScheme="orange" >Play Tiger Hunt</Button>
           </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>

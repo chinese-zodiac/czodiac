@@ -270,3 +270,15 @@ export const CZVAULTPEG = {
 export const CZVAULT4BELT = {
   [CHAINS.BSC]: "0xceE0C6a66df916991F3C730108CF8672157380b7"
 }
+
+export const STIMFARMS = {
+  [CHAINS.BSC] : [
+    {
+      name: "CZF/BNB - PCS - 001",
+      address: "0x547d58c96400235E112Da8920521b38879A7C060",
+      asset: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB"
+    }
+  ]
+}

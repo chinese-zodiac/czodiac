@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
-// Credit to Olympus DAO
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -70,8 +69,12 @@ contract StimFarmFactory is Ownable {
     ) public onlyOwner {
         deployStimFarmCzfStandard(
             _asset,
-            (_asset.balanceOf(address(czf)) *
-                (_weeklyInterestBasisPoints + 10000)) / 10000,
+            (czf.balanceOf(address(_asset)) *
+                1 ether *
+                2 *
+                (_weeklyInterestBasisPoints + 10000)) /
+                10000 /
+                _asset.totalSupply(),
             block.timestamp +
                 (_daysUntilOpen * 1 days) +
                 (_hoursUntilOpen * 1 hours)

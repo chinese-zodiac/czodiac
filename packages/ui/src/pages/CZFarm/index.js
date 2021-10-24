@@ -22,7 +22,6 @@ function CZFarm() {
         <TabList variant="enclosed">
           <Tab>Farms</Tab>
           <Tab>Pools</Tab>
-          <Tab>Trade</Tab>
         </TabList>
 
         <TabPanels>
@@ -31,10 +30,6 @@ function CZFarm() {
           </TabPanel>
           <TabPanel>
             <CZPoolsList />
-          </TabPanel>
-          <TabPanel>
-            <p>Earn {czfarmLink()} by trading tokens on Pancakeswap.</p>
-            <p>(Coming soon)</p>
           </TabPanel>
         </TabPanels>
       </Tabs>

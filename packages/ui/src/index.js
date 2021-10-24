@@ -5,8 +5,7 @@ import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import WebfontLoader from '@dr-kobros/react-webfont-loader';
 import theme from "./theme";
 import Home from "./pages/Home";
-import Sale from "./pages/Sale";
-import Swap from "./pages/Swap";
+import StimFarms from "./pages/StimFarms";
 import TigerHunt from "./pages/TigerHunt";
 import CZFarm from "./pages/CZFarm";
 import CZUsd from "./pages/CZUsd";
@@ -42,8 +41,7 @@ ReactDOM.render(
         <DAppProvider config={dappConfig}>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           <Route exact path="/" component={Home} />
-          <Route path="/sale" component={Sale} />
-          <Route path="/swap" component={Swap} />
+          <Route path="/stimfarms" component={StimFarms} />
           <Route path="/tigerhunt" component={TigerHunt} />
           <Route path="/czfarm" component={CZFarm} />
           <Route path="/czusd" component={CZUsd} />
