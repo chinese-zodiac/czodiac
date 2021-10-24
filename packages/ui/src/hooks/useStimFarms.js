@@ -166,7 +166,7 @@ function useStimFarms() {
   
   useDeepCompareEffect(()=>{
     let newStimFarms = [];
-    if(!callResults || callResults.length === 0 || !callResults[0] || !STIMFARMS[chainId] || !czfBusdPrice) {
+    if(!callResults || callResults.length === 0 || !callResults[0] || !STIMFARMS[chainId] || !czfBusdPrice || !callResults[7]) {
         return;
     }
     let now = new Date();
