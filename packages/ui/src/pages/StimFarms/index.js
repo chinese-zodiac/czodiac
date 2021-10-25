@@ -34,6 +34,7 @@ function StimFarms() {
               sendClaim={s.sendClaim}
               sendApprove={s.sendApprove}
               user={s.userInfo}
+              logo={s.logo}
             />
         </Box>
       )})}</>)

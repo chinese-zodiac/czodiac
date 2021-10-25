@@ -25,7 +25,8 @@ function StimFarm({
   sendDeposit,
   sendClaim,
   sendApprove,
-  user
+  user,
+  logo
 }) {
   const {chainId} = useEthers();
 
@@ -34,7 +35,7 @@ function StimFarm({
 
   return (<>
       <Heading display="inline-block" as="h3" fontSize="2xl" >{name}</Heading>
-      <br/>
+      <Image maxW="250px" src={logo} ml="auto" mr="auto" mb="10px" mt="10px" />
       <Link isExternal href={getLink} textDecoration="underline">🖙🖙 Mint LP<Icon as={FiExternalLink} /> 🖘🖘</Link>
 
       {isOpen && !user.isApproved && (<>

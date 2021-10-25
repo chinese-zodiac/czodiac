@@ -32,6 +32,7 @@ function useStimFarms() {
     sendClaim: null,
     sendApprove: null,
     totalAssetDeposits: null,
+    logo: null,
     userInfo: {
       assetWallet: null,
       assetWalletUsd: null,
@@ -171,27 +172,32 @@ function useStimFarms() {
     }
     let now = new Date();
     STIMFARMS[chainId].forEach((s,index)=>{
-      let sd = STIMFARMS[chainId][index]
+      let sd = STIMFARMS[chainId][index];
+      let o = index*12;
+      console.log(callResults[0+o][0].toString());
+      console.log(callResults[9+o][0].toString());
+      console.log(callResults[10+o][0].toString());
       let sn = {
         name: sd.name,
         address: sd.address,
         asset: sd.asset,
         isAssetCzfLp: sd.isAssetCzfLp,
         getLink: sd.getLink,
-        czfPerAsset: callResults[0][0],
-        openDate: new Date(callResults[1][0].toNumber()*1000),
-        closeDate: new Date(callResults[2][0].toNumber()*1000),
-        vestDate: new Date(callResults[3][0].toNumber()*1000),
-        isOpen: callResults[4][0],
-        isVested: callResults[5][0],
-        totalAssetDeposits: callResults[6][0],
+        logo: sd.logo,
+        czfPerAsset: callResults[0+o][0],
+        openDate: new Date(callResults[1+o][0].toNumber()*1000),
+        closeDate: new Date(callResults[2+o][0].toNumber()*1000),
+        vestDate: new Date(callResults[3+o][0].toNumber()*1000),
+        isOpen: callResults[4+o][0],
+        isVested: callResults[5+o][0],
+        totalAssetDeposits: callResults[6+o][0],
         userInfo: {
-          depositorAsset: callResults[7][0],
-          assetWallet: callResults[8][0],
-          assetAllowance: callResults[11][0]
+          depositorAsset: callResults[7+o][0],
+          assetWallet: callResults[8+o][0],
+          assetAllowance: callResults[11+o][0]
         },
-        assetCzfBalance: callResults[9][0],
-        assetTotalSupply: callResults[10][0]
+        assetCzfBalance: callResults[9+o][0],
+        assetTotalSupply: callResults[10+o][0]
       }
       sn.userInfo.czfClaimable = sn.userInfo.depositorAsset.mul(sn.czfPerAsset).div(weiFactor);
       sn.sendClaim = ()=>sendClaim(sn.address);
@@ -204,6 +210,8 @@ function useStimFarms() {
         sn.userInfo.assetWalletUsd =  sn.userInfo.assetWallet.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).div(weiFactor);
         sn.userInfo.depositorUsd =  sn.userInfo.depositorAsset.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).div(weiFactor);
       }
+      console.log(sn.assetTotalSupply.toString(),sn.czfPerAsset.toString(),sn.assetCzfBalance.toString(),sn.aprBasis)
+      console.log(sn.assetTotalSupply.mul(BigNumber.from("10000")).mul(sn.czfPerAsset).div(sn.assetCzfBalance.mul(2)).div(weiFactor).toString())
 
       if(sn.isVested || sn.isOpen) {
         sn.isLaunching = false;

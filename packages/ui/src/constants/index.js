@@ -274,11 +274,44 @@ export const CZVAULT4BELT = {
 export const STIMFARMS = {
   [CHAINS.BSC] : [
     {
-      name: "CZF/BNB - PCS - 001",
+      name: "CZF/BNB on PCS",
       address: "0x547d58c96400235E112Da8920521b38879A7C060",
       asset: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
       isAssetCzfLp: true,
-      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB"
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
+      logo: "./farm/CZF-BNB.jpg"
+    },
+    {
+      name: "CZF/TIGZ on PCS",
+      address: "0x479E0afa17a18641E5f424CeeF8A6571b509011c",
+      asset: "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x535874bfbecac5f235717faea7c26d01c67b38c5/0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      logo: "./farm/TIGZ-CZF.jpg"
+    },
+    {
+      name: "CZF/BUSD on PCS",
+      address: "0x70E4FF914e1376203f08958121BFeD223eE58547",
+      asset: "0xAAC96d00C566571bafdfa3B8440Bdc3cDB223Ad0",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+      logo: "./farm/CZF-BUSD.jpg"
+    },
+    {
+      name: "CZF/CZUSD on PCS",
+      address: "0xd42519D5B188eBe54581CD6DCb423721465b7be1",
+      asset: "0x98b5f5e7ec32cda1f3e89936c9972f92296afe47",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      logo: "./farm/CZF-CZUSD.jpg"
+    },
+    {
+      name: "CZF/CAKE on PCS",
+      address: "0xfE50d567B98C453Cb5E31C7A21C40c82baA614ff",
+      asset: "0x13573b1970611bb401f0b75994c80e16c8f56c35",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+      logo: "./farm/CZF-CAKE.jpg"
     }
   ]
 }
