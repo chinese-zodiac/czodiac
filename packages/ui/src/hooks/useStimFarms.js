@@ -77,10 +77,11 @@ function useStimFarms() {
   }
 
   const sendApprove = async (stimFarmAddress,assetAddress) => {
+    console.log(stimFarmAddress,assetAddress)
     if(!account || !library || !stimFarmAddress) return;
     const assetContract = (new Contract(assetAddress, ierc20Interface, library)).connect(library.getSigner());
     try{
-      await assetContract.approve(constants.MaxUint256);
+      await assetContract.approve(stimFarmAddress,constants.MaxUint256);
     } catch(err) {
       console.log(err);
     }
@@ -206,9 +207,9 @@ function useStimFarms() {
       sn.userInfo.isApproved = sn.userInfo.assetAllowance.gt(constants.MaxUint256.div(BigNumber.from("10")))
       if(sn.isAssetCzfLp) {
         sn.aprBasis = sn.assetTotalSupply.mul(BigNumber.from("10000")).mul(sn.czfPerAsset).div(sn.assetCzfBalance.mul(2)).div(weiFactor).sub(BigNumber.from("10000")).mul(BigNumber.from("52")).toNumber();
-        sn.tvl = sn.totalAssetDeposits.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).div(weiFactor);
-        sn.userInfo.assetWalletUsd =  sn.userInfo.assetWallet.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).div(weiFactor);
-        sn.userInfo.depositorUsd =  sn.userInfo.depositorAsset.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).div(weiFactor);
+        sn.tvl = sn.totalAssetDeposits.mul(sn.assetCzfBalance).mul(czfBusdPrice).div(sn.assetTotalSupply).mul(BigNumber.from("2")).div(weiFactor);
+        sn.userInfo.assetWalletUsd =  sn.userInfo.assetWallet.mul(sn.assetCzfBalance).mul(czfBusdPrice).mul(BigNumber.from("2")).div(sn.assetTotalSupply).div(weiFactor);
+        sn.userInfo.depositorUsd =  sn.userInfo.depositorAsset.mul(sn.assetCzfBalance).mul(czfBusdPrice).mul(BigNumber.from("2")).div(sn.assetTotalSupply).div(weiFactor);
       }
       console.log(sn.assetTotalSupply.toString(),sn.czfPerAsset.toString(),sn.assetCzfBalance.toString(),sn.aprBasis)
       console.log(sn.assetTotalSupply.mul(BigNumber.from("10000")).mul(sn.czfPerAsset).div(sn.assetCzfBalance.mul(2)).div(weiFactor).toString())
