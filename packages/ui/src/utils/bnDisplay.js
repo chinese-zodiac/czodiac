@@ -22,7 +22,8 @@ export function weiToShortStringSmall(bn,tokenDecimals,decimals) {
     if(!bn) return (0).toFixed(decimals);
     let power = BigNumber.from("10").pow((tokenDecimals));
     if(bn.lt(power)) return ((Number(bn) / Number(power)).toPrecision(decimals));
-    return Number(bn.div(BigNumber.from("10").pow((tokenDecimals-2)))).toFixed(decimals+2) / 100;
+    let powerPrecision = Math.floor(tokenDecimals/2);
+    return Number(bn.div(BigNumber.from("10").pow((tokenDecimals - powerPrecision)))).toFixed(decimals) / Math.pow(10,powerPrecision);
 }
 
 export function toShortString(bn,decimals) {
