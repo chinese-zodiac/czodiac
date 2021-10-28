@@ -312,6 +312,38 @@ export const STIMFARMS = {
       isAssetCzfLp: true,
       getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
       logo: "./farm/CZF-CAKE.jpg"
+    },
+    {
+      name: "CZF/BTCB on PCS",
+      address: "0x896045e8C734ECA05d17457D6b3a9a45cDF642F1",
+      asset: "0x9C8bae84261eA499c628a4aaD925564766210e64",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
+      logo: "./farm/CZF-BTCB.jpg"
+    },
+    /*{
+      name: "CZF/TIGZHP on PCS",
+      address: "",
+      asset: "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0",
+      logo: "./farm/CZF-TIGZHP.jpg"
+    },*/
+    {
+      name: "CZF/ETH on PCS",
+      address: "0x7872402901bd41BF91fbDe9971C30d60F53C3b41",
+      asset: "0xEcEEC5745Acf050A3a464fd2FAF64c1d683c8616",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+      logo: "./farm/CZF-ETH.jpg"
+    },
+    {
+      name: "CZF/TIGZ on PCS",
+      address: "0xfE9BF9e7367156929776973dAe7765A29d4B92AA",
+      asset: "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x535874bfbecac5f235717faea7c26d01c67b38c5/0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      logo: "./farm/TIGZ-CZF.jpg"
     }
   ]
 }
