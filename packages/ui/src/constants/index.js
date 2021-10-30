@@ -347,3 +347,6 @@ export const STIMFARMS = {
     }
   ]
 }
+export const CZFBUYOUTTOKEN = {
+  [CHAINS.BSC]: "0xD3505D328e5f0ecF191A5Fd0d04d18B645e4158c"
+}

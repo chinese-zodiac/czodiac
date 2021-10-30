@@ -13,20 +13,24 @@ async function main() {
   const czfToken = await ethers.getContractAt("CZFarm", czf);
   const tigzToken = await ethers.getContractAt("CZodiacToken", tigerZodiac);
 
-  const CZFBuyoutToken = await ethers.getContractFactory("CZFBuyoutToken");
+  /*const CZFBuyoutToken = await ethers.getContractFactory("CZFBuyoutToken");
   const czFBuyoutToken = await CZFBuyoutToken.deploy(
-    parseEther("57"), //uint256 _rateWad,
+    parseEther("44"), //uint256 _rateWad,
     czfToken.address, //CZFarm _czf,
-    tigz.address,//IERC20 _token
+    tigzToken.address,//IERC20 _token
     1635984000 //startEpoch
   );
   await czFBuyoutToken.deployed();
-  console.log("CZFBuyoutToken (TIGZ) deployed to:", czFBuyoutToken.address);
+  console.log("CZFBuyoutToken (TIGZ) deployed to:", czFBuyoutToken.address);*/
+
+  czFBuyoutToken = {
+    address: "0xD3505D328e5f0ecF191A5Fd0d04d18B645e4158c"
+  }
 
 
   console.log("Grant roles");
-  await czfToken.grantRole(ethers.utils.id("MINTER_ROLE"),czFarmMasterRoutable.address);
-  await tigzToken.setContractSafe(czFBuyoutToken.address);
+  await czfToken.grantRole(ethers.utils.id("MINTER_ROLE"),czFBuyoutToken.address);
+  await tigzToken.setNextCzodiac(czFBuyoutToken.address);
   await tigzToken.excludeFromReward(czFBuyoutToken.address);
   await tigzToken.excludeFromFee(czFBuyoutToken.address);
   console.log("Complete");

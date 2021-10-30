@@ -7,6 +7,7 @@ import theme from "./theme";
 import Home from "./pages/Home";
 import StimFarms from "./pages/StimFarms";
 import TigerHunt from "./pages/TigerHunt";
+import CZFBuyoutTigz from "./pages/CZFBuyoutTigz";
 import CZFarm from "./pages/CZFarm";
 import CZUsd from "./pages/CZUsd";
 import CZVaults from "./pages/CZVaults";
@@ -46,6 +47,7 @@ ReactDOM.render(
           <Route path="/czfarm" component={CZFarm} />
           <Route path="/czusd" component={CZUsd} />
           <Route path="/vaults" component={CZVaults} />
+          <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
         </DAppProvider>
       </HashRouter>
     </ChakraProvider>

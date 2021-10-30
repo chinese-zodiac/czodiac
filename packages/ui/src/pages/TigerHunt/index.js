@@ -93,46 +93,14 @@ function TigerHunt() {
         <Header />
         <Box as="main" className="tighunt-page horizontal-center">
             <Heading mt="100px">Tiger Hunt</Heading>
-            <Text className="explanation">
-            Earn BEP20 Tiger Hunt Points (TigHP) and win unique Tiger Zodiac NFTs! 
-            First stake your {tigzLink()}. The more {tigzLink()} you stake the more points you will earn! 
-            Eat, Sleep, Drink, and Poop to gain points based on your staked {tigzLink()}. 
-            Guard byto protect your tigHP against other players, up to 100 times your staked {tigzLink()}. But it burns 5% of your TigHP!
-            Hunt unprotected players to steal 5% of their TigHP and burn 5% more from them. You can only attack players smaller than you or with less than 4x your TigHP. The best chance to win is against ungaurded players with 2x your TigHP. Search on BscScan to find targets!
-            If you don't understand how to play, ask on <Link isExternal color="orange.700" href="https://t.me/CZodiacofficial">Telegram<Icon as={FiExternalLink} /></Link> for assistance.
-        </Text>
         {(chainId != 56 || typeof(tigzAllowance)=='undefined') ? (<>
           <br/>
           <Text>First, connect to BSC Mainnet in top right corner.</Text>
         </>) : (<>
         <SimpleGrid className="stats" columns={2} spacing={1}>
           {(tigzAllowance.lt(tigzBalance)) ? (
-            <Button onClick={()=>{
-              tigzApprove(TIGERHUNT_ADDRESSES[chainId], constants.MaxUint256);
-            }}>Approve TIGZ</Button>
+            <Text>TigerHunt v1 is over.</Text>
           ) : (<>
-            <Box style={{position:"relative",paddingRight: "20px",marginRight: "10px"}}>
-              <NumberInput 
-                onChange={(valueString) => setAmountToStake(parseNumberInput(valueString))}
-                value={formatTigz(amountToStake)}
-                className="tigzInput" defaultValue={1} precision={0} step={1} min={1} max={!!tigzBalance && weiToFixed(tigzBalance.div("1000000"))}>
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              <Icon className="max" as={FiArrowUp} onClick={()=>{
-                setAmountToStake(tigzBalance);
-              }} />
-              </NumberInput>
-            </Box>
-            <Button onClick={()=>{
-              console.log(weiToFixed(tigzBalance,2))
-              console.log(weiToFixed(amountToStake,2))
-              stakeTigzSend(amountToStake);
-            }}>Stake TIGZ</Button>
-            <Box/>
-            <Text>{timeDisplay(actionTimestamps[ACTION.STAKETIGZ],stakeTigzTimer)}</Text>
           </>)}
           {(!!tigzStaked && tigzStaked.gt(0)) && (<>
             <Box style={{position:"relative",paddingRight: "20px",marginRight: "10px"}}>
@@ -156,122 +124,9 @@ function TigerHunt() {
             <Box/>
             <Text>{timeDisplay(actionTimestamps[ACTION.STAKETIGZ],stakeTigzTimer)}</Text>
           </>)}
-          {(!!tigzStaked && tigzStaked.gt(0)) && (<>
-            <Text mt="20px" mb="20px" fontSize="large">Your Tiger HP Score</Text>
-            <Link mt="20px" mb="20px" fontSize="large"
-              href={"https://bscscan.com/token/"+TIGERHP_ADDRESSES[chainId]}
-              style={{fontWeight:"bold",textDecoration:"underline"}}
-              isExternal>{weiToShortString(tighpBalance,2)} TigHP</Link>
-            <Box>
-              <Button w="100%" mt="10px" onClick={()=>{
-                eatSend();
-              }}>Eat</Button>
-              <Text>{timeDisplay(actionTimestamps[ACTION.EAT],eatTimer)}</Text>
-            </Box>
-            <Image src="./tigerhuntimg/tiger_eat.png"/>
-            <Box>
-              <Button w="100%" mt="10px" onClick={()=>{
-                sleepSend();
-              }}>Sleep</Button>
-              <Text>{timeDisplay(actionTimestamps[ACTION.SLEEP],sleepTimer)}</Text>
-            </Box>
-            <Image src="./tigerhuntimg/tiger_sleeping.png"/>
-            <Box>
-              <Button w="100%" mt="10px" onClick={()=>{
-                drinkSend();
-              }}>Drink</Button>
-              <Text>{timeDisplay(actionTimestamps[ACTION.DRINK],drinkTimer)}</Text>
-            </Box>
-            <Image src="./tigerhuntimg/tiger_drinking.png"/>
-            <Box>
-              <Button w="100%" mt="10px" onClick={()=>{
-                poopSend();
-              }}>Poop</Button>
-              <Text>{timeDisplay(actionTimestamps[ACTION.POOP],poopTimer)}</Text>
-            </Box>
-            <Image src="./tigerhuntimg/tiger_poop.png"/>
-            <Button w="100%" mt="10px" onClick={()=>{
-                doEatSleepDrinkPoopSend();
-              }}>Eat Sleep Drink Poop</Button>
-            <Text>Does any above actions that are available. Check timers first. May save on gas.</Text>
-          </>)}
-        </SimpleGrid>
+        </SimpleGrid></>)}
         {(!!tigzStaked && tigzStaked.gt(0)) && (<>
-          <Box>
-            <br/>
-            <Heading>Hunt</Heading>
-            <Text>
-              Hunt another player.
-              The weaker the player (Less {tigzHpLink()}) the higher the chance.
-              The chance is 50% for unguarded players 2x your {tigzHpLink()}, 0% for unguarded players 4x your {tigzHpLink()}, and 100% for players with 0 {tigzHpLink()}.
-              The chance for guarded players is 50% for 1x your {tigzHpLink()} and 0% for guarded players 2x your {tigzHpLink()}.
-              When you attempt the Hunt, a future Hunt Block is selected. After that block is passed, whether you won or lost the Hunt will be displayed.
-              If you won, you must quickly claim your win before 100 blocks pass from your win or your hunt will fail.
-              Winning a hunt will transfer 5% to you from the target and burn another 5% from the target. So you will gain 5% and target loses 10%.
-              </Text>
-            <Image ml="auto" mr="auto" src="./tigerhuntimg/tiger_hunt.png"/>
-            <br/>
-            <Text>Target BSC Address:</Text>
-            <Input fontFamily="monospace" placeholder="0x000..." onChange={event=>{
-              if(utils.isAddress(event.target.value)){
-                setNewHuntTarget(event.target.value);
-              } else {
-                setNewHuntTarget(null);
-              }
-            }} />
-            <Text fontFamily="monospace" >{
-              utils.isAddress(newHuntTarget) ? newHuntTarget : "invalid, make sure checksummed address with both upper/lowercase"
-            }</Text>
-            <Text>Target Strength: {weiToShortString(tighpTargetBalance,2)} {tigzHpLink()}</Text>
-            <Button isDisabled={!tighpTargetBalance || tighpTargetBalance.eq("0")}
-              w="100%" mt="10px" 
-              onClick={()=>{
-                tryHuntSend(newHuntTarget);
-              }}
-              >
-              Try Hunt Target
-            </Button>
-            <Text>{timeDisplay(actionTimestamps[ACTION.HUNT],huntTimer)}</Text>
-            <br/>
-            <Text>Active Hunt:</Text>
-            <Text fontFamily="monospace" >{
-              (!!huntTarget & utils.isAddress(huntTarget)) ? huntTarget : "no current target"
-            }</Text>
-            <Text>Hunt/Current block: {huntBlock}/{currentBlock}</Text>
-            <Text>Winning Hunt Available? {isHuntWinning.toString().toUpperCase()}</Text>
-            <Button isDisabled={!isHuntWinning}
-              w="100%" mt="10px" 
-              onClick={()=>{
-                winHuntSend();
-              }}
-              >
-              Win Hunt
-            </Button>
-          </Box>
-          <Box>
-            <br/>
-            <Heading>Guard</Heading>
-            <Text>Burn 10% of your {tigzHpLink()} but make it twice as hard for other users to hunt you for 12 hours.</Text>
-            <Image ml="auto" mr="auto" src="./tigerhuntimg/tiger_guard.png"/>
-            <Button w="100%" mt="10px" onClick={()=>{
-                guardSend();
-              }}>Guard</Button>
-              <Text>{timeDisplay(actionTimestamps[ACTION.GUARD],guardTimer)}</Text>
-          </Box>
-        </>)}
-          <br/>
-          <Heading>Stats</Heading>
-        <SimpleGrid className="stats" columns={2} spacing={1}>
-            <Text>Network:</Text>
-            <Text>{CHAIN_LABELS[chainId]}</Text>
-            <Text>Your TigHP:</Text>
-            <Text>{weiToShortString(tighpBalance,2)} TigHP</Text>
-            <Text>Your OxZ:</Text>
-            <Text>{weiToShortString(oxzBalance,2)} OxZ</Text>
-            <Text>Your TigZ:</Text>
-            <Text>{weiToShortString(tigzBalance,2)} TigZ</Text>
-        </SimpleGrid>
-        
+          <Text>TigerHunt v1 is over. Unstake your TIGZ.</Text>
         </>)}
         <Footer/>
         </Box>

@@ -26,5 +26,6 @@
     "czusdBusdPairPCS": "0xd7c6fc00fae64cb7d242186bfd21e31c5b175671",
     "czusd": "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
     "pcsFeeBasis": 25,
-    "stimFarmFactory": "0x79dc20A1d5Cfa8627C5077D5D536E51D0b0fdfd9"
+    "stimFarmFactory": "0x79dc20A1d5Cfa8627C5077D5D536E51D0b0fdfd9",
+    "czfBuyoutToken": "0xD3505D328e5f0ecF191A5Fd0d04d18B645e4158c"
 }

@@ -60,6 +60,9 @@ function Home() {
           <NavLink to="tigerhunt">
             <Button colorScheme="orange" >Play Tiger Hunt</Button>
           </NavLink>
+          <NavLink to="CZFBuyoutTigz">
+            <Button colorScheme="orange" >TIGZ to CZF Swap</Button>
+          </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>
           </Link >
