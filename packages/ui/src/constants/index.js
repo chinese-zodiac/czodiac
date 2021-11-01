@@ -182,6 +182,13 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x84a4a0df19f80fe00c856c354f05062d281e1a92",
       rewardDecimals: 18,
       logo: "./pool/PRHO.png"
+    },
+    {
+      name: "WBNB",
+      address: "0xC84A0581262460F807991A1916BFC41abEb0FC44",
+      rewardAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+      rewardDecimals: 18,
+      logo: "./pool/WBNB.png"
     }/*,
     {
       name: "GEM",
