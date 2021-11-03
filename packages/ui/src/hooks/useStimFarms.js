@@ -77,7 +77,6 @@ function useStimFarms() {
   }
 
   const sendApprove = async (stimFarmAddress,assetAddress) => {
-    console.log(stimFarmAddress,assetAddress)
     if(!account || !library || !stimFarmAddress) return;
     const assetContract = (new Contract(assetAddress, ierc20Interface, library)).connect(library.getSigner());
     try{
@@ -175,9 +174,6 @@ function useStimFarms() {
     STIMFARMS[chainId].forEach((s,index)=>{
       let sd = STIMFARMS[chainId][index];
       let o = index*12;
-      console.log(callResults[0+o][0].toString());
-      console.log(callResults[9+o][0].toString());
-      console.log(callResults[10+o][0].toString());
       let sn = {
         name: sd.name,
         address: sd.address,
@@ -211,8 +207,6 @@ function useStimFarms() {
         sn.userInfo.assetWalletUsd =  sn.userInfo.assetWallet.mul(sn.assetCzfBalance).mul(czfBusdPrice).mul(BigNumber.from("2")).div(sn.assetTotalSupply).div(weiFactor);
         sn.userInfo.depositorUsd =  sn.userInfo.depositorAsset.mul(sn.assetCzfBalance).mul(czfBusdPrice).mul(BigNumber.from("2")).div(sn.assetTotalSupply).div(weiFactor);
       }
-      console.log(sn.assetTotalSupply.toString(),sn.czfPerAsset.toString(),sn.assetCzfBalance.toString(),sn.aprBasis)
-      console.log(sn.assetTotalSupply.mul(BigNumber.from("10000")).mul(sn.czfPerAsset).div(sn.assetCzfBalance.mul(2)).div(weiFactor).toString())
 
       if(sn.isVested || sn.isOpen) {
         sn.isLaunching = false;

@@ -72,10 +72,10 @@ function StimFarm({
         </Button>      
       </>)}
 
-      {isVested && user.depositorAsset.gt(BigNumber.from("0")) (<>
+      {isVested && (<>
         <Button m="10px" onClick={()=>{
           sendClaim();
-        }}>Claim CZF</Button>
+        }}>Claim {weiToShortString(user.czfClaimable,2)} CZF</Button>
       </>)}
 
       <Divider />
