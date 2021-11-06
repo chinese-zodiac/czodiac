@@ -17,7 +17,7 @@ function StimFarms() {
     return (!!stimFarms && stimFarms.length > 0) && (<>
       {stimFarms.map((s, index)=>{
         if(!filter(s)) return;
-        return(<Box key={"pid-"+s.name} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
+        return(<Box key={"pid-"+s.name+"-"+index} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
            <StimFarm 
               name={s.name}
               getLink={s.getLink}
