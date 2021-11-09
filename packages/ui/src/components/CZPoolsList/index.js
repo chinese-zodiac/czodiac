@@ -28,7 +28,7 @@ function CZPoolsList() {
     return (!!pools && pools.length > 0) && (<>
       {pools.map((pool, index)=>{
         if(!filter(pool)) return;
-        return(<Box key={"pid-"+pool.name} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
+        return(<Box key={"pid-"+pool.name+"-"+index} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
            <CZPool 
               sendDeposit={pool.sendDeposit}
               sendWithdraw={pool.sendWithdraw}

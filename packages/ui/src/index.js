@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM, { unstable_batchedUpdates }  from "react-dom";
 import { HashRouter, Route } from "react-router-dom";
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import WebfontLoader from '@dr-kobros/react-webfont-loader';
@@ -19,8 +19,11 @@ import {
   RPC_URLS,
   SUPPORT_CHAINS,
 } from "./constants";
-
+import createStore from "./store";
+import createContext from "zustand/context";
 import "./styles/index.scss";
+
+const { Provider, useStore } = createContext();
 
 const webFontConfig = {
   google: {
@@ -35,19 +38,23 @@ const dappConfig = {
   multicallAddresses: MUTICALL_ADDRESSES,
 };
 
+
+
 ReactDOM.render(
   <WebfontLoader config={webFontConfig}>
     <ChakraProvider theme={theme}>
       <HashRouter>
         <DAppProvider config={dappConfig}>
-          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-          <Route exact path="/" component={Home} />
-          <Route path="/stimfarms" component={StimFarms} />
-          <Route path="/tigerhunt" component={TigerHunt} />
-          <Route path="/czfarm" component={CZFarm} />
-          <Route path="/czusd" component={CZUsd} />
-          <Route path="/vaults" component={CZVaults} />
-          <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
+          <Provider createStore={createStore}>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            <Route exact path="/" component={Home} />
+            <Route path="/stimfarms" component={StimFarms} />
+            <Route path="/tigerhunt" component={TigerHunt} />
+            <Route path="/czfarm" component={CZFarm} />
+            <Route path="/czusd" component={CZUsd} />
+            <Route path="/vaults" component={CZVaults} />
+            <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
+          </Provider>
         </DAppProvider>
       </HashRouter>
     </ChakraProvider>

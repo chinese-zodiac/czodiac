@@ -1,6 +1,8 @@
-import create from 'zustand';
+import create from "zustand";
 import useTokensSlice from './useTokensSlice';
 
-const useStore = create( (set, get) => ({
+const createStore = () => create( (set, get) => ({
     ...useTokensSlice(set, get)
-}))
+}));
+
+export default createStore;
