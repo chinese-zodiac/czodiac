@@ -4,20 +4,16 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./interfaces/IExoticMaster.sol";
 import "./CZFarm.sol";
 
-contract ExoticAuction is Ownable, Pausable {
+contract ExoticAuction is Ownable {
     using SafeERC20 for IERC20;
 
+    IExoticMaster public exoticMaster;
     IERC20 public asset;
     IERC20 public lp;
-
-    uint112 public debtWad;
-    uint32 public constant roundDuration = 1 days;
-    uint32 public constant vestDuration = 1 weeks;
-    uint32 public constant emissionBasis = 100; //1%
 
     struct Vest {
         uint112 lpWad;
@@ -33,7 +29,12 @@ contract ExoticAuction is Ownable, Pausable {
     }
     Round[] public rounds;
 
-    constructor(IERC20 _asset, IERC20 _lp) {
+    constructor(
+        IExoticMaster _exoticMaster,
+        IERC20 _asset,
+        IERC20 _lp
+    ) {
+        exoticMaster = _exoticMaster;
         asset = _asset;
         lp = _lp;
     }
@@ -46,51 +47,52 @@ contract ExoticAuction is Ownable, Pausable {
         Vest storage vest = accounts[_for][_vestID];
         Round storage round = rounds[vest.roundID];
         uint112 maxVestWad = ((vest.lpWad * round.assetWad) / round.lpWad);
-        uint32 vestStartEpoch = round.startEpoch + roundDuration;
-        uint32 vestEndEpoch = vestStartEpoch + vestDuration;
+        uint32 vestStartEpoch = round.startEpoch + exoticMaster.roundDuration();
+        uint32 vestEndEpoch = vestStartEpoch + exoticMaster.vestDuration();
         if (block.timestamp < vestStartEpoch) return 0;
         if (block.timestamp > vestEndEpoch) return maxVestWad - vest.debtWad;
         return
             uint112(
                 (maxVestWad * (block.timestamp - vestStartEpoch)) /
-                    vestDuration -
+                    exoticMaster.vestDuration() -
                     vest.debtWad
             );
     }
 
-    function claim(address _for, uint256 _vestID) external whenNotPaused {
+    function claim(address _for, uint256 _vestID) external {
         uint112 wad = getAssetWadClaimable(_for, _vestID);
         asset.transfer(_for, wad);
-        debtWad -= wad;
         accounts[_for][_vestID].debtWad += wad;
     }
 
-    function startRound() external whenNotPaused {
+    function startRound(uint112 _assetWad) external {
         require(
-            rounds[rounds.length - 1].startEpoch + roundDuration <
+            msg.sender == address(exoticMaster),
+            "ExoticAuction: Sender must be exotic master."
+        );
+        require(
+            rounds[rounds.length - 1].startEpoch +
+                exoticMaster.roundDuration() <
                 block.timestamp,
-            "StimFarmV2: Previous round not yet complete"
+            "ExoticAuction: Previous round not yet complete"
         );
-        uint112 assetWad = uint112(
-            ((asset.balanceOf(address(this)) - debtWad) * emissionBasis) / 10000
-        );
+        asset.transferFrom(address(exoticMaster), address(this), _assetWad);
         rounds.push(
             Round({
                 startEpoch: uint32(block.timestamp),
                 lpWad: 0,
-                assetWad: assetWad
+                assetWad: _assetWad
             })
         );
-        debtWad += assetWad;
     }
 
-    function deposit(address _for, uint112 _wad) external whenNotPaused {
+    function deposit(address _for, uint112 _wad) external {
         lp.transferFrom(msg.sender, address(this), _wad);
         uint256 roundID = rounds.length - 1;
         Round storage round = rounds[roundID];
         require(
-            round.startEpoch + roundDuration > block.timestamp,
-            "StimFarmV2: Previous round complete"
+            round.startEpoch + exoticMaster.roundDuration() > block.timestamp,
+            "ExoticAuction: Previous round complete"
         );
         Vest[] storage vests = accounts[_for];
         if (vests.length > 0 && vests[vests.length - 1].roundID == roundID) {
