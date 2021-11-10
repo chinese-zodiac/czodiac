@@ -5,22 +5,35 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./libs/Queue.sol";
 import "./interfaces/IExoticMaster.sol";
 import "./CZFarm.sol";
 
 contract ExoticAuction is Ownable {
     using SafeERC20 for IERC20;
+    using Queue for Queue.List;
 
     IExoticMaster public exoticMaster;
     IERC20 public asset;
     IERC20 public lp;
 
-    struct Vest {
-        uint112 lpWad;
-        uint112 debtWad;
-        uint32 roundID;
+    uint112 public totalRewardsWad;
+    uint112 public totalClaimedWad;
+
+    struct Account {
+        uint112 totalRewardsWad;
+        uint112 totalClaimedWad;
+        uint32 updateEpoch;
+        uint112 emissionRate;
+        Queue.List emissionDeltaQueue;
+        mapping(uint256 => EmissionDelta) queuedEmissionDelta;
+        mapping(uint256 => uint112) roundLpWad;
     }
-    mapping(address => Vest[]) public accounts;
+    struct EmissionDelta {
+        int112 delta;
+        uint32 epoch;
+    }
+    mapping(address => Account) internal accounts;
 
     struct Round {
         uint32 startEpoch;
@@ -39,30 +52,48 @@ contract ExoticAuction is Ownable {
         lp = _lp;
     }
 
-    function getAssetWadClaimable(address _for, uint256 _vestID)
-        public
-        view
-        returns (uint112 wad_)
-    {
-        Vest storage vest = accounts[_for][_vestID];
-        Round storage round = rounds[vest.roundID];
-        uint112 maxVestWad = ((vest.lpWad * round.assetWad) / round.lpWad);
-        uint32 vestStartEpoch = round.startEpoch + exoticMaster.roundDuration();
-        uint32 vestEndEpoch = vestStartEpoch + exoticMaster.vestDuration();
-        if (block.timestamp < vestStartEpoch) return 0;
-        if (block.timestamp > vestEndEpoch) return maxVestWad - vest.debtWad;
-        return
-            uint112(
-                (maxVestWad * (block.timestamp - vestStartEpoch)) /
-                    exoticMaster.vestDuration() -
-                    vest.debtWad
-            );
+    function update() external {
+        update(msg.sender, uint32(block.timestamp));
     }
 
-    function claim(address _for, uint256 _vestID) external {
-        uint112 wad = getAssetWadClaimable(_for, _vestID);
-        asset.transfer(_for, wad);
-        accounts[_for][_vestID].debtWad += wad;
+    function update(address _forAccount, uint32 _toEpoch) public {
+        Account storage account = accounts[_forAccount];
+        require(
+            account.emissionDeltaQueue.sizeOf() > 0,
+            "ExoticAuction: No emissions queued"
+        );
+        require(
+            _toEpoch <= block.timestamp,
+            "ExoticAuction: Cannot update account past current timestamp"
+        );
+        uint32 accountUpdateEpoch = account.updateEpoch;
+        uint112 wadToClaim = 0;
+        while (accountUpdateEpoch < _toEpoch) {
+            EmissionDelta storage emissionUpdate = account.queuedEmissionDelta[
+                account.emissionDeltaQueue.getFirstEntry()
+            ];
+            if (emissionUpdate.epoch < _toEpoch) {
+                accountUpdateEpoch = emissionUpdate.epoch;
+                wadToClaim +=
+                    (accountUpdateEpoch - emissionUpdate.epoch) *
+                    account.emissionRate;
+                account.emissionRate = uint112(
+                    int112(account.emissionRate) + emissionUpdate.delta
+                );
+                delete account.queuedEmissionDelta[
+                    account.emissionDeltaQueue.dequeue()
+                ];
+            } else {
+                wadToClaim +=
+                    (_toEpoch - accountUpdateEpoch) *
+                    account.emissionRate;
+                accountUpdateEpoch = _toEpoch;
+            }
+        }
+        account.totalClaimedWad += wadToClaim;
+        account.updateEpoch = accountUpdateEpoch;
+        totalClaimedWad += wadToClaim;
+        asset.transfer(_forAccount, wadToClaim);
     }
 
     function startRound(uint112 _assetWad) external {
@@ -84,6 +115,7 @@ contract ExoticAuction is Ownable {
                 assetWad: _assetWad
             })
         );
+        totalRewardsWad += totalRewardsWad;
     }
 
     function deposit(address _for, uint112 _wad) external {
@@ -94,22 +126,19 @@ contract ExoticAuction is Ownable {
             round.startEpoch + exoticMaster.roundDuration() > block.timestamp,
             "ExoticAuction: Previous round complete"
         );
-        Vest[] storage vests = accounts[_for];
-        if (vests.length > 0 && vests[vests.length - 1].roundID == roundID) {
-            vests[vests.length - 1].lpWad += _wad;
-        } else {
-            vests.push(
-                Vest({lpWad: _wad, debtWad: 0, roundID: uint32(roundID)})
-            );
-        }
+        accounts[_for].roundLpWad[roundID] += _wad;
+    }
+
+    function startVestingAccountForRound(address _forAccount, uint256 _roundID)
+        public
+    {
+        //Cannot start vesting until round is over
+        //Must have deposited lp to round
+        //Should add both positive and negative to queued emissions with proper epoch
     }
 
     function getRoundCount() external view returns (uint256 count_) {
         count_ = rounds.length;
-    }
-
-    function getVestCount(address _for) external view returns (uint256 count_) {
-        count_ = accounts[_for].length;
     }
 
     function getRound(uint256 _roundID)
@@ -124,21 +153,6 @@ contract ExoticAuction is Ownable {
         startEpoch_ = rounds[_roundID].startEpoch;
         lpWad_ = rounds[_roundID].lpWad;
         assetWad_ = rounds[_roundID].assetWad;
-    }
-
-    function getVest(address _for, uint256 _vestID)
-        external
-        view
-        returns (
-            uint112 lpWad_,
-            uint112 debtWad_,
-            uint32 roundID_
-        )
-    {
-        Vest storage vest = accounts[_for][_vestID];
-        lpWad_ = vest.lpWad;
-        debtWad_ = vest.debtWad;
-        roundID_ = vest.roundID;
     }
 
     function recoverERC20(address tokenAddress) external onlyOwner {
