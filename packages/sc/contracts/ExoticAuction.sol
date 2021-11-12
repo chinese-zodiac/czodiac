@@ -25,22 +25,18 @@ contract ExoticAuction is Ownable {
         uint112 totalClaimedWad;
         uint32 updateEpoch;
         uint112 emissionRate;
-        Queue.List emissionDeltaQueue;
-        mapping(uint256 => EmissionDelta) queuedEmissionDelta;
+        Queue.List emissionIncreaseQueue;
+        Queue.List emissionDecreaseQueue;
+        mapping(uint256 => EmissionDelta) queuedEmissionIncrease;
+        mapping(uint256 => EmissionDelta) queuedEmissionDecrease;
         mapping(uint256 => uint112) roundLpWad;
     }
     struct EmissionDelta {
-        int112 delta;
+        uint224 roundID;
         uint32 epoch;
     }
     mapping(address => Account) internal accounts;
-
-    struct Round {
-        uint32 startEpoch;
-        uint112 lpWad;
-        uint112 assetWad;
-    }
-    Round[] public rounds;
+    mapping(uint256 => uint256) public roundLpWad;
 
     constructor(
         IExoticMaster _exoticMaster,
@@ -52,14 +48,14 @@ contract ExoticAuction is Ownable {
         lp = _lp;
     }
 
-    function update() external {
-        update(msg.sender, uint32(block.timestamp));
+    function claim() external {
+        claim(msg.sender, uint32(block.timestamp));
     }
 
-    function update(address _forAccount, uint32 _toEpoch) public {
-        Account storage account = accounts[_forAccount];
+    function claimForTo(address _account, uint32 _epoch) public {
+        Account storage account = accounts[_account];
         require(
-            account.emissionDeltaQueue.sizeOf() > 0,
+            account.queuedEmissionIncrease.sizeOf() > 0,
             "ExoticAuction: No emissions queued"
         );
         require(
@@ -96,63 +92,30 @@ contract ExoticAuction is Ownable {
         asset.transfer(_forAccount, wadToClaim);
     }
 
-    function startRound(uint112 _assetWad) external {
-        require(
-            msg.sender == address(exoticMaster),
-            "ExoticAuction: Sender must be exotic master."
-        );
-        require(
-            rounds[rounds.length - 1].startEpoch +
-                exoticMaster.roundDuration() <
-                block.timestamp,
-            "ExoticAuction: Previous round not yet complete"
-        );
-        asset.transferFrom(address(exoticMaster), address(this), _assetWad);
-        rounds.push(
-            Round({
-                startEpoch: uint32(block.timestamp),
-                lpWad: 0,
-                assetWad: _assetWad
-            })
-        );
-        totalRewardsWad += totalRewardsWad;
-    }
-
     function deposit(address _for, uint112 _wad) external {
+        Account storage account = accounts[_for];
         lp.transferFrom(msg.sender, address(this), _wad);
-        uint256 roundID = rounds.length - 1;
-        Round storage round = rounds[roundID];
+        uint256 roundID = exoticMaster.getCurrentRoundID();
+        (uint256 startEpoch, uint256 endEpoch, uint256 vestEpoch) = exoticMaster
+            .getRoundEpochs(roundID);
         require(
-            round.startEpoch + exoticMaster.roundDuration() > block.timestamp,
-            "ExoticAuction: Previous round complete"
+            endEpoch > block.timestamp,
+            "ExoticAuction: Previous round complete."
         );
-        accounts[_for].roundLpWad[roundID] += _wad;
-    }
-
-    function startVestingAccountForRound(address _forAccount, uint256 _roundID)
-        public
-    {
-        //Cannot start vesting until round is over
-        //Must have deposited lp to round
-        //Should add both positive and negative to queued emissions with proper epoch
-    }
-
-    function getRoundCount() external view returns (uint256 count_) {
-        count_ = rounds.length;
-    }
-
-    function getRound(uint256 _roundID)
-        external
-        view
-        returns (
-            uint32 startEpoch_,
-            uint112 lpWad_,
-            uint112 assetWad_
-        )
-    {
-        startEpoch_ = rounds[_roundID].startEpoch;
-        lpWad_ = rounds[_roundID].lpWad;
-        assetWad_ = rounds[_roundID].assetWad;
+        require(
+            startEpoch < block.timestamp,
+            "ExoticAuction: Round not yet started."
+        );
+        if (account.roundLpWad[roundID] == 0) {
+            //First deposit into round
+            account.queuedEmissionIncrease[
+                account.emissionIncreaseQueue.queue()
+            ] = EmissionDelta({roundID: roundID, epoch: endEpoch});
+            account.queuedEmissionDecrease[
+                account.emissionDecreaseQueue.queue()
+            ] = EmissionDelta({roundID: roundID, epoch: vestEpoch});
+        }
+        account.roundLpWad[roundID] += _wad;
     }
 
     function recoverERC20(address tokenAddress) external onlyOwner {

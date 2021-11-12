@@ -391,6 +391,22 @@ export const STIMFARMS = {
       isAssetCzfLp: true,
       getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
       logo: "./farm/CZF-BTCB.jpg"
+    },
+    {
+      name: "CZF/CZUSD on PCS",
+      address: "0xbc74f4fB1E39CD16e2547630AA30C3cE3C6eBF2b",
+      asset: "0x98b5f5e7ec32cda1f3e89936c9972f92296afe47",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      logo: "./farm/CZF-CZUSD.jpg"
+    },
+    {
+      name: "CZF/BNB on PCS",
+      address: "0x2Ac2554C759d2aca4A667C4452Cc4f85C598e674",
+      asset: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
+      logo: "./farm/CZF-BNB.jpg"
     }
   ]
 }
