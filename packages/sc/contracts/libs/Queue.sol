@@ -29,6 +29,10 @@ library Queue {
         return self.list[_HEAD][_NEXT];
     }
 
+    function getLastEntry(List storage self) internal view returns (uint256) {
+        return self.list[_HEAD][_PREV];
+    }
+
     /**
      * @dev Pushes an entry to the tail of the linked list
      * @param self stored linked list from contract

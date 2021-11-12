@@ -24,7 +24,7 @@ interface IExoticMaster {
             uint32 vestEpoch
         );
 
-    function getRoundReward(uint256 _roundID) external view returns (uint256);
+    function getRoundReward(uint256 _roundID) external view returns (uint112);
 
     function getCurrentRoundID() external view returns (uint256);
 }
