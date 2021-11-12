@@ -49,7 +49,7 @@ contract ExoticAuction is Ownable {
     }
 
     function claim() external {
-        claim(msg.sender, uint32(block.timestamp));
+        claimForTo(msg.sender, uint32(block.timestamp));
     }
 
     function claimForTo(address _account, uint32 _epoch) public {
@@ -59,40 +59,54 @@ contract ExoticAuction is Ownable {
             "ExoticAuction: No emissions queued"
         );
         require(
-            _toEpoch <= block.timestamp,
+            _epoch <= block.timestamp,
             "ExoticAuction: Cannot update account past current timestamp"
         );
         uint32 accountUpdateEpoch = account.updateEpoch;
         uint112 wadToClaim = 0;
-        while (accountUpdateEpoch < _toEpoch) {
-            EmissionDelta storage emissionUpdate = account.queuedEmissionDelta[
-                account.emissionDeltaQueue.getFirstEntry()
-            ];
-            if (emissionUpdate.epoch < _toEpoch) {
-                accountUpdateEpoch = emissionUpdate.epoch;
+        while (accountUpdateEpoch < _epoch) {
+            //TODO: Handle situation where decerase and increase happening at same time
+            //Increase loop
+            EmissionDelta storage emissionDelta = account
+                .queuedEmissionIncrease[
+                    account.emissionIncreaseQueue.getFirstEntry()
+                ];
+            if (emissionDelta.epoch < _epoch) {
+                //Get wad to claim at old emission rate.
                 wadToClaim +=
-                    (accountUpdateEpoch - emissionUpdate.epoch) *
+                    (accountUpdateEpoch - emissionDelta.epoch) *
                     account.emissionRate;
+                //Increase emission rate.
+                accountUpdateEpoch = emissionDelta.epoch;
+                uint256 roundID = uint256(emissionDelta.roundID);
+                uint112 totalRoundRewardsWad = (exoticMaster.getRoundReward(
+                    roundID
+                ) * roundLpWad[roundID]) / account.roundLpWad[roundID];
+                account.totalRewardsWad += totalRoundRewardsWad;
                 account.emissionRate = uint112(
-                    int112(account.emissionRate) + emissionUpdate.delta
+                    int112(account.emissionRate) + emissionDelta.delta
                 );
-                delete account.queuedEmissionDelta[
+                delete account.queuedEmissionIncrease[
                     account.emissionDeltaQueue.dequeue()
                 ];
             } else {
                 wadToClaim +=
-                    (_toEpoch - accountUpdateEpoch) *
+                    (_epoch - accountUpdateEpoch) *
                     account.emissionRate;
-                accountUpdateEpoch = _toEpoch;
+                accountUpdateEpoch = _epoch;
             }
         }
         account.totalClaimedWad += wadToClaim;
         account.updateEpoch = accountUpdateEpoch;
         totalClaimedWad += wadToClaim;
-        asset.transfer(_forAccount, wadToClaim);
+        asset.transfer(_account, wadToClaim);
     }
 
-    function deposit(address _for, uint112 _wad) external {
+    function depositAll() external {
+        depositForWad(msg.sender, lp.balanceOf(msg.sender));
+    }
+
+    function depositForWad(address _for, uint112 _wad) public {
         Account storage account = accounts[_for];
         lp.transferFrom(msg.sender, address(this), _wad);
         uint256 roundID = exoticMaster.getCurrentRoundID();
