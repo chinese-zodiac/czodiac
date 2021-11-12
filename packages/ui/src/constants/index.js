@@ -402,7 +402,7 @@ export const STIMFARMS = {
     },
     {
       name: "CZF/BNB on PCS",
-      address: "0x2Ac2554C759d2aca4A667C4452Cc4f85C598e674",
+      address: "0x2cBBe17b87b201bDb2Ce937eA0a25316716Ad976",
       asset: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
       isAssetCzfLp: true,
       getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
