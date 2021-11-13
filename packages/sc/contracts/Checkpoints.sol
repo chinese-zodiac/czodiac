@@ -9,10 +9,11 @@ library Checkpoints {
         uint128 value;
     }
 
-    function getCheckpointValueAt(
-        Checkpoint[] storage checkpoints,
-        uint256 _time
-    ) internal view returns (uint256) {
+    function getValueAt(Checkpoint[] storage checkpoints, uint256 _time)
+        internal
+        view
+        returns (uint256)
+    {
         // This case should be handled by caller
         if (checkpoints.length == 0) return 0;
 
@@ -37,7 +38,7 @@ library Checkpoints {
         return checkpoints[min].value;
     }
 
-    function updateCheckpointValueAtNow(
+    function updateNow(
         Checkpoint[] storage checkpoints,
         uint256 _oldValue,
         uint256 _value
@@ -52,13 +53,15 @@ library Checkpoints {
         }
 
         if (checkpoints[checkpoints.length - 1].fromTime < block.timestamp) {
-            Checkpoint storage newCheckPoint =
-                checkpoints[checkpoints.length + 1];
+            Checkpoint storage newCheckPoint = checkpoints[
+                checkpoints.length + 1
+            ];
             newCheckPoint.fromTime = uint128(block.timestamp);
             newCheckPoint.value = uint128(_value);
         } else {
-            Checkpoint storage oldCheckPoint =
-                checkpoints[checkpoints.length - 1];
+            Checkpoint storage oldCheckPoint = checkpoints[
+                checkpoints.length - 1
+            ];
             oldCheckPoint.value = uint128(_value);
         }
     }

@@ -4,11 +4,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libs/Queue.sol";
 import "./interfaces/IExoticMaster.sol";
 import "./CZFarm.sol";
 
-contract ExoticAuction {
+contract ExoticAuction is Ownable {
     using SafeERC20 for IERC20;
     using Queue for Queue.List;
 
@@ -120,8 +121,8 @@ contract ExoticAuction {
     }
 
     function depositForWad(address _for, uint112 _wad) public {
-        //TODO: Make sure updates to emission are same time or later than last
         Account storage account = accounts[_for];
+        //TODO: Update exotic master if it's the first deposit.
         lp.transferFrom(msg.sender, address(this), _wad);
         uint256 roundID = exoticMaster.getCurrentRoundID();
         (uint256 startEpoch, uint256 endEpoch, uint256 vestEpoch) = exoticMaster
@@ -160,5 +161,22 @@ contract ExoticAuction {
             });
         }
         account.roundLpWad[roundID] += _wad;
+    }
+
+    function recoverERC20(address tokenAddress) external onlyOwner {
+        IERC20(tokenAddress).safeTransfer(
+            _msgSender(),
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
+    }
+
+    function setGlobals(
+        IExoticMaster _exoticMaster,
+        IERC20 _asset,
+        IERC20 _lp
+    ) external onlyOwner {
+        exoticMaster = _exoticMaster;
+        asset = _asset;
+        lp = _lp;
     }
 }

@@ -2,8 +2,6 @@
 // Authored by Plastic Digits
 pragma solidity ^0.8.4;
 
-import "./interfaces/IExoticMaster.sol";
-
 interface IExoticMaster {
     function roundDuration() external view returns (uint32);
 
