@@ -85,7 +85,7 @@ contract ExoticAuction {
                 //Change emission rate.
                 accountUpdateEpoch = emissionDelta.epoch;
                 uint256 roundID = uint256(emissionDelta.roundID);
-                uint112 totalRoundRewardsWad = (exoticMaster.getRoundReward(
+                uint112 totalRoundRewardsWad = (exoticMaster.getRoundReward( //TODO: getroundreward must include voting
                     roundID
                 ) * roundLpWad[roundID]) / account.roundLpWad[roundID];
                 uint112 emissionRateDelta = totalRewardsWad /

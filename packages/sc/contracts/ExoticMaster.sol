@@ -10,21 +10,34 @@ contract ExoticMaster is IExoticMaster {
     uint32 public vestDuration;
     uint16 public emissionBasis;
 
+    uint32 public firstRoundStartEpoch;
+
+    mapping(uint256 => uint256) roundRewards;
+
     function getRoundEpochs(uint256 _roundID)
         external
         view
-        virtual
         returns (
             uint32 startEpoch,
             uint32 endEpoch,
             uint32 vestEpoch
+        )
+    {
+        startEpoch = firstRoundStartEpoch + roundDuration * _roundID;
+        endEpoch = startEpoch + roundDuration;
+        vestEpoch = endEpoch + vestDuration;
+    }
+
+    function getRoundReward(uint256 _roundID) external view returns (uint112) {
+        //TODO: getroundreward must include voting
+        return roundRewards[_roundID];
+    }
+
+    function getCurrentRoundID() external view returns (uint256) {
+        require(
+            block.timestamp >= firstRoundStartEpoch,
+            "ExoticMaster: First round not yet started"
         );
-
-    function getRoundReward(uint256 _roundID)
-        external
-        view
-        virtual
-        returns (uint112);
-
-    function getCurrentRoundID() external view virtual returns (uint256);
+        return (block.timestamp - firstRoundStartEpoch) / roundDuration;
+    }
 }
