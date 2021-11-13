@@ -2,13 +2,9 @@
 // Authored by Plastic Digits
 pragma solidity ^0.8.4;
 
+import "./interfaces/IExoticMaster.sol";
+
 interface IExoticMaster {
-    function startRound() external;
-
-    function setVoteWeights(uint16[] calldata _weights) external;
-
-    function updateVotePower() external;
-
     function roundDuration() external view returns (uint32);
 
     function vestDuration() external view returns (uint32);

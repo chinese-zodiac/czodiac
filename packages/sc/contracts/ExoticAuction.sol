@@ -3,13 +3,12 @@
 // Credit to Olympus DAO
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./libs/Queue.sol";
 import "./interfaces/IExoticMaster.sol";
 import "./CZFarm.sol";
 
-contract ExoticAuction is Ownable {
+contract ExoticAuction {
     using SafeERC20 for IERC20;
     using Queue for Queue.List;
 
@@ -161,12 +160,5 @@ contract ExoticAuction is Ownable {
             });
         }
         account.roundLpWad[roundID] += _wad;
-    }
-
-    function recoverERC20(address tokenAddress) external onlyOwner {
-        IERC20(tokenAddress).safeTransfer(
-            _msgSender(),
-            IERC20(tokenAddress).balanceOf(address(this))
-        );
     }
 }
