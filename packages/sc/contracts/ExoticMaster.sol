@@ -39,7 +39,7 @@ contract ExoticMaster is IExoticMaster {
         returns (uint112)
     {
         //TODO: getroundreward must include voting and checkpoints
-        return roundRewards[_roundID];
+        //return roundRewards[_roundID];
     }
 
     function getCurrentRoundID() external view override returns (uint256) {
