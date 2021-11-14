@@ -42,6 +42,14 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         asset = _asset;
     }
 
+    //Used to more easily handle dao voting
+    //Snapshots are not required since vesting asset cannot be manipulated with flashloans
+    function balanceOf(address _account) external view returns (uint256) {
+        return
+            accounts[_account].totalRewardsWad -
+            accounts[_account].totalClaimedWad;
+    }
+
     function claim() external {
         claimForTo(msg.sender, uint32(block.timestamp));
     }
@@ -101,6 +109,10 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         account.updateEpoch = accountUpdateEpoch;
         totalClaimedWad += wadToClaim;
         asset.transfer(_account, wadToClaim);
+        require(
+            account.totalClaimedWad <= account.totalRewardsWad,
+            "ExoticVesting: Can never claim more rewards than granted"
+        );
     }
 
     function addVest(
