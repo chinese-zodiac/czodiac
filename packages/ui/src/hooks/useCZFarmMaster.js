@@ -48,8 +48,8 @@ const farmLps = [
   "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
   "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
   false,
-  "0x36eC3cD5b3dA4E3cc05a49b65EF655564dDbA8ce",
-  "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47",
+  false,
+  false,
   "0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671",
   "0xE90AEbc91Df3b534F4e2D74b527FaA6f49d45a77",
   "0x3e9c5352c486524a407d9900a5a3a9d05b6c14e6",
@@ -72,8 +72,8 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   false,
-  DEX.PCS,
-  DEX.PCS,
+  false,
+  false,
   DEX.PCS,
   DEX.PCS,
   DEX.CAFE,
@@ -112,28 +112,16 @@ const farmTokens = [
     }
   ],
   [
-    {
-      address:"0x535874bfbecac5f235717faea7c26d01c67b38c5",
-      symbol:"TIGZ"
-    },
-    {
-      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
-      symbol:"CZF"
-    }
+    false,
+    false
   ],
   [
     false,
     false
   ],
   [
-    {
-      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
-      symbol:"CZF"
-    },
-    {
-      address:"0xDd2F98a97fc2A59b1f0f03DE63B4b41041a339B0",
-      symbol:"TIGZHP"
-    }
+    false,
+    false
   ],
   [
     {

@@ -19,12 +19,19 @@ contract ExoticMaster {
     address treasury;
 
     struct Farm {
-        uint224 startPriceWad;
+        uint112 startPriceWad;
+        uint112 votePower;
         uint32 lastPurchaseEpoch;
         IERC20 lp;
     }
-
     Farm[] farms;
+
+    struct Voter {
+        uint112 totalVotePower;
+        mapping(uint256 => uint112) allocation;
+    }
+    uint112 totalVotePower;
+    mapping(address => Voter) voters;
 
     function deposit(
         address _for,
@@ -51,7 +58,7 @@ contract ExoticMaster {
         );
 
         farm.lastPurchaseEpoch = uint32(block.timestamp);
-        farm.startPriceWad = uint224(
+        farm.startPriceWad = uint112(
             price * ((assetTotal - rewardAmt * minusFactor) / assetTotal)
         );
 
@@ -70,6 +77,16 @@ contract ExoticMaster {
             farm.startPriceWad *
             (((block.timestamp - farm.lastPurchaseEpoch) *
                 (10000 + hourlyIncreaseBasis)) / (1 hours * 10000));
+    }
+
+    //TODO: Add inversion of control for ExoticVestingsss
+    //TODO: add voting for allocations to farms
+    function vote(uint16[] calldata allocBasis) external {
+        require(
+            allocBasis.length == farms.length,
+            "ExoticMaster: Must have allocation for each farm"
+        );
+        //uint256 accountVotePower = exoticVesting
     }
 
     //TODO: owner methods to change variables, add farms, constructor
