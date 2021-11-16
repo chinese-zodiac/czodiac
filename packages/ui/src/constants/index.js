@@ -407,6 +407,14 @@ export const STIMFARMS = {
       isAssetCzfLp: true,
       getLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
       logo: "./farm/CZF-BNB.jpg"
+    },
+    {
+      name: "CZF/TIGZ on PCS",
+      address: "0x381467C1346FD0BC486BA373F7918C4e551D8961",
+      asset: "0xd2a20e23fC707e41Fe4C09f23473A0170d00707e",
+      isAssetCzfLp: true,
+      getLink: "https://pancakeswap.finance/add/0x535874bfbecac5f235717faea7c26d01c67b38c5/0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      logo: "./farm/TIGZ-CZF.jpg"
     }
   ]
 }
