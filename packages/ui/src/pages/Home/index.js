@@ -26,10 +26,7 @@ const czusdLink = ()=>tokenLink("0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70","$C
 
 function Home() {  
   const {chainId, account} = useEthers();
-  const tigzBusdPrice = useBUSDPrice(CZODIAC_ADDRESSES.TigerZodiac[chainId]);
   const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
-  //const oxzBusdPrice = useBUSDPrice(CZODIAC_ADDRESSES.OxZodiac[chainId]);
-  const tigzhpBusdPrice = useBUSDPrice(TIGERHP_ADDRESSES[chainId]);
   const czusdBusdPrice = useBUSDPrice(CZUSD[chainId]);
 
   const czVaultPegInterface = new Interface(czVaultPeg);
@@ -45,36 +42,31 @@ function Home() {
     <Header />
     <LightMode>
       <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
-          <NavLink to="stimfarms">
-            <Button colorScheme="purple">★ Stim Farms</Button>
-          </NavLink>
-          <NavLink to="vaults">
-            <Button colorScheme="red">★ Antidump Vaults</Button>
-          </NavLink>
+          <Link href="https://app.1inch.io/#/56/swap/BNB/0x7c1608C004F20c3520f70b924E2BfeF092dA0043" isExternal>
+            <Button colorScheme="purple"  >Buy CZF <Icon as={FiExternalLink} /></Button>
+          </Link >
           <NavLink to="czfarm">
             <Button colorScheme="red" >★ v1Pools, v1Farms</Button>
           </NavLink>
+          <NavLink to="stimfarms">
+            <Button colorScheme="red">★ Stim Farms</Button>
+          </NavLink>
+          <NavLink to="vaults">
+            <Button colorScheme="orange">Antidump Vaults</Button>
+          </NavLink>
           <NavLink to="czusd">
-            <Button colorScheme="red" >Exempt Borrow</Button>
-          </NavLink>
-          <NavLink to="tigerhunt">
-            <Button colorScheme="orange" >Play Tiger Hunt</Button>
-          </NavLink>
-          <NavLink to="CZFBuyoutTigz">
-            <Button colorScheme="orange" >TIGZ to CZF Swap</Button>
+            <Button colorScheme="orange" >Exempt Borrow</Button>
           </NavLink>
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>
           </Link >
           <SimpleGrid className="stats" columns={2} spacing={1} w="100vw" position="relative" left="-27px">
-            <Text w="100%" textAlign="right" pr="5px">{tigzLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(tigzBusdPrice,12)}</Text>
-            <Text w="100%" textAlign="right" pr="5px">{tigzhpLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(tigzhpBusdPrice,12)}</Text>
             <Text w="100%" textAlign="right" pr="5px">{czfarmLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czfarmBusdPrice,12)}</Text>
             <Text w="100%" textAlign="right" pr="5px">{czusdLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czusdBusdPrice,12)}</Text>
           </SimpleGrid>
       </Box>
     </LightMode>
-    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepeg()} >Repeg CZUSD</Button>
+    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepeg()} variant="outline" >Repeg CZUSD</Button>
     <br/><br/>
     <Footer />
 </>);
