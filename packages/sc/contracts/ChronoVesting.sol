@@ -4,11 +4,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./libs/Queue.sol";
 
-contract ChronoVesting is Ownable, AccessControlEnumerable {
+contract ChronoVesting is AccessControlEnumerable {
     using SafeERC20 for IERC20;
     using Queue for Queue.List;
 
@@ -18,9 +17,10 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
 
     uint112 public totalRewardsWad;
     uint112 public totalClaimedWad;
+    uint112 public totalEmissionRate;
 
     uint32 public vestPeriod;
-    uint32 public earlyExitBasis;
+    uint32 public ffBasis;
 
     struct Account {
         uint112 totalRewardsWad;
@@ -39,13 +39,13 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
 
     constructor(
         IERC20 _asset,
-        uint32 _earlyExitBasis,
+        uint32 _ffBasis,
         uint32 _vestPeriod
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(EMISSION_ROLE, _msgSender());
         asset = _asset;
-        earlyExitBasis = _earlyExitBasis;
+        ffBasis = _ffBasis;
         vestPeriod = _vestPeriod;
     }
 
@@ -71,7 +71,9 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
                 .queuedEmissionDecrease[
                     account.emissionDecreaseQueue.getFirstEntry()
                 ];
-            if (emissionDecrease.epoch < _epoch) {
+            if (
+                emissionDecrease.epoch < _epoch && emissionDecrease.epoch != 0
+            ) {
                 //Get wad to claim at old emission rate.
                 wadToClaim +=
                     (accountUpdateEpoch - emissionDecrease.epoch) *
@@ -90,6 +92,7 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
                     }
                 }
                 account.emissionRate -= emissionRateDecrease;
+                totalEmissionRate -= emissionRateDecrease;
                 delete account.queuedEmissionDecrease[
                     account.emissionDecreaseQueue.dequeue()
                 ];
@@ -123,6 +126,7 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
         uint112 wadPerSecond = _wad / vestPeriod;
 
         account.emissionRate += wadPerSecond;
+        totalEmissionRate += wadPerSecond;
         account.queuedEmissionDecrease[
             account.emissionDecreaseQueue.enqueue()
         ] = EmissionDelta({
@@ -131,22 +135,22 @@ contract ChronoVesting is Ownable, AccessControlEnumerable {
         });
     }
 
-    function fastForward() external {
-        Account storage account = accounts[msg.sender];
-        uint256 exitWad = uint256(
-            ((account.totalRewardsWad - account.totalClaimedWad) *
-                earlyExitBasis) / 10000
-        );
+    function fastForward(address _for) external onlyRole(EMISSION_ROLE) {
+        Account storage account = accounts[_for];
+        uint256 rewardsWad = account.totalRewardsWad - account.totalClaimedWad;
+        uint256 exitWad = uint256((rewardsWad * ffBasis) / 10000);
         account.emissionRateCredit += account.emissionRate;
+        totalEmissionRate -= account.emissionRate;
         account.emissionRate = 0;
-        asset.transfer(msg.sender, exitWad);
+        asset.transfer(_for, exitWad);
+        asset.transfer(msg.sender, rewardsWad);
     }
 
-    function setEarlyExitBasis(uint32 _to) external onlyOwner {
+    function setFFBasis(uint32 _to) external onlyRole(EMISSION_ROLE) {
         require(
             _to <= 10000,
             "Cannot set early exit higher than total vesting"
         );
-        earlyExitBasis = _to;
+        ffBasis = _to;
     }
 }

@@ -48,6 +48,7 @@ contract ChronoPoolService is AccessControlEnumerable {
                 chronoVesting: ChronoVesting(chronoVesting)
             })
         );
+        czf.approve(chronoVesting, ~uint256(0));
     }
 
     function setChronoPool(
@@ -58,7 +59,49 @@ contract ChronoPoolService is AccessControlEnumerable {
         ChronoPool storage pool = chronoPools[_pid];
         ChronoVesting vest = pool.chronoVesting;
         uint32 vestPeriod = vest.vestPeriod();
-        vest.setEarlyExitBasis(_ffBasis);
+        vest.setFFBasis(_ffBasis);
         pool.rateBasis = ((_apr * 365 days) / vestPeriod);
+    }
+
+    function deposit(uint256 _pid, uint256 _wad) public {
+        uint256 rewardWad = _wad * (10000 + chronoPools[_pid].rateBasis);
+        czf.burnFrom(msg.sender, _wad);
+        czf.mint(address(this), rewardWad);
+        chronoPools[_pid].chronoVesting.addVest(msg.sender, uint112(rewardWad));
+    }
+
+    function claimAll() public {
+        for (uint256 i; i < chronoPools.length; i++) {
+            claimPool(i);
+        }
+    }
+
+    function claimPool(uint256 _pid) public {
+        claimPoolTo(_pid, uint32(block.timestamp));
+    }
+
+    function claimPoolTo(uint256 _pid, uint32 _epoch) public {
+        chronoPools[_pid].chronoVesting.claimForTo(msg.sender, _epoch);
+    }
+
+    function claimAndFastForwardAll() public {
+        claimAll();
+        emergencyFastForwardAll();
+    }
+
+    function claimAndFastForward(uint256 _pid) public {
+        claimPool(_pid);
+        emergencyFastForward(_pid);
+    }
+
+    function emergencyFastForwardAll() public {
+        for (uint256 i; i < chronoPools.length; i++) {
+            emergencyFastForward(i);
+        }
+    }
+
+    function emergencyFastForward(uint256 _pid) public {
+        chronoPools[_pid].chronoVesting.fastForward(msg.sender);
+        czf.burn(czf.balanceOf(address(this)));
     }
 }
