@@ -7,9 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./libs/Queue.sol";
-import "./CZFarm.sol";
 
-contract ExoticVesting is Ownable, AccessControlEnumerable {
+contract ChronoVesting is Ownable, AccessControlEnumerable {
     using SafeERC20 for IERC20;
     using Queue for Queue.List;
 
@@ -21,7 +20,6 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
     uint112 public totalClaimedWad;
 
     uint32 public vestPeriod;
-    uint32 public earlyExitPeriod;
     uint32 public earlyExitBasis;
 
     struct Account {
@@ -30,7 +28,6 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         uint32 updateEpoch;
         uint112 emissionRate;
         uint112 emissionRateCredit;
-        uint32 earlyExitEpoch;
         Queue.List emissionDecreaseQueue;
         mapping(uint256 => EmissionDelta) queuedEmissionDecrease;
     }
@@ -42,29 +39,26 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
 
     constructor(
         IERC20 _asset,
-        uint32 _earlyExitPeriod,
-        uint32 _earlyExitBasis
+        uint32 _earlyExitBasis,
+        uint32 _vestPeriod
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(EMISSION_ROLE, _msgSender());
         asset = _asset;
-        earlyExitPeriod = _earlyExitPeriod;
         earlyExitBasis = _earlyExitBasis;
+        vestPeriod = _vestPeriod;
     }
 
-    //Used to more easily handle dao voting
-    //Snapshots are not required since vesting asset cannot be manipulated with flashloans
     function balanceOf(address _account) external view returns (uint256) {
         return
             accounts[_account].totalRewardsWad -
             accounts[_account].totalClaimedWad;
     }
 
-    function claim() external {
-        claimForTo(msg.sender, uint32(block.timestamp));
-    }
-
-    function claimForTo(address _account, uint32 _epoch) public {
+    function claimForTo(address _account, uint32 _epoch)
+        public
+        onlyRole(EMISSION_ROLE)
+    {
         Account storage account = accounts[_account];
         require(
             _epoch <= block.timestamp,
@@ -135,15 +129,10 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
             wadPerSecond: wadPerSecond,
             epoch: uint32(block.timestamp) + vestPeriod
         });
-        account.earlyExitEpoch = uint32(block.timestamp) + earlyExitPeriod;
     }
 
     function fastForward() external {
         Account storage account = accounts[msg.sender];
-        require(
-            account.earlyExitEpoch <= uint32(block.timestamp),
-            "ExoticVesting: Too early to exit"
-        );
         uint256 exitWad = uint256(
             ((account.totalRewardsWad - account.totalClaimedWad) *
                 earlyExitBasis) / 10000
@@ -151,10 +140,6 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         account.emissionRateCredit += account.emissionRate;
         account.emissionRate = 0;
         asset.transfer(msg.sender, exitWad);
-    }
-
-    function setEarlyExitPeriod(uint32 _to) external onlyOwner {
-        earlyExitPeriod = _to;
     }
 
     function setEarlyExitBasis(uint32 _to) external onlyOwner {
