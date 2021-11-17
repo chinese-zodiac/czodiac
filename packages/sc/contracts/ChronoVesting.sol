@@ -153,4 +153,12 @@ contract ChronoVesting is AccessControlEnumerable {
         );
         ffBasis = _to;
     }
+
+    function getAccountEmissionRate(address _for)
+        external
+        view
+        returns (uint112)
+    {
+        return accounts[_for].emissionRate;
+    }
 }

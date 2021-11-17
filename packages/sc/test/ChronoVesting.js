@@ -46,4 +46,19 @@ describe("ChronoVesting", function() {
       expect(vestPeriod).to.eq(vestPeriod);
     });
   });
+  describe("AddVest", function() {
+    before(async function(){
+      await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
+      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
+      await chronoVestingSc.addVest(owner.address,parseEther("1"));
+    });
+    it("Should increase account emission rate", async function() {
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(parseEther("1").div(vestPeriod));
+    });
+    it("Should increase overall emission rate", async function() {
+      const emissionRate = await chronoVestingSc.totalEmissionRate();
+      expect(emissionRate).to.eq(parseEther("1").div(vestPeriod));
+    });
+  });
 });
