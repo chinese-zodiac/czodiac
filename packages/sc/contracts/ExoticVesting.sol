@@ -20,14 +20,15 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
     uint112 public totalRewardsWad;
     uint112 public totalClaimedWad;
 
+    uint32 public vestPeriod;
+
     struct Account {
         uint112 totalRewardsWad;
         uint112 totalClaimedWad;
         uint32 updateEpoch;
         uint112 emissionRate;
-        Queue.List emissionIncreaseQueue;
+        uint112 emissionRateCredit;
         Queue.List emissionDecreaseQueue;
-        mapping(uint256 => EmissionDelta) queuedEmissionIncrease;
         mapping(uint256 => EmissionDelta) queuedEmissionDecrease;
     }
     struct EmissionDelta {
@@ -63,41 +64,32 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         uint32 accountUpdateEpoch = account.updateEpoch;
         uint112 wadToClaim = 0;
         while (accountUpdateEpoch < _epoch) {
-            EmissionDelta storage emissionIncrease = account
-                .queuedEmissionIncrease[
-                    account.emissionIncreaseQueue.getFirstEntry()
-                ];
             EmissionDelta storage emissionDecrease = account
-                .queuedEmissionIncrease[
-                    account.emissionIncreaseQueue.getFirstEntry()
+                .queuedEmissionDecrease[
+                    account.emissionDecreaseQueue.getFirstEntry()
                 ];
-            bool isIncrease;
-            EmissionDelta storage emissionDelta;
-            if (emissionIncrease.epoch < emissionDecrease.epoch) {
-                isIncrease = true;
-                emissionDelta = emissionIncrease;
-            } else {
-                isIncrease = false;
-                emissionDelta = emissionDecrease;
-            }
-            if (emissionDelta.epoch < _epoch) {
+            if (emissionDecrease.epoch < _epoch) {
                 //Get wad to claim at old emission rate.
                 wadToClaim +=
-                    (accountUpdateEpoch - emissionDelta.epoch) *
+                    (accountUpdateEpoch - emissionDecrease.epoch) *
                     account.emissionRate;
                 //Change emission rate.
-                accountUpdateEpoch = emissionDelta.epoch;
-                if (isIncrease) {
-                    account.emissionRate += emissionDelta.wadPerSecond;
-                    delete account.queuedEmissionIncrease[
-                        account.emissionIncreaseQueue.dequeue()
-                    ];
-                } else {
-                    account.emissionRate -= emissionDelta.wadPerSecond;
-                    delete account.queuedEmissionDecrease[
-                        account.emissionDecreaseQueue.dequeue()
-                    ];
+                accountUpdateEpoch = emissionDecrease.epoch;
+                uint112 emissionRateDecrease = emissionDecrease.wadPerSecond;
+                if (account.emissionRateCredit > 0) {
+                    //Handle emission rate credit (credits are issued when users exit vesting)
+                    if (emissionRateDecrease <= account.emissionRateCredit) {
+                        account.emissionRateCredit -= emissionRateDecrease;
+                        emissionRateDecrease = 0;
+                    } else {
+                        emissionRateDecrease -= account.emissionRateCredit;
+                        account.emissionRateCredit = 0;
+                    }
                 }
+                account.emissionRate -= emissionRateDecrease;
+                delete account.queuedEmissionDecrease[
+                    account.emissionDecreaseQueue.dequeue()
+                ];
             } else {
                 wadToClaim +=
                     (_epoch - accountUpdateEpoch) *
@@ -115,38 +107,24 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         );
     }
 
-    function addVest(
-        address _for,
-        uint112 _wad,
-        uint32 _startEpoch,
-        uint32 _vestPeriod
-    ) public onlyRole(EMISSION_ROLE) {
+    function addVest(address _for, uint112 _wad)
+        public
+        onlyRole(EMISSION_ROLE)
+    {
         Account storage account = accounts[_for];
         asset.transferFrom(msg.sender, address(this), _wad);
 
         totalRewardsWad += _wad;
         account.totalRewardsWad += _wad;
 
-        uint112 wadPerSecond = _wad / _vestPeriod;
+        uint112 wadPerSecond = _wad / vestPeriod;
 
-        require(
-            account.emissionIncreaseQueue.getLastEntry() <= _startEpoch,
-            "ExoticVesting: Cannot enqueue increase epoch before last epoch"
-        );
-        require(
-            account.emissionDecreaseQueue.getLastEntry() <=
-                _startEpoch + _vestPeriod,
-            "ExoticVesting: Cannot enqueue decrease epoch before last epoch"
-        );
-
-        account.queuedEmissionIncrease[
-            account.emissionIncreaseQueue.enqueue()
-        ] = EmissionDelta({wadPerSecond: wadPerSecond, epoch: _startEpoch});
+        account.emissionRate += wadPerSecond;
         account.queuedEmissionDecrease[
             account.emissionDecreaseQueue.enqueue()
         ] = EmissionDelta({
             wadPerSecond: wadPerSecond,
-            epoch: _startEpoch + _vestPeriod
+            epoch: uint32(block.timestamp) + vestPeriod
         });
     }
 }
