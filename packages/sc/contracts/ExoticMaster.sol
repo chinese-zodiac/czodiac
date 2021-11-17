@@ -63,12 +63,7 @@ contract ExoticMaster {
         );
 
         farm.lp.transferFrom(msg.sender, treasury, _lpWad);
-        exoticVesting.addVest(
-            _for,
-            uint112(rewardAmt),
-            uint32(block.timestamp),
-            uint32(365 days)
-        );
+        exoticVesting.addVest(_for, uint112(rewardAmt));
     }
 
     function getPrice(uint256 _id) public view returns (uint256) {
@@ -81,7 +76,7 @@ contract ExoticMaster {
 
     //TODO: Add inversion of control for ExoticVestingsss
     //TODO: add voting for allocations to farms
-    function vote(uint16[] calldata allocBasis) external {
+    function vote(uint16[] calldata allocBasis) external view {
         require(
             allocBasis.length == farms.length,
             "ExoticMaster: Must have allocation for each farm"

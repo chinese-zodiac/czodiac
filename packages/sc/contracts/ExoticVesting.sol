@@ -21,6 +21,8 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
     uint112 public totalClaimedWad;
 
     uint32 public vestPeriod;
+    uint32 public earlyExitPeriod;
+    uint32 public earlyExitBasis;
 
     struct Account {
         uint112 totalRewardsWad;
@@ -28,6 +30,7 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         uint32 updateEpoch;
         uint112 emissionRate;
         uint112 emissionRateCredit;
+        uint32 earlyExitEpoch;
         Queue.List emissionDecreaseQueue;
         mapping(uint256 => EmissionDelta) queuedEmissionDecrease;
     }
@@ -37,10 +40,16 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
     }
     mapping(address => Account) internal accounts;
 
-    constructor(IERC20 _asset) {
+    constructor(
+        IERC20 _asset,
+        uint32 _earlyExitPeriod,
+        uint32 _earlyExitBasis
+    ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(EMISSION_ROLE, _msgSender());
         asset = _asset;
+        earlyExitPeriod = _earlyExitPeriod;
+        earlyExitBasis = _earlyExitBasis;
     }
 
     //Used to more easily handle dao voting
@@ -126,5 +135,33 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
             wadPerSecond: wadPerSecond,
             epoch: uint32(block.timestamp) + vestPeriod
         });
+        account.earlyExitEpoch = uint32(block.timestamp) + earlyExitPeriod;
+    }
+
+    function earlyExit() external {
+        Account storage account = accounts[msg.sender];
+        require(
+            account.earlyExitEpoch <= uint32(block.timestamp),
+            "ExoticVesting: Too early to exit"
+        );
+        uint256 exitWad = uint256(
+            ((account.totalRewardsWad - account.totalClaimedWad) *
+                earlyExitBasis) / 10000
+        );
+        account.emissionRateCredit += account.emissionRate;
+        account.emissionRate = 0;
+        asset.transfer(msg.sender, exitWad);
+    }
+
+    function setEarlyExitPeriod(uint32 _to) external onlyOwner {
+        earlyExitPeriod = _to;
+    }
+
+    function setEarlyExitBasis(uint32 _to) external onlyOwner {
+        require(
+            _to <= 10000,
+            "Cannot set early exit higher than total vesting"
+        );
+        earlyExitBasis = _to;
     }
 }
