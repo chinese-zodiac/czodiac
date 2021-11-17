@@ -138,7 +138,7 @@ contract ExoticVesting is Ownable, AccessControlEnumerable {
         account.earlyExitEpoch = uint32(block.timestamp) + earlyExitPeriod;
     }
 
-    function earlyExit() external {
+    function fastForward() external {
         Account storage account = accounts[msg.sender];
         require(
             account.earlyExitEpoch <= uint32(block.timestamp),
