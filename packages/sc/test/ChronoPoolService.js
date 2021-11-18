@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-3.0
+// Authored by Plastic Digital
+// If you read this, know that I love you even if your mom doesnt <3
+const chai = require('chai');
+const { solidity } = require("ethereum-waffle");
+chai.use(solidity);
+
+const { ethers, config } = require('hardhat');
+const { time } = require("@openzeppelin/test-helpers");
+const { toNum, toBN } = require("./utils/bignumberConverter");
+
+const loadJsonFile = require("load-json-file");
+const { zeroAddress, czDeployer, czf } = loadJsonFile.sync("./deployConfig.json");
+
+const { expect } = chai;
+const { parseEther, formatEther } = ethers.utils;
+
+describe("ChronoPoolService", function() {
+  let czfSc;
+  let owner, trader, trader1, trader2, trader3;
+  let deployer;
+  let chronoPoolService;
+
+  let vestPeriod = 31557600; // 1 year
+  let ffBasis = 500; // 5%
+  let aprBasis = 100000;
+
+  before(async function() {
+    [owner, trader, trader1, trader2, trader3] = await ethers.getSigners();
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [czDeployer],
+    });
+    deployer = await ethers.getSigner(czDeployer);
+    czfSc = await ethers.getContractAt("CZFarm", czf);
+    const ChronoPoolService = await ethers.getContractFactory("ChronoPoolService");
+    chronoPoolService = await ChronoPoolService.deploy(
+      czf, //CZFarm _czf
+    );
+  });
+  describe("Deploy success", function() {
+    it("Should have deployed the contracts", async function() {
+      const czfAddr = await chronoPoolService.czf();
+      expect(czf).to.eq(czfAddr);
+    });
+  });
+
+
+
+});

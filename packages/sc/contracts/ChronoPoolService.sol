@@ -77,11 +77,15 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
 
     function claimPool(uint256 _pid) public {
-        claimPoolTo(_pid, uint32(block.timestamp));
+        claimPoolForTo(msg.sender, _pid, uint32(block.timestamp));
     }
 
-    function claimPoolTo(uint256 _pid, uint32 _epoch) public {
-        chronoPools[_pid].chronoVesting.claimForTo(msg.sender, _epoch);
+    function claimPoolForTo(
+        address _for,
+        uint256 _pid,
+        uint32 _epoch
+    ) public {
+        chronoPools[_pid].chronoVesting.claimForTo(_for, _epoch);
     }
 
     function claimAndFastForwardAll() public {
