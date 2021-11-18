@@ -68,5 +68,27 @@ describe("ChronoVesting", function() {
       const balanceOf = await chronoVestingSc.balanceOf(owner.address);
       expect(balanceOf).to.eq(parseEther("1"));
     });
+    it("Should increase account balance with second add", async function() {
+      await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
+      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
+      await chronoVestingSc.addVest(owner.address,parseEther("1"));
+      const balanceOf = await chronoVestingSc.balanceOf(owner.address);
+      expect(balanceOf).to.be.closeTo(parseEther("2"),parseEther("0.00001"));
+    });
+    it("Should increase account emission rate with second add", async function() {
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(parseEther("2").div(vestPeriod));
+    });
+    it("Should increase account balance with third add", async function() {
+      await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
+      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
+      await chronoVestingSc.addVest(owner.address,parseEther("1"));
+      const balanceOf = await chronoVestingSc.balanceOf(owner.address);
+      expect(balanceOf).to.be.closeTo(parseEther("3"),parseEther("0.00001"));
+    });
+    it("Should increase account emission rate with third add", async function() {
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(parseEther("3").div(vestPeriod));
+    });
   });
 });
