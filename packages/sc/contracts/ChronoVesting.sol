@@ -145,11 +145,11 @@ contract ChronoVesting is AccessControlEnumerable {
         totalEmissionRate -= account.emissionRate;
         account.emissionRate = 0;
         asset.transfer(_for, exitWad);
-        asset.transfer(msg.sender, rewardsWad);
-        totalRewardsWad =
-            totalRewardsWad +
-            uint112(exitWad) -
-            uint112(rewardsWad);
+        uint112 rewardsWadDelta = uint112(rewardsWad) - uint112(exitWad);
+        asset.transfer(msg.sender, uint256(rewardsWadDelta));
+        account.totalRewardsWad -= rewardsWadDelta;
+        account.totalClaimedWad += uint112(exitWad);
+        totalRewardsWad -= rewardsWadDelta;
         totalClaimedWad += uint112(exitWad);
     }
 

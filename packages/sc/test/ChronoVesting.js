@@ -91,4 +91,27 @@ describe("ChronoVesting", function() {
       expect(emissionRate).to.eq(parseEther("3").div(vestPeriod));
     });
   });
+  describe("fastForward", function() {
+    it("Should transfer all assets with 1 staker", async function() {
+      await chronoVestingSc.fastForward(owner.address);
+      const czfBal = await czfSc.balanceOf(chronoVestingSc.address);
+      expect(czfBal).to.eq(0);
+    });
+    it("Should decrease account emission rate", async function() {
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(0);
+    });
+    it("Should decrease overall emission rate", async function() {
+      const emissionRate = await chronoVestingSc.totalEmissionRate();
+      expect(emissionRate).to.eq(0);
+    });
+    it("Should decrease total rewards wad", async function() {
+      const totalRewardsWad = await chronoVestingSc.totalRewardsWad();
+      expect(totalRewardsWad).to.closeTo(parseEther("3").mul(ffBasis).div(10000),parseEther("0.00001"));
+    });
+    it("Should decrease account balance", async function() {
+      const balanceOf = await chronoVestingSc.balanceOf(owner.address);
+      expect(balanceOf).to.eq(0);
+    });
+  });
 });
