@@ -48,8 +48,8 @@ describe("ChronoVesting", function() {
   });
   describe("AddVest", function() {
     before(async function(){
-      await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
-      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
+      await czfSc.connect(deployer).mint(owner.address,parseEther("10"));
+      await czfSc.approve(chronoVestingSc.address,parseEther("10"));
       await chronoVestingSc.addVest(owner.address,parseEther("1"));
     });
     it("Should increase account emission rate", async function() {
@@ -70,7 +70,6 @@ describe("ChronoVesting", function() {
     });
     it("Should increase account balance with second add", async function() {
       await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
-      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
       await chronoVestingSc.addVest(owner.address,parseEther("1"));
       const balanceOf = await chronoVestingSc.balanceOf(owner.address);
       expect(balanceOf).to.be.closeTo(parseEther("2"),parseEther("0.00001"));
@@ -81,7 +80,6 @@ describe("ChronoVesting", function() {
     });
     it("Should increase account balance with third add", async function() {
       await czfSc.connect(deployer).mint(owner.address,parseEther("1"));
-      await czfSc.approve(chronoVestingSc.address,parseEther("1"));
       await chronoVestingSc.addVest(owner.address,parseEther("1"));
       const balanceOf = await chronoVestingSc.balanceOf(owner.address);
       expect(balanceOf).to.be.closeTo(parseEther("3"),parseEther("0.00001"));
@@ -112,6 +110,41 @@ describe("ChronoVesting", function() {
     it("Should decrease account balance", async function() {
       const balanceOf = await chronoVestingSc.balanceOf(owner.address);
       expect(balanceOf).to.eq(0);
+    });
+  });
+  describe("Long term vest+claim", function() {
+    it("Addvest Should increase account emission rate", async function() {
+      await time.increase(time.duration.days(3))
+      await chronoVestingSc.addVest(owner.address,parseEther("1"));
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(parseEther("1").div(vestPeriod));
+    });
+    it("Claim after 1 years should return all vesting", async function() {
+      await time.increase(time.duration.days(400));
+      const initialBal = await czfSc.balanceOf(owner.address);
+      await time.advanceBlock();
+      const latestTime = await time.latest()
+      console.log(latestTime.toString())
+      await chronoVestingSc.claimForTo(owner.address,latestTime.toString());
+      const finalBal = await czfSc.balanceOf(owner.address);
+      expect(finalBal.sub(initialBal)).to.eq(parseEther("1"));
+    });
+    it("Should decrease account balance", async function() {
+      const balanceOf = await chronoVestingSc.balanceOf(owner.address);
+      expect(balanceOf).to.eq(0);
+    });
+    it("Should decrease account emission rate", async function() {
+      const emissionRate = await chronoVestingSc.getAccountEmissionRate(owner.address);
+      expect(emissionRate).to.eq(0);
+    });
+    it("Should decrease overall emission rate", async function() {
+      const emissionRate = await chronoVestingSc.totalEmissionRate();
+      expect(emissionRate).to.eq(0);
+    });
+    it("Should set total rewards wad equal to total claimed", async function() {
+      const totalRewardsWad = await chronoVestingSc.totalRewardsWad();
+      const totalClaimedWad = await chronoVestingSc.totalClaimedWad();
+      expect(totalRewardsWad).to.eq(totalClaimedWad);
     });
   });
 });

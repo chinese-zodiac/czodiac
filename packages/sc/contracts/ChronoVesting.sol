@@ -76,7 +76,7 @@ contract ChronoVesting is AccessControlEnumerable {
             ) {
                 //Get wad to claim at old emission rate.
                 wadToClaim +=
-                    (accountUpdateEpoch - emissionDecrease.epoch) *
+                    (emissionDecrease.epoch - accountUpdateEpoch) *
                     account.emissionRate;
                 //Change emission rate.
                 accountUpdateEpoch = emissionDecrease.epoch;
@@ -102,6 +102,13 @@ contract ChronoVesting is AccessControlEnumerable {
                     account.emissionRate;
                 accountUpdateEpoch = _epoch;
             }
+        }
+        if (
+            account.emissionRate == 0 &&
+            account.totalRewardsWad - account.totalClaimedWad - wadToClaim > 0
+        ) {
+            //handle dust
+            wadToClaim = account.totalRewardsWad - account.totalClaimedWad;
         }
         account.totalClaimedWad += wadToClaim;
         account.updateEpoch = accountUpdateEpoch;
