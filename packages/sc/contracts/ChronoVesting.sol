@@ -117,6 +117,8 @@ contract ChronoVesting is AccessControlEnumerable {
         public
         onlyRole(EMISSION_ROLE)
     {
+        claimForTo(_for, uint32(block.timestamp));
+
         Account storage account = accounts[_for];
         asset.transferFrom(msg.sender, address(this), _wad);
 
@@ -144,6 +146,11 @@ contract ChronoVesting is AccessControlEnumerable {
         account.emissionRate = 0;
         asset.transfer(_for, exitWad);
         asset.transfer(msg.sender, rewardsWad);
+        totalRewardsWad =
+            totalRewardsWad +
+            uint112(exitWad) -
+            uint112(rewardsWad);
+        totalClaimedWad += uint112(exitWad);
     }
 
     function setFFBasis(uint32 _to) external onlyRole(EMISSION_ROLE) {

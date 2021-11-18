@@ -60,5 +60,13 @@ describe("ChronoVesting", function() {
       const emissionRate = await chronoVestingSc.totalEmissionRate();
       expect(emissionRate).to.eq(parseEther("1").div(vestPeriod));
     });
+    it("Should increase total rewards wad", async function() {
+      const totalRewardsWad = await chronoVestingSc.totalRewardsWad();
+      expect(totalRewardsWad).to.eq(parseEther("1"));
+    });
+    it("Should increase account balance", async function() {
+      const balanceOf = await chronoVestingSc.balanceOf(owner.address);
+      expect(balanceOf).to.eq(parseEther("1"));
+    });
   });
 });
