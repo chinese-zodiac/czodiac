@@ -43,6 +43,14 @@ function StimFarms() {
     <BackgroundNetwork />
     <Header />
     <Box as="main" className="stimfarms-page horizontal-center">
+    <Box border="solid 1px" borderRadius="5px" p="10px" m="10px">
+      <b>NOTICE</b><br/>
+      - New Stim Farms will be released on request! 
+      <br/>
+      - If you would like a new Stim Farm please DM Plastic Digits on Telegram (link in footer)
+      <br/>
+      - Stim Farms will be replaced with Exotic Auctions, but this development will take some time.
+    </Box>
       Stim Farms are v2 farms inspired by Olympus Dao. Deliver LP to the v2 Farms to receive a fixed amount of CZF after 1 week. This CZF is set such that if the price does not change, you will get CZF equal to the value of your LP plus interest at a high APR. The LP you deliver is retained by the protocol.
       <br/><br/>
       <Tabs>

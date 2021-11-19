@@ -421,3 +421,32 @@ export const STIMFARMS = {
 export const CZFBUYOUTTOKEN = {
   [CHAINS.BSC]: "0xD3505D328e5f0ecF191A5Fd0d04d18B645e4158c"
 }
+export const CHRONOPOOLSERVICE = {
+  [CHAINS.BSC]: "0x5B11FB84ca9bBFA02894d7385bfD0d46F2D30843"
+}
+
+export const CHRONOPOOLS = {
+  [CHAINS.BSC] : [
+    {
+      title: "7 DAYS",
+      pid: 0
+      //ffBasis: 7500,
+      //vestPeriod: 604800
+      //apr: 30000
+    },
+    {
+      title: "90 DAYS",
+      pid: 1
+      //ffBasis: 3000,
+      //vestPeriod: 7776000
+      //apr: 50000
+    },
+    {
+      title: "1 YEAR",
+      pid: 2
+      //ffBasis: 500,
+      //vestPeriod: 31536000
+      //apr: 100000
+    },
+  ]
+}

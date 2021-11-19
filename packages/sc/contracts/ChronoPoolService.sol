@@ -101,7 +101,7 @@ contract ChronoPoolService is AccessControlEnumerable {
         chronoPools.push(
             ChronoPool({
                 rateBasis: uint32(
-                    (uint256(_apr) * 365 days) / uint256(_vestPeriod)
+                    (uint256(_apr) * uint256(_vestPeriod)) / 365 days
                 ),
                 chronoVesting: ChronoVesting(chronoVesting)
             })
@@ -118,7 +118,7 @@ contract ChronoPoolService is AccessControlEnumerable {
         ChronoVesting vest = pool.chronoVesting;
         vest.setFFBasis(_ffBasis);
         pool.rateBasis = uint32(
-            (uint256(_apr) * 365 days) / uint256(vest.vestPeriod())
+            ((uint256(_apr) * uint256(vest.vestPeriod())) / 365 days)
         );
     }
 

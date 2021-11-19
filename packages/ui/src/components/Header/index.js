@@ -109,7 +109,7 @@ function Header() {
           </>
         )}
       </div>
-      <Text className="version">v0.9.7</Text>
+      <Text className="version">v0.10.0</Text>
     </header>
   );
 }

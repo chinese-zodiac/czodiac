@@ -45,11 +45,14 @@ function Home() {
           <Link href="https://app.1inch.io/#/56/swap/BNB/0x7c1608C004F20c3520f70b924E2BfeF092dA0043" isExternal>
             <Button colorScheme="purple"  >Buy CZF <Icon as={FiExternalLink} /></Button>
           </Link >
+          <NavLink to="chronopools">
+            <Button colorScheme="red" >★ Chrono Pools</Button>
+          </NavLink>
           <NavLink to="czfarm">
             <Button colorScheme="red" >★ v1Pools, v1Farms</Button>
           </NavLink>
           <NavLink to="stimfarms">
-            <Button colorScheme="red">★ Stim Farms</Button>
+            <Button colorScheme="red">Stim Farms</Button>
           </NavLink>
           <NavLink to="vaults">
             <Button colorScheme="orange">Antidump Vaults</Button>

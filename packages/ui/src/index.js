@@ -11,6 +11,7 @@ import CZFBuyoutTigz from "./pages/CZFBuyoutTigz";
 import CZFarm from "./pages/CZFarm";
 import CZUsd from "./pages/CZUsd";
 import CZVaults from "./pages/CZVaults";
+import ChronoPools from "./pages/ChronoPools";
 import reportWebVitals from "./reportWebVitals";
 import { DAppProvider } from "@pdusedapp/core";
 import {
@@ -54,6 +55,7 @@ ReactDOM.render(
             <Route path="/czusd" component={CZUsd} />
             <Route path="/vaults" component={CZVaults} />
             <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
+            <Route path="/chronopools" component={ChronoPools} />
           </Provider>
         </DAppProvider>
       </HashRouter>
