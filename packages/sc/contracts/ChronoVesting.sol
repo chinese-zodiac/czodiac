@@ -183,4 +183,12 @@ contract ChronoVesting is AccessControlEnumerable {
     {
         return accounts[_for].emissionRate;
     }
+
+    function getAccountUpdateEpoch(address _for)
+        external
+        view
+        returns (uint32)
+    {
+        return accounts[_for].updateEpoch;
+    }
 }

@@ -38,6 +38,39 @@ contract ChronoPoolService is AccessControlEnumerable {
             );
     }
 
+    function getChronoPoolInfo(uint256 _pid)
+        external
+        view
+        returns (
+            uint32 adjustedRateBasis_,
+            uint32 vestPeriod_,
+            uint32 ffBasis_,
+            uint112 poolEmissionRate_
+        )
+    {
+        ChronoPool storage pool = chronoPools[_pid];
+        ChronoVesting vest = pool.chronoVesting;
+        adjustedRateBasis_ = getAdjustedRateBasis(chronoPools[_pid].rateBasis);
+        vestPeriod_ = vest.vestPeriod();
+        ffBasis_ = vest.ffBasis();
+        poolEmissionRate_ = vest.totalEmissionRate();
+    }
+
+    function getChronoPoolAccountInfo(address _for, uint256 _pid)
+        external
+        view
+        returns (
+            uint256 totalVesting_,
+            uint112 emissionRate_,
+            uint32 updateEpoch_
+        )
+    {
+        ChronoVesting vest = chronoPools[_pid].chronoVesting;
+        totalVesting_ = vest.balanceOf(_for);
+        emissionRate_ = vest.getAccountEmissionRate(_for);
+        updateEpoch_ = vest.getAccountUpdateEpoch(_for);
+    }
+
     function addChronoPool(
         IERC20 _asset,
         uint32 _ffBasis,

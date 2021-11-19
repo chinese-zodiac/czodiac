@@ -23,7 +23,8 @@ describe("ChronoPoolService", function() {
 
   let vestPeriod = 31557600; // 1 year
   let ffBasis = 500; // 5%
-  let aprBasis = 100000;
+  let aprBasis = 10*10000; // 10000%
+  let baseEmissionRate = parseEther("1500");
 
   before(async function() {
     [owner, trader, trader1, trader2, trader3] = await ethers.getSigners();
@@ -36,10 +37,22 @@ describe("ChronoPoolService", function() {
     const ChronoPoolService = await ethers.getContractFactory("ChronoPoolService");
     chronoPoolService = await ChronoPoolService.deploy(
       czf, //CZFarm _czf
+      baseEmissionRate //uint112 _baseEmissionRate
     );
+
+    console.log("Grant roles");
+    await czfSc.connect(deployer).grantRole(ethers.utils.id("MINTER_ROLE"),chronoPoolService.address);
+    await czfSc.connect(deployer).setContractSafe(chronoPoolService.address);
+    console.log("Complete");
   });
   describe("Deploy success", function() {
     it("Should have deployed the contracts", async function() {
+      const czfAddr = await chronoPoolService.czf();
+      expect(czf).to.eq(czfAddr);
+    });
+  });
+  describe("addChronoPool", function() {
+    it("Should create a new chrono pool", async function() {
       const czfAddr = await chronoPoolService.czf();
       expect(czf).to.eq(czfAddr);
     });
