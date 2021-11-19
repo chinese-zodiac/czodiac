@@ -120,7 +120,6 @@ describe("ChronoPoolService", function() {
       const expectedClaim = emissionRate.mul(duration);
       const expectedEmissionRate = emissionRate.add(expectedClaim.mul(10000+adjApr).div(10000).div(31536000));
       const expectedTotalVesting = vesting.sub(expectedClaim).add(expectedClaim.mul(10000+adjApr).div(10000));
-      console.log("claim",expectedClaim.toString());
       
       expect(totalVesting_).to.eq(expectedTotalVesting);
       expect(emissionRate_).to.be.closeTo(expectedEmissionRate,parseEther("0.1"));
