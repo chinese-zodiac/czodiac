@@ -79,10 +79,6 @@ contract ChronoPoolService is AccessControlEnumerable {
         pool.rateBasis = ((_apr * 365 days) / vestPeriod);
     }
 
-    function setBaseEmissionRate(uint112 _to) external onlyRole(POOL_LORD) {
-        baseEmissionRate = _to;
-    }
-
     function deposit(uint256 _pid, uint256 _wad) public {
         uint256 rewardWad = _wad *
             (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis));
@@ -136,5 +132,9 @@ contract ChronoPoolService is AccessControlEnumerable {
             msg.sender
         );
         czf.burn(czf.balanceOf(address(this)));
+    }
+
+    function setBaseEmissionRate(uint112 _to) external onlyRole(POOL_LORD) {
+        baseEmissionRate = _to;
     }
 }
