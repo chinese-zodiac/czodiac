@@ -41,9 +41,13 @@ describe("ChronoPoolService", function() {
     );
 
     console.log("Grant roles");
-    await czfSc.connect(deployer).grantRole(ethers.utils.id("MINTER_ROLE"),chronoPoolService.address);
-    await czfSc.connect(deployer).setContractSafe(chronoPoolService.address);
+    await czfSc.connect(deployer)
+      .grantRole(
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        chronoPoolService.address
+      );
     console.log("Complete");
+    console.log(chronoPoolService.address)
   });
   describe("Deploy success", function() {
     it("Should have deployed the contracts", async function() {

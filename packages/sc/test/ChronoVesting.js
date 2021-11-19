@@ -39,6 +39,9 @@ describe("ChronoVesting", function() {
       ffBasis, //uint32 _ffBasis,
       vestPeriod //uint32 _vestPeriod
     );
+    console.log("Grant roles");
+    await czfSc.connect(deployer).grantRole(ethers.utils.id("MINTER_ROLE"),chronoVestingSc.address);
+    console.log("Complete");
   });
   describe("Deploy success", function() {
     it("Should have deployed the contracts", async function() {

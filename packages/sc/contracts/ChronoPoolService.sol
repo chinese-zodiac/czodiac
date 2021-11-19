@@ -106,7 +106,7 @@ contract ChronoPoolService is AccessControlEnumerable {
                 chronoVesting: ChronoVesting(chronoVesting)
             })
         );
-        czf.approve(chronoVesting, ~uint256(0));
+        czf.grantRole(keccak256("MINTER_ROLE"), chronoVesting);
     }
 
     function setChronoPool(
@@ -126,7 +126,6 @@ contract ChronoPoolService is AccessControlEnumerable {
         uint256 rewardWad = _wad *
             (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis));
         czf.burnFrom(msg.sender, _wad);
-        czf.mint(address(this), rewardWad);
         currentEmissionRate += chronoPools[_pid].chronoVesting.addVest(
             msg.sender,
             uint112(rewardWad)
@@ -174,7 +173,6 @@ contract ChronoPoolService is AccessControlEnumerable {
         currentEmissionRate -= chronoPools[_pid].chronoVesting.fastForward(
             msg.sender
         );
-        czf.burn(czf.balanceOf(address(this)));
     }
 
     function setBaseEmissionRate(uint112 _to) external onlyRole(POOL_LORD) {

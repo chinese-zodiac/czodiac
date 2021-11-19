@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./libs/Queue.sol";
+import "./CZFarm.sol";
 
 contract ChronoVesting is AccessControlEnumerable {
     using SafeERC20 for IERC20;
@@ -13,7 +14,7 @@ contract ChronoVesting is AccessControlEnumerable {
 
     bytes32 public constant EMISSION_ROLE = keccak256("EMISSION_ROLE");
 
-    IERC20 public asset;
+    CZFarm public czf;
 
     uint112 public totalRewardsWad;
     uint112 public totalClaimedWad;
@@ -38,13 +39,13 @@ contract ChronoVesting is AccessControlEnumerable {
     mapping(address => Account) internal accounts;
 
     constructor(
-        IERC20 _asset,
+        CZFarm _czf,
         uint32 _ffBasis,
         uint32 _vestPeriod
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(EMISSION_ROLE, _msgSender());
-        asset = _asset;
+        czf = _czf;
         ffBasis = _ffBasis;
         vestPeriod = _vestPeriod;
     }
@@ -115,7 +116,7 @@ contract ChronoVesting is AccessControlEnumerable {
         account.totalClaimedWad += wadToClaim;
         account.updateEpoch = accountUpdateEpoch;
         totalClaimedWad += wadToClaim;
-        asset.transfer(_account, wadToClaim);
+        czf.mint(_account, wadToClaim);
         require(
             account.totalClaimedWad <= account.totalRewardsWad,
             "ExoticVesting: Can never claim more rewards than granted"
@@ -130,7 +131,6 @@ contract ChronoVesting is AccessControlEnumerable {
         claimForTo(_for, uint32(block.timestamp));
 
         Account storage account = accounts[_for];
-        asset.transferFrom(msg.sender, address(this), _wad);
 
         totalRewardsWad += _wad;
         account.totalRewardsWad += _wad;
@@ -159,9 +159,8 @@ contract ChronoVesting is AccessControlEnumerable {
         account.emissionRateCredit += deltaEmissionRate_;
         totalEmissionRate -= deltaEmissionRate_;
         account.emissionRate = 0;
-        asset.transfer(_for, exitWad);
+        czf.mint(_for, exitWad);
         uint112 rewardsWadDelta = uint112(rewardsWad) - uint112(exitWad);
-        asset.transfer(msg.sender, uint256(rewardsWadDelta));
         account.totalRewardsWad -= rewardsWadDelta;
         account.totalClaimedWad += uint112(exitWad);
         totalRewardsWad -= rewardsWadDelta;
