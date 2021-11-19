@@ -10,6 +10,9 @@ import "./CZFarm.sol";
 contract ChronoPoolService is AccessControlEnumerable {
     bytes32 public constant POOL_LORD = keccak256("POOL_LORD");
 
+    uint256 baseEmissionRate;
+    uint256 currentEmissionRate;
+
     CZFarm public czf;
     struct ChronoPool {
         uint32 rateBasis;
@@ -17,9 +20,22 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
     ChronoPool[] public chronoPools;
 
-    constructor(CZFarm _czf) {
+    constructor(CZFarm _czf, uint256 _baseEmissionRate) {
         _setupRole(POOL_LORD, _msgSender());
         czf = _czf;
+        baseEmissionRate = _baseEmissionRate;
+    }
+
+    function getAdjustedRateBasis(uint32 _rateBasis)
+        public
+        view
+        returns (uint32 adjustedRateBasis_)
+    {
+        if (currentEmissionRate < baseEmissionRate) return _rateBasis;
+        return
+            uint32(
+                (uint256(_rateBasis) * baseEmissionRate) / currentEmissionRate
+            );
     }
 
     function addChronoPool(
@@ -63,8 +79,13 @@ contract ChronoPoolService is AccessControlEnumerable {
         pool.rateBasis = ((_apr * 365 days) / vestPeriod);
     }
 
+    function setBaseEmissionRate(uint256 _to) external onlyRole(POOL_LORD) {
+        baseEmissionRate = _to;
+    }
+
     function deposit(uint256 _pid, uint256 _wad) public {
-        uint256 rewardWad = _wad * (10000 + chronoPools[_pid].rateBasis);
+        uint256 rewardWad = _wad *
+            (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis));
         czf.burnFrom(msg.sender, _wad);
         czf.mint(address(this), rewardWad);
         chronoPools[_pid].chronoVesting.addVest(msg.sender, uint112(rewardWad));

@@ -58,6 +58,7 @@ contract ChronoVesting is AccessControlEnumerable {
     function claimForTo(address _account, uint32 _epoch)
         public
         onlyRole(EMISSION_ROLE)
+        returns (uint112 deltaEmissionRate_)
     {
         Account storage account = accounts[_account];
         require(
@@ -93,6 +94,7 @@ contract ChronoVesting is AccessControlEnumerable {
                 }
                 account.emissionRate -= emissionRateDecrease;
                 totalEmissionRate -= emissionRateDecrease;
+                deltaEmissionRate_ += emissionRateDecrease;
                 delete account.queuedEmissionDecrease[
                     account.emissionDecreaseQueue.dequeue()
                 ];
@@ -123,6 +125,7 @@ contract ChronoVesting is AccessControlEnumerable {
     function addVest(address _for, uint112 _wad)
         public
         onlyRole(EMISSION_ROLE)
+        returns (uint112 deltaEmissionRate_)
     {
         claimForTo(_for, uint32(block.timestamp));
 
@@ -132,24 +135,29 @@ contract ChronoVesting is AccessControlEnumerable {
         totalRewardsWad += _wad;
         account.totalRewardsWad += _wad;
 
-        uint112 wadPerSecond = _wad / vestPeriod;
+        deltaEmissionRate_ = _wad / vestPeriod;
 
-        account.emissionRate += wadPerSecond;
-        totalEmissionRate += wadPerSecond;
+        account.emissionRate += deltaEmissionRate_;
+        totalEmissionRate += deltaEmissionRate_;
         account.queuedEmissionDecrease[
             account.emissionDecreaseQueue.enqueue()
         ] = EmissionDelta({
-            wadPerSecond: wadPerSecond,
+            wadPerSecond: deltaEmissionRate_,
             epoch: uint32(block.timestamp) + vestPeriod
         });
     }
 
-    function fastForward(address _for) external onlyRole(EMISSION_ROLE) {
+    function fastForward(address _for)
+        external
+        onlyRole(EMISSION_ROLE)
+        returns (uint112 deltaEmissionRate_)
+    {
         Account storage account = accounts[_for];
         uint256 rewardsWad = account.totalRewardsWad - account.totalClaimedWad;
         uint256 exitWad = uint256((rewardsWad * ffBasis) / 10000);
-        account.emissionRateCredit += account.emissionRate;
-        totalEmissionRate -= account.emissionRate;
+        deltaEmissionRate_ = account.emissionRate;
+        account.emissionRateCredit += deltaEmissionRate_;
+        totalEmissionRate -= deltaEmissionRate_;
         account.emissionRate = 0;
         asset.transfer(_for, exitWad);
         uint112 rewardsWadDelta = uint112(rewardsWad) - uint112(exitWad);
