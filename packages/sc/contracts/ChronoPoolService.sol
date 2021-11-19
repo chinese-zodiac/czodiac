@@ -10,8 +10,8 @@ import "./CZFarm.sol";
 contract ChronoPoolService is AccessControlEnumerable {
     bytes32 public constant POOL_LORD = keccak256("POOL_LORD");
 
-    uint256 baseEmissionRate;
-    uint256 currentEmissionRate;
+    uint112 baseEmissionRate;
+    uint112 currentEmissionRate;
 
     CZFarm public czf;
     struct ChronoPool {
@@ -20,7 +20,7 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
     ChronoPool[] public chronoPools;
 
-    constructor(CZFarm _czf, uint256 _baseEmissionRate) {
+    constructor(CZFarm _czf, uint112 _baseEmissionRate) {
         _setupRole(POOL_LORD, _msgSender());
         czf = _czf;
         baseEmissionRate = _baseEmissionRate;
@@ -34,7 +34,7 @@ contract ChronoPoolService is AccessControlEnumerable {
         if (currentEmissionRate < baseEmissionRate) return _rateBasis;
         return
             uint32(
-                (uint256(_rateBasis) * baseEmissionRate) / currentEmissionRate
+                (uint112(_rateBasis) * baseEmissionRate) / currentEmissionRate
             );
     }
 
@@ -79,7 +79,7 @@ contract ChronoPoolService is AccessControlEnumerable {
         pool.rateBasis = ((_apr * 365 days) / vestPeriod);
     }
 
-    function setBaseEmissionRate(uint256 _to) external onlyRole(POOL_LORD) {
+    function setBaseEmissionRate(uint112 _to) external onlyRole(POOL_LORD) {
         baseEmissionRate = _to;
     }
 
@@ -88,7 +88,10 @@ contract ChronoPoolService is AccessControlEnumerable {
             (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis));
         czf.burnFrom(msg.sender, _wad);
         czf.mint(address(this), rewardWad);
-        chronoPools[_pid].chronoVesting.addVest(msg.sender, uint112(rewardWad));
+        currentEmissionRate += chronoPools[_pid].chronoVesting.addVest(
+            msg.sender,
+            uint112(rewardWad)
+        );
     }
 
     function claimAll() public {
@@ -106,7 +109,10 @@ contract ChronoPoolService is AccessControlEnumerable {
         uint256 _pid,
         uint32 _epoch
     ) public {
-        chronoPools[_pid].chronoVesting.claimForTo(_for, _epoch);
+        currentEmissionRate -= chronoPools[_pid].chronoVesting.claimForTo(
+            _for,
+            _epoch
+        );
     }
 
     function claimAndFastForwardAll() public {
@@ -126,7 +132,9 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
 
     function emergencyFastForward(uint256 _pid) public {
-        chronoPools[_pid].chronoVesting.fastForward(msg.sender);
+        currentEmissionRate -= chronoPools[_pid].chronoVesting.fastForward(
+            msg.sender
+        );
         czf.burn(czf.balanceOf(address(this)));
     }
 }
