@@ -53,11 +53,16 @@ describe("ChronoPoolService", function() {
   });
   describe("addChronoPool", function() {
     it("Should create a new chrono pool", async function() {
-      const czfAddr = await chronoPoolService.czf();
-      expect(czf).to.eq(czfAddr);
+      await chronoPoolService.addChronoPool(
+        ffBasis,
+        vestPeriod,
+        aprBasis
+      );
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_} = await chronoPoolService.getChronoPoolInfo(0);
+      expect(adjustedRateBasis_).to.be.closeTo(aprBasis,100);
+      expect(vestPeriod_).to.eq(vestPeriod);
+      expect(ffBasis_).to.eq(ffBasis);
+      expect(poolEmissionRate_).to.eq(0);
     });
   });
-
-
-
 });

@@ -72,14 +72,21 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
 
     function addChronoPool(
-        IERC20 _asset,
         uint32 _ffBasis,
         uint32 _vestPeriod,
         uint32 _apr
     ) external onlyRole(POOL_LORD) returns (uint256 pid_) {
-        bytes memory bytecode = type(ChronoVesting).creationCode;
+        bytes memory bytecode = abi.encodePacked(
+            type(ChronoVesting).creationCode,
+            abi.encode(address(czf), _ffBasis, _vestPeriod)
+        );
         bytes32 salt = keccak256(
-            abi.encodePacked(_asset, _ffBasis, _vestPeriod)
+            abi.encodePacked(
+                address(czf),
+                _ffBasis,
+                _vestPeriod,
+                block.timestamp
+            )
         );
         address chronoVesting;
         assembly {
@@ -93,7 +100,9 @@ contract ChronoPoolService is AccessControlEnumerable {
         pid_ = chronoPools.length;
         chronoPools.push(
             ChronoPool({
-                rateBasis: ((_apr * 365 days) / _vestPeriod),
+                rateBasis: uint32(
+                    (uint256(_apr) * 365 days) / uint256(_vestPeriod)
+                ),
                 chronoVesting: ChronoVesting(chronoVesting)
             })
         );
@@ -107,9 +116,10 @@ contract ChronoPoolService is AccessControlEnumerable {
     ) external onlyRole(POOL_LORD) {
         ChronoPool storage pool = chronoPools[_pid];
         ChronoVesting vest = pool.chronoVesting;
-        uint32 vestPeriod = vest.vestPeriod();
         vest.setFFBasis(_ffBasis);
-        pool.rateBasis = ((_apr * 365 days) / vestPeriod);
+        pool.rateBasis = uint32(
+            (uint256(_apr) * 365 days) / uint256(vest.vestPeriod())
+        );
     }
 
     function deposit(uint256 _pid, uint256 _wad) public {
