@@ -64,7 +64,7 @@ contract ChronoVesting is AccessControlEnumerable {
         Account storage account = accounts[_account];
         require(
             _epoch <= block.timestamp,
-            "ExoticAuction: Cannot update account past current timestamp"
+            "ChronoVesting: Cannot update account past current timestamp"
         );
         uint32 accountUpdateEpoch = account.updateEpoch;
         uint112 wadToClaim = 0;
@@ -119,7 +119,7 @@ contract ChronoVesting is AccessControlEnumerable {
         czf.mint(_account, wadToClaim);
         require(
             account.totalClaimedWad <= account.totalRewardsWad,
-            "ExoticVesting: Can never claim more rewards than granted"
+            "ChronoVesting: Can never claim more rewards than granted"
         );
     }
 

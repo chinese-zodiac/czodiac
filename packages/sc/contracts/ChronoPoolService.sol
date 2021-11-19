@@ -31,7 +31,7 @@ contract ChronoPoolService is AccessControlEnumerable {
         view
         returns (uint32 adjustedRateBasis_)
     {
-        if (currentEmissionRate < baseEmissionRate) return _rateBasis;
+        if (currentEmissionRate <= baseEmissionRate) return _rateBasis;
         return
             uint32(
                 (uint112(_rateBasis) * baseEmissionRate) / currentEmissionRate
@@ -123,13 +123,20 @@ contract ChronoPoolService is AccessControlEnumerable {
     }
 
     function deposit(uint256 _pid, uint256 _wad) public {
-        uint256 rewardWad = _wad *
-            (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis));
+        uint256 rewardWad = (_wad *
+            (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis))) /
+            10000;
         czf.burnFrom(msg.sender, _wad);
         currentEmissionRate += chronoPools[_pid].chronoVesting.addVest(
             msg.sender,
             uint112(rewardWad)
         );
+    }
+
+    function reinvest(uint256 _pid) public {
+        uint256 initialBalance = czf.balanceOf(msg.sender);
+        claimPool(_pid);
+        deposit(_pid, czf.balanceOf(msg.sender) - initialBalance);
     }
 
     function claimAll() public {
