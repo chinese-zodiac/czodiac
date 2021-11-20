@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import BackgroundNetwork from "../../components/BackgroundNetwork";
-import { Box, Link, SimpleGrid, Heading, Image } from "@chakra-ui/react";
+import { Box, Link, SimpleGrid, Heading, Image, Icon } from "@chakra-ui/react";
+import { FiExternalLink, FiInfo, FiShoppingCart } from "react-icons/fi";
 import ChronoPoolsList from "../../components/ChronoPoolsList";
 
 import "./index.scss";
@@ -38,7 +39,13 @@ function ChronoPools() {
       <Heading>Chrono Pools</Heading><br/>
       <Image src="./chrono-header.jpg" maxWidth="100%" ml="auto" mr="auto" /><br/>
       Stake CZF and earn claimable CZF every second.<br/>
-      Want CZF now? Fast Forward your earnings to get them now at a discount.
+      Want CZF now? Fast Forward your earnings to get them now at a discount. <br/><br/>
+      <Link href="https://czodiac.gitbook.io/czodiac-litepapper/features-active/chrono-pools" isExternal p="7px" border="solid 1px" borderRadius="10px">
+         <Icon as={FiInfo} /> <b>Chrono Pools Guide <Icon as={FiExternalLink} /></b>
+      </Link ><br/><br/>
+      <Link href="https://app.1inch.io/#/56/swap/BNB/0x7c1608C004F20c3520f70b924E2BfeF092dA0043" isExternal p="7px" border="solid 1px" borderRadius="10px">
+        <Icon as={FiShoppingCart} /> <b>Buy CZF <Icon as={FiExternalLink} /></b>
+      </Link >
       <br/><br/>
       {currentEpoch < finishTime ?
       (<Heading>
