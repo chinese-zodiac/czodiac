@@ -18,7 +18,7 @@ function Footer() {
       <Flex as="footer" justify="center" position="relative">
         <Box p="10px" >
           <Text>Token Contracts</Text>
-          {czfarmLink()} {tigzLink()} {tigzhpLink()} {czusdLink()}
+          {czfarmLink()} {czusdLink()}
         </Box>
         <Box p="10px" borderLeft="1px" borderRight="1px" borderColor="gray.500">
           <Text>Social Links</Text>
