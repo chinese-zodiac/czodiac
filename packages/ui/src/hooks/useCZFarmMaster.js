@@ -41,6 +41,11 @@ const DEX = {
     name: "Babyswap",
     shortName: "BABY",
     baseUrl: "https://exchange.babyswap.finance/#/"
+  },
+  GTAR: {
+    name: "Guitarswap",
+    shortName: "GTAR",
+    baseUrl: "https://guitarswap.exchange/"
   }
 }
 const farmLps = [
@@ -62,6 +67,7 @@ const farmLps = [
   "0x13573b1970611bb401f0B75994C80E16c8F56C35", //CZF/CAKE -PCS
   "0x0fe1E1Ee88516d7FAa13B9365126778c3bFD585A", //CZF/PRHO -PCS
   "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
+  //"0xCAD60748A184333e442Ba6e6e6E58D79990fEB87", //CZF/GUT -GTAR
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -87,6 +93,7 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.PCS,
+  //DEX.GTAR,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
