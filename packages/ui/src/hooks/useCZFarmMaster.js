@@ -61,6 +61,7 @@ const farmLps = [
   "0xEcEEC5745Acf050A3a464fd2FAF64c1d683c8616", //CZF/ETH -PCS
   "0x13573b1970611bb401f0B75994C80E16c8F56C35", //CZF/CAKE -PCS
   "0x0fe1E1Ee88516d7FAa13B9365126778c3bFD585A", //CZF/PRHO -PCS
+  "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -81,6 +82,7 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.BABY,
+  DEX.PCS,
   DEX.PCS,
   DEX.PCS,
   DEX.PCS,
@@ -241,6 +243,16 @@ const farmTokens = [
     {
       address:"0x84a4a0df19f80fe00c856c354f05062d281e1a92",
       symbol:"PRHO"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x3EE2200Efb3400fAbB9AacF31297cBdD1d435D47",
+      symbol:"ADA"
     }
   ]
   /*[
