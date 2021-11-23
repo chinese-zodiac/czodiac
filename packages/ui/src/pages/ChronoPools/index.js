@@ -38,7 +38,7 @@ function ChronoPools() {
     <Box as="main" className="chronopools-page horizontal-center">
       <Heading>Chrono Pools</Heading><br/>
       <Image src="./chrono-header.jpg" maxWidth="100%" ml="auto" mr="auto" /><br/>
-      Stake CZF and earn claimable CZF every second.<br/>
+      Burn CZF and earn claimable CZF every second.<br/>
       Each deposit/reinvest vests seperately with its own APR.<br/>
       FastForward will delete your Vesting but will give you CZF now.<br/><br/>
       <Link href="https://czodiac.gitbook.io/czodiac-litepapper/features-active/chrono-pools" isExternal p="7px" border="solid 1px" borderRadius="10px">
