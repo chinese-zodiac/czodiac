@@ -462,5 +462,19 @@ export const CHRONOPOOLS = {
       //vestPeriod: 31536000
       //apr: 100000
     },
+    {
+      title: "18 MONTHS",
+      pid: 3
+      //ffBasis: 300,
+      //vestPeriod: 47304000
+      //apr: 130000
+    },
+    {
+      title: "4 YEARS",
+      pid: 4
+      //ffBasis: 75,
+      //vestPeriod: 126144000
+      //apr: 200000
+    }
   ]
 }
