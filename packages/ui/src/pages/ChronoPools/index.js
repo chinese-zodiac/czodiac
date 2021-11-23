@@ -39,7 +39,8 @@ function ChronoPools() {
       <Heading>Chrono Pools</Heading><br/>
       <Image src="./chrono-header.jpg" maxWidth="100%" ml="auto" mr="auto" /><br/>
       Stake CZF and earn claimable CZF every second.<br/>
-      Want CZF now? Fast Forward your earnings to get them now at a discount. <br/><br/>
+      Each deposit/reinvest vests seperately with its own APR.<br/>
+      FastForward will delete your Vesting but will give you CZF now.<br/><br/>
       <Link href="https://czodiac.gitbook.io/czodiac-litepapper/features-active/chrono-pools" isExternal p="7px" border="solid 1px" borderRadius="10px">
          <Icon as={FiInfo} /> <b>Chrono Pools Guide <Icon as={FiExternalLink} /></b>
       </Link ><br/><br/>

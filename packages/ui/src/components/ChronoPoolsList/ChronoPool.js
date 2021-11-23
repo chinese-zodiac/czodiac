@@ -27,7 +27,7 @@ function ChronoPool({
 }) {
   const [basisPoints, setBasisPoints] = useState(10000);
   return (<>
-      <Heading display="inline-block" as="h3" fontSize="2xl" >{(adjustedRateBasis*31536000/100/vestPeriod).toFixed(2)}% <br/> {title}</Heading>
+      <Heading display="inline-block" as="h3" fontSize="2xl" >{(adjustedRateBasis*31536000/100/vestPeriod).toFixed(2)}% APR<br/> {title}</Heading>
       <Divider />
       <Slider
         aria-label="stake-percentage"
@@ -61,7 +61,6 @@ function ChronoPool({
       <Button m="10px" onClick={()=>{
         sendFastForward(pid);
       }}>FastForward {!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00"}% </Button> <br/>
-      WARNING! Make sure you understand FastForward before calling it.
       <Divider />
 
       <Text>Est. Claimable: {!!userInfo.emissionRate && weiToShortString(userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch),5)}</Text>
