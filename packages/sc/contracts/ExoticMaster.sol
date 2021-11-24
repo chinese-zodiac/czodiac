@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "./ammswap/PairOracle.sol";
 import "./ChronoVesting.sol";
 import "./CZFarm.sol";
 
@@ -19,9 +20,9 @@ contract ExoticMaster is AccessControlEnumerable {
 
     CZFarm public czf;
     struct ExoticFarm {
-        uint112 czfPerAssetWad;
         uint32 rateBasis;
-        IERC20 asset;
+        IAmmPair lp;
+        IPairOracle oracle;
         ChronoVesting chronoVesting;
     }
     ExoticFarm[] public exoticFarms;
@@ -36,6 +37,28 @@ contract ExoticMaster is AccessControlEnumerable {
         czf = _czf;
         baseEmissionRate = _baseEmissionRate;
         treasury = _treasury;
+    }
+
+    function getCzfPerLPWad(IPairOracle oracle, IAmmPair lp)
+        public
+        returns (uint256 czfPerLPWad_)
+    {
+        oracle.update();
+        uint256 assetPerCzfWad = oracle.consultTwap(address(czf), 1 ether);
+        (uint112 reserve0, uint112 reserve1, ) = lp.getReserves();
+        uint256 lpCzfBalBase;
+        uint256 lpCzfBalAlt;
+        if (lp.token0() == address(czf)) {
+            lpCzfBalBase = reserve0;
+            lpCzfBalAlt = assetPerCzfWad / reserve1;
+        } else {
+            lpCzfBalBase = reserve1;
+            lpCzfBalAlt = assetPerCzfWad / reserve0;
+        }
+        czfPerLPWad_ =
+            ((lpCzfBalBase <= lpCzfBalAlt ? lpCzfBalBase : lpCzfBalAlt) *
+                1 ether) /
+            lp.totalSupply();
     }
 
     function getAdjustedRateBasis(uint32 _rateBasis)
@@ -57,8 +80,7 @@ contract ExoticMaster is AccessControlEnumerable {
             uint32 adjustedRateBasis_,
             uint32 vestPeriod_,
             uint112 poolEmissionRate_,
-            uint112 czfPerAssetWad_,
-            IERC20 asset_
+            IAmmPair lp_
         )
     {
         ExoticFarm storage farm = exoticFarms[_pid];
@@ -66,8 +88,7 @@ contract ExoticMaster is AccessControlEnumerable {
         adjustedRateBasis_ = getAdjustedRateBasis(farm.rateBasis);
         vestPeriod_ = vest.vestPeriod();
         poolEmissionRate_ = vest.totalEmissionRate();
-        czfPerAssetWad_ = farm.czfPerAssetWad;
-        asset_ = farm.asset;
+        lp_ = farm.lp;
     }
 
     function getExoticFarmAccountInfo(address _for, uint256 _pid)
@@ -88,20 +109,15 @@ contract ExoticMaster is AccessControlEnumerable {
     function addExoticFarm(
         uint32 _vestPeriod,
         uint32 _apr,
-        uint112 _czfPerAssetWad,
-        IERC20 _asset
+        IAmmPair _lp
     ) external onlyRole(EXOTIC_LORD) returns (uint256 pid_) {
+        //Deploy chrono vesting
         bytes memory bytecode = abi.encodePacked(
             type(ChronoVesting).creationCode,
-            abi.encode(address(czf), 0, _vestPeriod)
+            abi.encode(address(czf), uint32(0), _vestPeriod)
         );
         bytes32 salt = keccak256(
-            abi.encodePacked(
-                address(czf),
-                uint32(0),
-                _vestPeriod,
-                block.timestamp
-            )
+            abi.encodePacked(address(_lp), _vestPeriod, block.timestamp)
         );
         address chronoVesting;
         assembly {
@@ -112,15 +128,30 @@ contract ExoticMaster is AccessControlEnumerable {
                 salt
             )
         }
+        //deploy oracle
+        bytes memory bytecodeOracle = abi.encodePacked(
+            type(PairOracle).creationCode,
+            abi.encode(address(_lp))
+        );
+        address oracle;
+        assembly {
+            oracle := create2(
+                0,
+                add(bytecodeOracle, 32),
+                mload(bytecodeOracle),
+                salt
+            )
+        }
+
         pid_ = exoticFarms.length;
         exoticFarms.push(
             ExoticFarm({
-                czfPerAssetWad: _czfPerAssetWad,
                 rateBasis: uint32(
                     (uint256(_apr) * uint256(_vestPeriod)) / 365 days
                 ),
-                asset: _asset,
-                chronoVesting: ChronoVesting(chronoVesting)
+                lp: _lp,
+                chronoVesting: ChronoVesting(chronoVesting),
+                oracle: IPairOracle(oracle)
             })
         );
         czf.grantRole(keccak256("MINTER_ROLE"), chronoVesting);
@@ -137,18 +168,11 @@ contract ExoticMaster is AccessControlEnumerable {
         );
     }
 
-    function setExoticFarmAssetRate(uint256 _pid, uint112 _czfPerAssetWad)
-        external
-        onlyRole(EXOTIC_PRICER)
-    {
-        ExoticFarm storage farm = exoticFarms[_pid];
-        farm.czfPerAssetWad = _czfPerAssetWad;
-    }
-
     function deposit(uint256 _pid, uint256 _wad) public {
         ExoticFarm storage farm = exoticFarms[_pid];
-        farm.asset.transferFrom(msg.sender, treasury, _wad);
-        uint256 baseValueWad = _wad * farm.czfPerAssetWad;
+        farm.lp.transferFrom(msg.sender, treasury, _wad);
+        uint256 baseValueWad = (_wad * getCzfPerLPWad(farm.oracle, farm.lp)) /
+            1 ether;
         uint256 rewardWad = (baseValueWad *
             (10000 + getAdjustedRateBasis(exoticFarms[_pid].rateBasis))) /
             10000;
