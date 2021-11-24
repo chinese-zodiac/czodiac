@@ -146,15 +146,16 @@ contract ExoticMaster is AccessControlEnumerable {
     }
 
     function deposit(uint256 _pid, uint256 _wad) public {
-        //TODO: Fix deposits
-        /*uint256 rewardWad = (_wad *
-            (10000 + getAdjustedRateBasis(chronoPools[_pid].rateBasis))) /
+        ExoticFarm storage farm = exoticFarms[_pid];
+        farm.asset.transferFrom(msg.sender, treasury, _wad);
+        uint256 baseValueWad = _wad * farm.czfPerAssetWad;
+        uint256 rewardWad = (baseValueWad *
+            (10000 + getAdjustedRateBasis(exoticFarms[_pid].rateBasis))) /
             10000;
-        czf.burnFrom(msg.sender, _wad);
-        currentEmissionRate += chronoPools[_pid].chronoVesting.addVest(
+        currentEmissionRate += exoticFarms[_pid].chronoVesting.addVest(
             msg.sender,
             uint112(rewardWad)
-        );*/
+        );
     }
 
     function claimAll() public {
