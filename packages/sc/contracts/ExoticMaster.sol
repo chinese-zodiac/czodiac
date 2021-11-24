@@ -11,7 +11,6 @@ import "./CZFarm.sol";
 
 contract ExoticMaster is AccessControlEnumerable {
     using SafeERC20 for IERC20;
-    bytes32 public constant EXOTIC_PRICER = keccak256("EXOTIC_PRICER");
     bytes32 public constant EXOTIC_LORD = keccak256("EXOTIC_LORD");
 
     uint112 public baseEmissionRate;
@@ -32,7 +31,6 @@ contract ExoticMaster is AccessControlEnumerable {
         uint112 _baseEmissionRate,
         address _treasury
     ) {
-        _setupRole(EXOTIC_PRICER, _msgSender());
         _setupRole(EXOTIC_LORD, _msgSender());
         czf = _czf;
         baseEmissionRate = _baseEmissionRate;
