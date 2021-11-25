@@ -28,5 +28,6 @@
     "pcsFeeBasis": 25,
     "stimFarmFactory": "0x79dc20A1d5Cfa8627C5077D5D536E51D0b0fdfd9",
     "czfBuyoutToken": "0xD3505D328e5f0ecF191A5Fd0d04d18B645e4158c",
-    "chronoPoolService": "0x5B11FB84ca9bBFA02894d7385bfD0d46F2D30843"
+    "chronoPoolService": "0x5B11FB84ca9bBFA02894d7385bfD0d46F2D30843",
+    "lpCzfBnbPcs": "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE"
 }

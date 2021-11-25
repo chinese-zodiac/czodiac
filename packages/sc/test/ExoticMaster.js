@@ -10,7 +10,7 @@ const { time } = require("@openzeppelin/test-helpers");
 const { toNum, toBN } = require("./utils/bignumberConverter");
 
 const loadJsonFile = require("load-json-file");
-const { zeroAddress, czDeployer, czf } = loadJsonFile.sync("./deployConfig.json");
+const { zeroAddress, czDeployer, czf, lpCzfBnbPcs } = loadJsonFile.sync("./deployConfig.json");
 
 const { expect } = chai;
 const { parseEther, formatEther } = ethers.utils;
@@ -21,10 +21,10 @@ describe("ExoticMaster", function() {
   let deployer;
   let exoticMaster;
 
-  let vestPeriod = 31557600; // 1 year
-  let ffBasis = 500; // 5%
-  let aprBasis = 10*10000; // 10000%
-  let baseEmissionRate = parseEther("500");
+  let vestPeriod = 31536000; // 1 year
+  let ffBasis = 300; // 3%
+  let aprBasis = 10*20000; // 20000%
+  let baseEmissionRate = parseEther("1500");
   let fastForwardLock = 86400;
 
   before(async function() {
@@ -56,6 +56,36 @@ describe("ExoticMaster", function() {
     it("Should have deployed the contracts", async function() {
       const czfAddr = await exoticMaster.czf();
       expect(czf).to.eq(czfAddr);
+    });
+  });
+  describe("addExoticFarm", function() {
+    it("Should create a new exotic farm", async function() {
+      await exoticMaster.addExoticFarm(
+        ffBasis,
+        vestPeriod,
+        aprBasis,
+        lpCzfBnbPcs
+      );
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_} = await exoticMaster.getExoticFarmInfo(0);
+      expect(adjustedRateBasis_).to.eq(aprBasis);
+      expect(vestPeriod_).to.eq(vestPeriod);
+      expect(ffBasis_).to.eq(ffBasis);
+      expect(poolEmissionRate_).to.eq(0);
+      expect(lp_).to.eq(lpCzfBnbPcs);
+    });
+    it("Should create a second exotic farm", async function() {
+      await exoticMaster.addExoticFarm(
+        ffBasis,
+        vestPeriod,
+        aprBasis,
+        lpCzfBnbPcs
+      );
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_} = await exoticMaster.getExoticFarmInfo(1);
+      expect(adjustedRateBasis_).to.eq(aprBasis);
+      expect(vestPeriod_).to.eq(vestPeriod);
+      expect(ffBasis_).to.eq(ffBasis);
+      expect(poolEmissionRate_).to.eq(0);
+      expect(lp_).to.eq(lpCzfBnbPcs);
     });
   });
 });

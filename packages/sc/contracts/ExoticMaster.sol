@@ -82,6 +82,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         returns (
             uint32 adjustedRateBasis_,
             uint32 vestPeriod_,
+            uint32 ffBasis_,
             uint112 poolEmissionRate_,
             IAmmPair lp_
         )
@@ -90,6 +91,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         ChronoVesting vest = farm.chronoVesting;
         adjustedRateBasis_ = getAdjustedRateBasis(farm.rateBasis);
         vestPeriod_ = vest.vestPeriod();
+        ffBasis_ = vest.ffBasis();
         poolEmissionRate_ = vest.totalEmissionRate();
         lp_ = farm.lp;
     }
@@ -114,6 +116,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     }
 
     function addExoticFarm(
+        uint32 _ffBasis,
         uint32 _vestPeriod,
         uint32 _apr,
         IAmmPair _lp
@@ -121,10 +124,15 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         //Deploy chrono vesting
         bytes memory bytecode = abi.encodePacked(
             type(ChronoVesting).creationCode,
-            abi.encode(address(czf), uint32(0), _vestPeriod)
+            abi.encode(address(czf), _ffBasis, _vestPeriod)
         );
         bytes32 salt = keccak256(
-            abi.encodePacked(address(_lp), _vestPeriod, block.timestamp)
+            abi.encodePacked(
+                address(_lp),
+                _ffBasis,
+                _vestPeriod,
+                block.timestamp
+            )
         );
         address chronoVesting;
         assembly {
@@ -164,12 +172,14 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         czf.grantRole(keccak256("MINTER_ROLE"), chronoVesting);
     }
 
-    function setExoticFarmApr(uint256 _pid, uint32 _apr)
-        external
-        onlyRole(EXOTIC_LORD)
-    {
+    function setExoticFarmApr(
+        uint256 _pid,
+        uint32 _ffBasis,
+        uint32 _apr
+    ) external onlyRole(EXOTIC_LORD) {
         ExoticFarm storage farm = exoticFarms[_pid];
         ChronoVesting vest = farm.chronoVesting;
+        vest.setFFBasis(_ffBasis);
         farm.rateBasis = uint32(
             ((uint256(_apr) * uint256(vest.vestPeriod())) / 365 days)
         );
