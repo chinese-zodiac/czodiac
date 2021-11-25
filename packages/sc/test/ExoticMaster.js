@@ -25,6 +25,7 @@ describe("ExoticMaster", function() {
   let ffBasis = 500; // 5%
   let aprBasis = 10*10000; // 10000%
   let baseEmissionRate = parseEther("500");
+  let fastForwardLock = 86400;
 
   before(async function() {
     [owner, trader, trader1, trader2, trader3, treasury] = await ethers.getSigners();
@@ -38,7 +39,8 @@ describe("ExoticMaster", function() {
     exoticMaster = await ExoticMaster.deploy(
       czf, //CZFarm _czf
       baseEmissionRate, //uint112 _baseEmissionRate
-      treasury.address //address _treasury
+      treasury.address, //address _treasury
+      fastForwardLock  //uint32 _fastForwardLockPeriod
     );
 
     console.log("Grant roles");

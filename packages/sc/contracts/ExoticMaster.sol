@@ -17,6 +17,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     uint112 public baseEmissionRate;
     uint112 public currentEmissionRate;
     address public treasury;
+    uint32 public fastForwardLockPeriod;
 
     CZFarm public czf;
     struct ExoticFarm {
@@ -26,16 +27,19 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         ChronoVesting chronoVesting;
     }
     ExoticFarm[] public exoticFarms;
+    mapping(uint256 => mapping(address => uint32)) farmAccountDepositEpoch;
 
     constructor(
         CZFarm _czf,
         uint112 _baseEmissionRate,
-        address _treasury
+        address _treasury,
+        uint32 _fastForwardLockPeriod
     ) {
         _setupRole(EXOTIC_LORD, _msgSender());
         czf = _czf;
         baseEmissionRate = _baseEmissionRate;
         treasury = _treasury;
+        fastForwardLockPeriod = _fastForwardLockPeriod;
     }
 
     function getCzfPerLPWad(IPairOracle oracle, IAmmPair lp)
@@ -96,13 +100,17 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         returns (
             uint256 totalVesting_,
             uint112 emissionRate_,
-            uint32 updateEpoch_
+            uint32 updateEpoch_,
+            uint32 fastForwardLockToEpoch_
         )
     {
         ChronoVesting vest = exoticFarms[_pid].chronoVesting;
         totalVesting_ = vest.balanceOf(_for);
         emissionRate_ = vest.getAccountEmissionRate(_for);
         updateEpoch_ = vest.getAccountUpdateEpoch(_for);
+        fastForwardLockToEpoch_ =
+            farmAccountDepositEpoch[_pid][msg.sender] +
+            fastForwardLockPeriod;
     }
 
     function addExoticFarm(
@@ -179,6 +187,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
             msg.sender,
             uint112(rewardWad)
         );
+        farmAccountDepositEpoch[_pid][msg.sender] = uint32(block.timestamp);
     }
 
     function claimAll() public {
@@ -199,6 +208,33 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         currentEmissionRate -= exoticFarms[_pid].chronoVesting.claimForTo(
             _for,
             _epoch
+        );
+    }
+
+    function claimAndFastForwardAll() public {
+        claimAll();
+        emergencyFastForwardAll();
+    }
+
+    function claimAndFastForward(uint256 _pid) public {
+        claimFarm(_pid);
+        emergencyFastForward(_pid);
+    }
+
+    function emergencyFastForwardAll() public {
+        for (uint256 i; i < exoticFarms.length; i++) {
+            emergencyFastForward(i);
+        }
+    }
+
+    function emergencyFastForward(uint256 _pid) public {
+        require(
+            farmAccountDepositEpoch[_pid][msg.sender] + fastForwardLockPeriod <
+                block.timestamp,
+            "ExoticMaster: Fast forward locked"
+        );
+        currentEmissionRate -= exoticFarms[_pid].chronoVesting.fastForward(
+            msg.sender
         );
     }
 
