@@ -475,6 +475,13 @@ export const CHRONOPOOLS = {
       //ffBasis: 75,
       //vestPeriod: 126144000
       //apr: 200000
-    }
+    }/*,
+    {
+      title: "1 CENTURY",
+      pid: 5
+      //ffBasis: 2,
+      //vestPeriod: 3153600000
+      //apr: 300000
+    }*/
   ]
 }

@@ -5,11 +5,12 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "./ammswap/PairOracle.sol";
 import "./ChronoVesting.sol";
 import "./CZFarm.sol";
 
-contract ExoticMaster is AccessControlEnumerable {
+contract ExoticMaster is AccessControlEnumerable, Pausable {
     using SafeERC20 for IERC20;
     bytes32 public constant EXOTIC_LORD = keccak256("EXOTIC_LORD");
 
@@ -166,7 +167,7 @@ contract ExoticMaster is AccessControlEnumerable {
         );
     }
 
-    function deposit(uint256 _pid, uint256 _wad) public {
+    function deposit(uint256 _pid, uint256 _wad) public whenNotPaused {
         ExoticFarm storage farm = exoticFarms[_pid];
         farm.lp.transferFrom(msg.sender, treasury, _wad);
         uint256 baseValueWad = (_wad * getCzfPerLPWad(farm.oracle, farm.lp)) /
@@ -200,6 +201,8 @@ contract ExoticMaster is AccessControlEnumerable {
             _epoch
         );
     }
+
+    //TODO: Readd fastforwad, but with 1 day timelock from last deposit
 
     function setBaseEmissionRate(uint112 _to) external onlyRole(EXOTIC_LORD) {
         baseEmissionRate = _to;
