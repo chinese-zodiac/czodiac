@@ -66,12 +66,13 @@ describe("ExoticMaster", function() {
         aprBasis,
         lpCzfBnbPcs
       );
-      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_} = await exoticMaster.getExoticFarmInfo(0);
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(0);
       expect(adjustedRateBasis_).to.eq(aprBasis);
       expect(vestPeriod_).to.eq(vestPeriod);
       expect(ffBasis_).to.eq(ffBasis);
       expect(poolEmissionRate_).to.eq(0);
       expect(lp_).to.eq(lpCzfBnbPcs);
+      expect(czfPerLpWad_).to.be.closeTo(parseEther("2933"),parseEther("1"));
     });
     it("Should create a second exotic farm", async function() {
       await exoticMaster.addExoticFarm(
@@ -80,12 +81,13 @@ describe("ExoticMaster", function() {
         aprBasis,
         lpCzfBnbPcs
       );
-      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_} = await exoticMaster.getExoticFarmInfo(1);
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(1);
       expect(adjustedRateBasis_).to.eq(aprBasis);
       expect(vestPeriod_).to.eq(vestPeriod);
       expect(ffBasis_).to.eq(ffBasis);
       expect(poolEmissionRate_).to.eq(0);
       expect(lp_).to.eq(lpCzfBnbPcs);
+      expect(czfPerLpWad_).to.be.closeTo(parseEther("2933"),parseEther("1"));
     });
   });
 });
