@@ -46,6 +46,11 @@ const DEX = {
     name: "Guitarswap",
     shortName: "GTAR",
     baseUrl: "https://guitarswap.exchange/"
+  },
+  AMPL: {
+    name: "Ampleswap",
+    shortName: "AMPL",
+    baseUrl: "https://ampleswap.com/"
   }
 }
 const farmLps = [
@@ -68,6 +73,7 @@ const farmLps = [
   "0x0fe1E1Ee88516d7FAa13B9365126778c3bFD585A", //CZF/PRHO -PCS
   "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
   "0xCAD60748A184333e442Ba6e6e6E58D79990fEB87", //CZF/GUT -GTAR
+  "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -94,6 +100,7 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.GTAR,
+  DEX.AMPL,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -270,6 +277,16 @@ const farmTokens = [
     {
       address:"0xb6ba8c98021c31a02dd65e9be97729eba859d4e2",
       symbol:"GUT"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x335f6e0e804b70a96bf9eb8af31588942e9b2515",
+      symbol:"AMPLE"
     }
   ]
   /*[
