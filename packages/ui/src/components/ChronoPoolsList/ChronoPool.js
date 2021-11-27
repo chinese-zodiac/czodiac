@@ -63,7 +63,7 @@ function ChronoPool({
       }}>FastForward {!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00"}% </Button> <br/>
       <Divider />
 
-      <Text>Est. Claimable: {!!userInfo.emissionRate && weiToShortString(userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch),5)}</Text>
+      <Text>Est. Claimable: {!!userInfo.totalVesting && !!userInfo.emissionRate  && (userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch).lt(userInfo.totalVesting) ? weiToShortString(userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch),5) : weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2))}</Text>
       <Text>Est. CZF/day: {!!userInfo.emissionRate && weiToShortString(userInfo.emissionRate.mul(86400),2)}</Text>
       <Text>Est. FF: {!!userInfo.totalVesting && weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2)}</Text>
       <Text>Vesting: {!!userInfo.totalVesting && weiToShortString(userInfo.totalVesting,5)}</Text>
