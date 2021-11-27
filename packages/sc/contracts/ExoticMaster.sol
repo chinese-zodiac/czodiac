@@ -16,12 +16,17 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     using SafeERC20 for IERC20;
     bytes32 public constant EXOTIC_LORD = keccak256("EXOTIC_LORD");
 
-    uint112 public baseEmissionRate;
-    uint112 public currentEmissionRate;
     address public treasury;
     uint32 public fastForwardLockPeriod;
 
     CZFarm public czf;
+
+    struct LpEmission {
+        uint112 baseEmissionRate;
+        uint112 currentEmissionRate;
+    }
+    mapping(IAmmPair => LpEmission) public lpEmissions;
+
     struct ExoticFarm {
         uint32 rateBasis;
         IAmmPair lp;
@@ -33,13 +38,11 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
 
     constructor(
         CZFarm _czf,
-        uint112 _baseEmissionRate,
         address _treasury,
         uint32 _fastForwardLockPeriod
     ) {
         _setupRole(EXOTIC_LORD, _msgSender());
         czf = _czf;
-        baseEmissionRate = _baseEmissionRate;
         treasury = _treasury;
         fastForwardLockPeriod = _fastForwardLockPeriod;
     }
@@ -66,15 +69,17 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
             lp.totalSupply();
     }
 
-    function getAdjustedRateBasis(uint32 _rateBasis)
+    function getAdjustedRateBasis(uint32 _rateBasis, IAmmPair _lp)
         public
         view
         returns (uint32 adjustedRateBasis_)
     {
-        if (currentEmissionRate <= baseEmissionRate) return _rateBasis;
+        LpEmission storage lpe = lpEmissions[_lp];
+        if (lpe.currentEmissionRate <= lpe.baseEmissionRate) return _rateBasis;
         return
             uint32(
-                (uint112(_rateBasis) * baseEmissionRate) / currentEmissionRate
+                (uint112(_rateBasis) * lpe.baseEmissionRate) /
+                    lpe.currentEmissionRate
             );
     }
 
@@ -92,7 +97,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     {
         ExoticFarm storage farm = exoticFarms[_pid];
         ChronoVesting vest = farm.chronoVesting;
-        adjustedRateBasis_ = getAdjustedRateBasis(farm.rateBasis);
+        adjustedRateBasis_ = getAdjustedRateBasis(farm.rateBasis, farm.lp);
         vestPeriod_ = vest.vestPeriod();
         ffBasis_ = vest.ffBasis();
         poolEmissionRate_ = vest.totalEmissionRate();
@@ -177,6 +182,13 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         IPairOracle(oracle).update();
     }
 
+    function setLpBaseEmissionRate(IAmmPair _lp, uint112 _to)
+        external
+        onlyRole(EXOTIC_LORD)
+    {
+        lpEmissions[_lp].baseEmissionRate = _to;
+    }
+
     function setExoticFarmApr(
         uint256 _pid,
         uint32 _ffBasis,
@@ -197,12 +209,12 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         uint256 baseValueWad = (_wad * getCzfPerLPWad(farm.oracle, farm.lp)) /
             1 ether;
         uint256 rewardWad = (baseValueWad *
-            (10000 + getAdjustedRateBasis(exoticFarms[_pid].rateBasis))) /
+            (10000 +
+                getAdjustedRateBasis(exoticFarms[_pid].rateBasis, farm.lp))) /
             10000;
-        currentEmissionRate += exoticFarms[_pid].chronoVesting.addVest(
-            msg.sender,
-            uint112(rewardWad)
-        );
+        lpEmissions[farm.lp].currentEmissionRate += exoticFarms[_pid]
+            .chronoVesting
+            .addVest(msg.sender, uint112(rewardWad));
         farmAccountDepositEpoch[_pid][msg.sender] = uint32(block.timestamp);
     }
 
@@ -221,10 +233,9 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         uint256 _pid,
         uint32 _epoch
     ) public {
-        currentEmissionRate -= exoticFarms[_pid].chronoVesting.claimForTo(
-            _for,
-            _epoch
-        );
+        lpEmissions[exoticFarms[_pid].lp].currentEmissionRate -= exoticFarms[
+            _pid
+        ].chronoVesting.claimForTo(_for, _epoch);
     }
 
     function claimAndFastForwardAll() public {
@@ -249,13 +260,9 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
                 block.timestamp,
             "ExoticMaster: Fast forward locked"
         );
-        currentEmissionRate -= exoticFarms[_pid].chronoVesting.fastForward(
-            msg.sender
-        );
-    }
-
-    function setBaseEmissionRate(uint112 _to) external onlyRole(EXOTIC_LORD) {
-        baseEmissionRate = _to;
+        lpEmissions[exoticFarms[_pid].lp].currentEmissionRate -= exoticFarms[
+            _pid
+        ].chronoVesting.fastForward(msg.sender);
     }
 
     function setTreasury(address _to) external onlyRole(EXOTIC_LORD) {
