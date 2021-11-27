@@ -38,7 +38,6 @@ describe("ExoticMaster", function() {
     const ExoticMaster = await ethers.getContractFactory("ExoticMaster");
     exoticMaster = await ExoticMaster.deploy(
       czf, //CZFarm _czf
-      baseEmissionRate, //uint112 _baseEmissionRate
       treasury.address, //address _treasury
       fastForwardLock  //uint32 _fastForwardLockPeriod
     );
@@ -60,17 +59,19 @@ describe("ExoticMaster", function() {
   });
   describe("addExoticFarm", function() {
     it("Should create a new exotic farm", async function() {
+      await exoticMaster.setLpBaseEmissionRate(lpCzfBnbPcs, baseEmissionRate)
       await exoticMaster.addExoticFarm(
         ffBasis,
         vestPeriod,
         aprBasis,
         lpCzfBnbPcs
       );
-      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(0);
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, baseEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(0);
       expect(adjustedRateBasis_).to.eq(aprBasis);
       expect(vestPeriod_).to.eq(vestPeriod);
       expect(ffBasis_).to.eq(ffBasis);
       expect(poolEmissionRate_).to.eq(0);
+      expect(baseEmissionRate_).to.eq(baseEmissionRate);
       expect(lp_).to.eq(lpCzfBnbPcs);
       expect(czfPerLpWad_).to.be.closeTo(parseEther("2933"),parseEther("1"));
     });
@@ -81,11 +82,12 @@ describe("ExoticMaster", function() {
         aprBasis,
         lpCzfBnbPcs
       );
-      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(1);
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, baseEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(1);
       expect(adjustedRateBasis_).to.eq(aprBasis);
       expect(vestPeriod_).to.eq(vestPeriod);
       expect(ffBasis_).to.eq(ffBasis);
       expect(poolEmissionRate_).to.eq(0);
+      expect(baseEmissionRate_).to.eq(baseEmissionRate);
       expect(lp_).to.eq(lpCzfBnbPcs);
       expect(czfPerLpWad_).to.be.closeTo(parseEther("2933"),parseEther("1"));
     });

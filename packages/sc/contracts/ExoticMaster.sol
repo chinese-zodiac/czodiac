@@ -91,6 +91,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
             uint32 vestPeriod_,
             uint32 ffBasis_,
             uint112 poolEmissionRate_,
+            uint112 baseEmissionRate_,
             IAmmPair lp_,
             uint256 czfPerLpWad_
         )
@@ -102,6 +103,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         ffBasis_ = vest.ffBasis();
         poolEmissionRate_ = vest.totalEmissionRate();
         lp_ = farm.lp;
+        baseEmissionRate_ = lpEmissions[lp_].baseEmissionRate;
         czfPerLpWad_ = getCzfPerLPWad(farm.oracle, farm.lp);
     }
 
@@ -130,6 +132,10 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         uint32 _apr,
         IAmmPair _lp
     ) external onlyRole(EXOTIC_LORD) returns (uint256 pid_) {
+        require(
+            lpEmissions[_lp].baseEmissionRate > 0,
+            "ExoticMaster: Base emission rate not set for LP."
+        );
         //Deploy chrono vesting
         bytes memory bytecode = abi.encodePacked(
             type(ChronoVesting).creationCode,
