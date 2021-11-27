@@ -121,9 +121,9 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         totalVesting_ = vest.balanceOf(_for);
         emissionRate_ = vest.getAccountEmissionRate(_for);
         updateEpoch_ = vest.getAccountUpdateEpoch(_for);
-        fastForwardLockToEpoch_ =
-            farmAccountDepositEpoch[_pid][msg.sender] +
-            fastForwardLockPeriod;
+        fastForwardLockToEpoch_ = farmAccountDepositEpoch[_pid][_for] == 0
+            ? 0
+            : farmAccountDepositEpoch[_pid][_for] + fastForwardLockPeriod;
     }
 
     function addExoticFarm(
