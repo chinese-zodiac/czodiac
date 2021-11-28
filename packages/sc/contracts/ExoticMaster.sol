@@ -208,6 +208,13 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         );
     }
 
+    function setFastForwardLockPeriod(uint32 _to)
+        external
+        onlyRole(EXOTIC_LORD)
+    {
+        fastForwardLockPeriod = _to;
+    }
+
     function deposit(uint256 _pid, uint256 _wad) public whenNotPaused {
         ExoticFarm storage farm = exoticFarms[_pid];
         farm.lp.transferFrom(msg.sender, treasury, _wad);
