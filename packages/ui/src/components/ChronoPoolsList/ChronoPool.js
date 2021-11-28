@@ -68,13 +68,14 @@ function ChronoPool({
         (
           userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch).lt(userInfo.totalVesting) ? 
             weiToShortString(userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch),5) : 
-            weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2))}</Text>
+            weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2)
+          )}</Text>
       <Text>Est. CZF/day: {
         !!userInfo.totalVesting && !!userInfo.emissionRate && 
           (
             userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch).lt(userInfo.totalVesting) ? 
-              "0.00" :
-              weiToShortString(userInfo.emissionRate.mul(86400),2)
+              weiToShortString(userInfo.emissionRate.mul(86400),2) : "0.00"
+              
           )}</Text>
       <Text>Est. FF: {!!userInfo.totalVesting && weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2)}</Text>
       <Text>Vesting: {!!userInfo.totalVesting && weiToShortString(userInfo.totalVesting,5)}</Text>
