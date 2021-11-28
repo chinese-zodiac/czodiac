@@ -108,26 +108,17 @@ describe("ExoticMaster", function() {
 
       
       await czfSc.connect(deployer).mint(trader.address,czfWad);
-      console.log("pscRounter",pcsRouter.address);
       await czfSc.connect(trader).approve(pcsRouter.address,czfWad);
       await pcsRouter.connect(trader).addLiquidityETH(czfSc.address,czfWad,czfWad,0,trader.address,2000000000,{
         value: parseEther("10"),
       });
       const liquidity = await lpSc.balanceOf(trader.address);
-      console.log("liquidity",formatEther(liquidity));
       await lpSc.connect(trader).approve(exoticMaster.address,liquidity);
       await exoticMaster.connect(trader).deposit(0,liquidity);
-      console.log("Deposit success");
 
       const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(0);
       const {totalVesting_, emissionRate_, updateEpoch_, fastForwardLockToEpoch_} = await exoticMaster.getExoticFarmAccountInfo(trader.address,0);
       const latestTime = await time.latest();
-
-      console.log("adjRate",adjustedRateBasis_.toString());
-      console.log("er",emissionRate_.toString());
-      console.log("vest",totalVesting_.toString());
-      console.log("fastForwardLockToEpoch_",fastForwardLockToEpoch_.toString());
-      console.log("poolEmissionRate_",poolEmissionRate_.toString());
 
       expect(vestPeriod_).to.eq(vestPeriod);
       expect(ffBasis_).to.eq(ffBasis);
@@ -136,6 +127,28 @@ describe("ExoticMaster", function() {
       expect(emissionRate_).to.be.closeTo(expectedEmissionRate,expectedEmissionRate.div(100));
       expect(updateEpoch_).to.eq(latestTime.toNumber());
       expect(fastForwardLockToEpoch_).to.eq(latestTime.toNumber()+fastForwardLock);
+      expect(adjustedRateBasis_).to.eq(aprBasis);
+    });
+  });
+  describe("fastforward",function(){
+    it("Should revert if before unlock", async function() {
+      await expect(
+        exoticMaster.connect(trader).claimAndFastForwardAll()
+      ).to.be.revertedWith("ExoticMaster: Fast forward locked")
+    });
+    it("Should fastforward account", async function() {
+      await time.increase(time.duration.days(2));
+      await time.advanceBlock();
+      await exoticMaster.connect(trader).claimAndFastForwardAll();
+      
+      const {adjustedRateBasis_, vestPeriod_, ffBasis_, poolEmissionRate_, lp_, czfPerLpWad_} = await exoticMaster.getExoticFarmInfo(0);
+      const {totalVesting_, emissionRate_, updateEpoch_, fastForwardLockToEpoch_} = await exoticMaster.getExoticFarmAccountInfo(trader.address,0);
+
+      expect(vestPeriod_).to.eq(vestPeriod);
+      expect(ffBasis_).to.eq(ffBasis);
+      expect(poolEmissionRate_).to.eq(0);
+      expect(totalVesting_).to.eq(0);
+      expect(emissionRate_).to.eq(0);
       expect(adjustedRateBasis_).to.eq(aprBasis);
     });
   });
