@@ -245,7 +245,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         address _for,
         uint256 _pid,
         uint32 _epoch
-    ) public {
+    ) public whenNotPaused {
         lpEmissions[exoticFarms[_pid].lp].currentEmissionRate -= exoticFarms[
             _pid
         ].chronoVesting.claimForTo(_for, _epoch);
@@ -267,7 +267,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         }
     }
 
-    function emergencyFastForward(uint256 _pid) public {
+    function emergencyFastForward(uint256 _pid) public whenNotPaused {
         require(
             farmAccountDepositEpoch[_pid][msg.sender] + fastForwardLockPeriod <
                 block.timestamp,
