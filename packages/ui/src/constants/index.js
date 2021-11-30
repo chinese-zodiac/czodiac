@@ -1,4 +1,5 @@
 import { ChainId } from "@pdusedapp/core";
+import { parseEther } from "ethers/lib/utils";
 
 export const CHAINS = {
   ...ChainId,
@@ -483,5 +484,45 @@ export const CHRONOPOOLS = {
       //vestPeriod: 3153600000
       //apr: 300000
     }*/
+  ]
+}
+
+export const EXOTIC_MASTER = {
+  [CHAINS.BSC]: "0x37E4dDAfF95d684E1443B5F18C81deD953B627dD"
+}
+
+
+export const EXOTIC_FARMS = {
+  [CHAINS.BSC] : [
+    {
+      title: "CZF/BNB on PCS",
+      lp: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
+      mintLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
+      baseEmissionRate: parseEther("1000"),
+      oracle: "0x1D5D8bF7345D3cB611Dd4A98Fa5F7159Cb6d1451",
+      farms: [
+        {
+          title: "7 DAYS",
+          pid: 0
+          //ffBasis: 7500,
+          //vestPeriod: 604800
+          //apr: 30000
+        },
+        {
+          title: "90 DAYS",
+          pid: 1
+          //ffBasis: 3000,
+          //vestPeriod: 7776000
+          //apr: 50000
+        },
+        {
+          title: "1 YEAR",
+          pid: 2
+          //ffBasis: 500,
+          //vestPeriod: 31536000
+          //apr: 100000
+        }
+      ]
+    }
   ]
 }

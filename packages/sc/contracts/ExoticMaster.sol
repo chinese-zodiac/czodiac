@@ -10,8 +10,6 @@ import "./ammswap/PairOracle.sol";
 import "./ChronoVesting.sol";
 import "./CZFarm.sol";
 
-import "hardhat/console.sol";
-
 contract ExoticMaster is AccessControlEnumerable, Pausable {
     using SafeERC20 for IERC20;
     bytes32 public constant EXOTIC_LORD = keccak256("EXOTIC_LORD");
@@ -24,13 +22,13 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     struct LpEmission {
         uint112 baseEmissionRate;
         uint112 currentEmissionRate;
+        IPairOracle oracle;
     }
     mapping(IAmmPair => LpEmission) public lpEmissions;
 
     struct ExoticFarm {
         uint32 rateBasis;
         IAmmPair lp;
-        IPairOracle oracle;
         ChronoVesting chronoVesting;
     }
     ExoticFarm[] public exoticFarms;
@@ -104,7 +102,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         poolEmissionRate_ = vest.totalEmissionRate();
         lp_ = farm.lp;
         baseEmissionRate_ = lpEmissions[lp_].baseEmissionRate;
-        czfPerLpWad_ = getCzfPerLPWad(farm.oracle, farm.lp);
+        czfPerLpWad_ = getCzfPerLPWad(lpEmissions[lp_].oracle, farm.lp);
     }
 
     function getExoticFarmAccountInfo(address _for, uint256 _pid)
@@ -132,10 +130,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         uint32 _apr,
         IAmmPair _lp
     ) external onlyRole(EXOTIC_LORD) returns (uint256 pid_) {
-        require(
-            lpEmissions[_lp].baseEmissionRate > 0,
-            "ExoticMaster: Base emission rate not set for LP."
-        );
+        require(lpEmissions[_lp].baseEmissionRate > 0, "EM: ER not set.");
         //Deploy chrono vesting
         bytes memory bytecode = abi.encodePacked(
             type(ChronoVesting).creationCode,
@@ -158,20 +153,6 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
                 salt
             )
         }
-        //deploy oracle
-        bytes memory bytecodeOracle = abi.encodePacked(
-            type(PairOracle).creationCode,
-            abi.encode(address(_lp))
-        );
-        address oracle;
-        assembly {
-            oracle := create2(
-                0,
-                add(bytecodeOracle, 32),
-                mload(bytecodeOracle),
-                salt
-            )
-        }
 
         pid_ = exoticFarms.length;
         exoticFarms.push(
@@ -180,12 +161,10 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
                     (uint256(_apr) * uint256(_vestPeriod)) / 365 days
                 ),
                 lp: _lp,
-                chronoVesting: ChronoVesting(chronoVesting),
-                oracle: IPairOracle(oracle)
+                chronoVesting: ChronoVesting(chronoVesting)
             })
         );
         czf.grantRole(keccak256("MINTER_ROLE"), chronoVesting);
-        IPairOracle(oracle).update();
     }
 
     function setLpBaseEmissionRate(IAmmPair _lp, uint112 _to)
@@ -193,6 +172,27 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         onlyRole(EXOTIC_LORD)
     {
         lpEmissions[_lp].baseEmissionRate = _to;
+        if (lpEmissions[_lp].oracle == IPairOracle(address(0))) {
+            //deploy oracle
+            bytes32 salt = keccak256(
+                abi.encodePacked(address(_lp), _to, block.timestamp)
+            );
+            bytes memory bytecodeOracle = abi.encodePacked(
+                type(PairOracle).creationCode,
+                abi.encode(address(_lp))
+            );
+            address oracle;
+            assembly {
+                oracle := create2(
+                    0,
+                    add(bytecodeOracle, 32),
+                    mload(bytecodeOracle),
+                    salt
+                )
+            }
+            IPairOracle(oracle).update();
+            lpEmissions[_lp].oracle = IPairOracle(oracle);
+        }
     }
 
     function setExoticFarmApr(
@@ -218,8 +218,9 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
     function deposit(uint256 _pid, uint256 _wad) public whenNotPaused {
         ExoticFarm storage farm = exoticFarms[_pid];
         farm.lp.transferFrom(msg.sender, treasury, _wad);
-        farm.oracle.update();
-        uint256 baseValueWad = (_wad * getCzfPerLPWad(farm.oracle, farm.lp)) /
+        IPairOracle oracle = lpEmissions[farm.lp].oracle;
+        oracle.update();
+        uint256 baseValueWad = (_wad * getCzfPerLPWad(oracle, farm.lp)) /
             1 ether;
         uint256 rewardWad = (baseValueWad *
             (10000 +
@@ -271,7 +272,7 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
         require(
             farmAccountDepositEpoch[_pid][msg.sender] + fastForwardLockPeriod <
                 block.timestamp,
-            "ExoticMaster: Fast forward locked"
+            "EM: FF lock"
         );
         lpEmissions[exoticFarms[_pid].lp].currentEmissionRate -= exoticFarms[
             _pid
@@ -280,5 +281,13 @@ contract ExoticMaster is AccessControlEnumerable, Pausable {
 
     function setTreasury(address _to) external onlyRole(EXOTIC_LORD) {
         treasury = _to;
+    }
+
+    function setPaused(bool _to) external onlyRole(EXOTIC_LORD) {
+        if (_to) {
+            _pause();
+        } else {
+            _unpause();
+        }
     }
 }

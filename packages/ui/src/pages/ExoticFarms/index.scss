@@ -1,0 +1,13 @@
+.exoticfarms-page {
+  text-align: center;
+  width: 90vw;
+  max-width: 100%;
+  z-index: 1;
+  position: relative;
+  .farmSet-heading{
+    grid-column-start: 1;
+    grid-column-end: -1;
+    border-top:solid 1px;
+    padding-top:10px;
+  }
+}

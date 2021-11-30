@@ -134,7 +134,7 @@ describe("ExoticMaster", function() {
     it("Should revert if before unlock", async function() {
       await expect(
         exoticMaster.connect(trader).claimAndFastForwardAll()
-      ).to.be.revertedWith("ExoticMaster: Fast forward locked")
+      ).to.be.revertedWith("EM: FF lock")
     });
     it("Should fastforward account", async function() {
       await time.increase(time.duration.days(2));
