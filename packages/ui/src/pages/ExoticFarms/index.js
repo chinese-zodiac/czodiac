@@ -37,7 +37,7 @@ function ExoticFarms() {
     <Header />
     <Box as="main" className="exoticfarms-page horizontal-center">
       <Heading>Exotic Farms</Heading><br/>
-      <Image src="./chrono-header.jpg" maxWidth="100%" ml="auto" mr="auto" /><br/>
+      <Image src="./exotic-header.jpg" maxWidth="100%" ml="auto" mr="auto" /><br/>
       Earn CZF without Impermanent Loss.<br/>
       Each deposit vests seperately with its own APR.<br/>
       FastForward will delete your Vesting but will give you CZF now.<br/>
