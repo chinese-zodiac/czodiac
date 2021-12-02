@@ -51,6 +51,11 @@ const DEX = {
     name: "Ampleswap",
     shortName: "AMPL",
     baseUrl: "https://ampleswap.com/"
+  },
+  APE: {
+    name: "Apeswap",
+    shortName: "APE",
+    baseUrl: "https://app.apeswap.finance/"
   }
 }
 const farmLps = [
@@ -74,6 +79,7 @@ const farmLps = [
   "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
   "0xCAD60748A184333e442Ba6e6e6E58D79990fEB87", //CZF/GUT -GTAR
   "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
+  //"0x970b0c00880a5e2D5aa64aeb4a38CD3E82A2d5Cb", //CZF/MAINST -APE
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -101,6 +107,7 @@ const farmDex = [
   DEX.PCS,
   DEX.GTAR,
   DEX.AMPL,
+  //DEX.APE,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -288,7 +295,17 @@ const farmTokens = [
       address:"0x335f6e0e804b70a96bf9eb8af31588942e9b2515",
       symbol:"AMPLE"
     }
-  ]
+  ],
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x8fc1a944c149762b6b578a06c0de2abd6b7d2b89",
+      symbol:"MAINST"
+    }
+  ]*/
   /*[
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
