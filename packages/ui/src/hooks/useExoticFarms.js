@@ -45,8 +45,8 @@ function useExoticFarms() {
   const exoticMasterInterface = new Interface(ExoticMasterAbi);
   const [exoticMasterContract, setExoticMasterContract] = useState(null);
   const { state: stateDeposit, send: sendDeposit } = useContractFunction(exoticMasterContract, 'deposit');
-  const { state: stateClaimAll, send: sendClaimAll } = useContractFunction(exoticMasterContract, 'claimFarm');
-  const { state: stateClaim, send: sendClaim } = useContractFunction(exoticMasterContract, 'claimPool');
+  const { state: stateClaimAll, send: sendClaimAll } = useContractFunction(exoticMasterContract, 'claimAll');
+  const { state: stateClaim, send: sendClaim } = useContractFunction(exoticMasterContract, 'claimFarm');
   const { state: stateFastForward, send: sendFastForward } = useContractFunction(exoticMasterContract, 'claimAndFastForward');
 
   const ierc20Interface = new Interface(ierc20);
