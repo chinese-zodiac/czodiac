@@ -80,7 +80,7 @@ const farmLps = [
   "0xCAD60748A184333e442Ba6e6e6E58D79990fEB87", //CZF/GUT -GTAR
   "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
   "0x970b0c00880a5e2D5aa64aeb4a38CD3E82A2d5Cb", //CZF/MAINST -APE
-  //"0x6B000a834C1983Ad4C1E05209FFa619Ec4C79fBb", //CZF/BABY -BABY
+  "0x6B000a834C1983Ad4C1E05209FFa619Ec4C79fBb", //CZF/BABY -BABY
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -109,7 +109,7 @@ const farmDex = [
   DEX.GTAR,
   DEX.AMPL,
   DEX.APE,
-  //DEX.BABY,
+  DEX.BABY,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -308,7 +308,7 @@ const farmTokens = [
       symbol:"MAINST"
     },
   ],
-  /*[
+  [
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       symbol:"CZF"
@@ -317,7 +317,7 @@ const farmTokens = [
       address:"0x53e562b9b7e5e94b81f10e96ee70ad06df3d2657",
       symbol:"BABY"
     }
-  ]*/
+  ]
   /*[
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
