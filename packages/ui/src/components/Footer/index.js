@@ -27,6 +27,8 @@ function Footer() {
           <Link m="5px" href="https://discord.gg/FEpu3xF2Hb" isExternal><Icon as={FaDiscord} /></Link>
           <Link m="5px" href="https://czodiacs.medium.com/"><Icon as={FaMedium} /></Link>
           <Link m="5px" href="https://github.com/chinese-zodiac/czodiac"><Icon as={FiGithub} /></Link>
+          <br/><br/>
+          <Link m="5px" rel="me" href="https://mastodon.social/@plasticdigits" isExternal>Plastic's Mastodon</Link>
         </Box>
         <Box p="10px" >
           <Text>Partnerships</Text>
