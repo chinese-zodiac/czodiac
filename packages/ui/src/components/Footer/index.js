@@ -24,7 +24,7 @@ function Footer() {
           <Text>Social Links</Text>
           <Link m="5px" href="https://twitter.com/zodiacs_c" isExternal><Icon as={FaTwitter} /></Link>
           <Link m="5px" href="https://t.me/CZodiacofficial" isExternal><Icon as={FaTelegram} /></Link>
-          <Link m="5px" href="https://discord.gg/FEpu3xF2Hb" isExternal><Icon as={FaDiscord} /></Link>
+          <Link m="5px" href="https://discord.gg/nzHjq6Vewd" isExternal><Icon as={FaDiscord} /></Link>
           <Link m="5px" href="https://czodiacs.medium.com/"><Icon as={FaMedium} /></Link>
           <Link m="5px" href="https://github.com/chinese-zodiac/czodiac"><Icon as={FiGithub} /></Link>
           <br/><br/>
