@@ -61,67 +61,67 @@ function CZUsd() {
         address:CZUSDBORROWCZF[CHAINS.BSC],
         method:'deposited',
         args:[account ?? ZADDR]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czusdBorrowed] = useContractCall({
         abi:czusdBorrowCzfInterface,
         address:CZUSDBORROWCZF[CHAINS.BSC],
         method:'borrowed',
         args:[account ?? ZADDR]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [maxBorrow] = useContractCall({
         abi:czusdBorrowCzfInterface,
         address:CZUSDBORROWCZF[CHAINS.BSC],
         method:'maxBorrow',
         args:[account ?? ZADDR]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [maxCZUsd] = useContractCall({
         abi:czusdBorrowCzfInterface,
         address:CZUSDBORROWCZF[CHAINS.BSC],
         method:'maxCZUsd',
         args:[]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [maxBorrowBasis] = useContractCall({
         abi:czusdBorrowCzfInterface,
         address:CZUSDBORROWCZF[CHAINS.BSC],
         method:'maxBorrowBasis',
         args:[]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czusdTotalSupply] = useContractCall({
         abi:erc20Interface,
         address:CZUSD[CHAINS.BSC],
         method:'totalSupply',
         args:[]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czfBusdPricePair] = useContractCall({
         abi:pairOracleInterface,
         address:ORACLES.CZFBUSD[CHAINS.BSC],
         method:'consultPair',
         args:[CZFARM_ADDRESSES[CHAINS.BSC],parseEther("1")]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czfCzusdPricePair] = useContractCall({
         abi:pairOracleInterface,
         address:ORACLES.CZFCZUSD[CHAINS.BSC],
         method:'consultPair',
         args:[CZFARM_ADDRESSES[CHAINS.BSC],parseEther("1")]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czfBusdPriceTwap] = useContractCall({
         abi:pairOracleInterface,
         address:ORACLES.CZFBUSD[CHAINS.BSC],
         method:'consultTwap',
         args:[CZFARM_ADDRESSES[CHAINS.BSC],parseEther("1")]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czfCzusdPriceTwap] = useContractCall({
         abi:pairOracleInterface,
         address:ORACLES.CZFCZUSD[CHAINS.BSC],
         method:'consultTwap',
         args:[CZFARM_ADDRESSES[CHAINS.BSC],parseEther("1")]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
     const [czfTotalLocked] = useContractCall({
         abi:erc20Interface,
         address:CZFARM_ADDRESSES[CHAINS.BSC],
         method:'balanceOf',
         args:[CZUSDBORROWCZF[CHAINS.BSC]]
-    }) ?? [];
+    }) ?? [BigNumber.from("0")];
 
     const { send: sendUpdateOracles } = useContractFunction(updateOraclesContract, 'updateAll');
     const { send: sendDeposit } = useContractFunction(czusdBorrowCzfContract, 'deposit');
@@ -151,15 +151,15 @@ return (<>
       - {czusdLink()} minting is currently highly restricted. The cap will be raised once the price stabilizes.
     </Box>
         <br/>
-        {(!!maxBorrow && !!czfBalance && !!czfBusdPriceTwap && !!czusdBorrowed) ? (<>
         <SliderStaker name="Deposit" token="CZF" basis={basisPointsDeposit} setBasis={setBasisPointsDeposit} balance={czfBalance} sendAction={sendDeposit} account={account} />
         <br/><br/>
         <SliderStaker name="Borrow" token="CZUSD" basis={basisPointsBorrow} setBasis={setBasisPointsBorrow} balance={maxBorrow.sub(czusdBorrowed)} sendAction={sendBorrow} account={account} />
         <br/><br/>
         <SliderStaker name="Repay" token="CZUSD" basis={basisPointsRepay} setBasis={setBasisPointsRepay} balance={czusdBorrowed} sendAction={sendRepay} account={account} />
         <br/><br/>
-        <SliderStaker name="Withdraw" token="CZF" basis={basisPointsWithdraw} setBasis={setBasisPointsWithdraw} balance={czfDeposited.sub(czusdBorrowed.mul(BigNumber.from(parseEther("1"))).mul(BigNumber.from(10000)).div(BigNumber.from(maxBorrowBasis)).div(czfBusdPriceTwap))} sendAction={sendWithdraw} account={account} />
-        </>): <Text>Loading... check wallet is connected and on BSC</Text>}
+        {!!czfBusdPriceTwap.gt(0) && (    
+            <SliderStaker name="Withdraw" token="CZF" basis={basisPointsWithdraw} setBasis={setBasisPointsWithdraw} balance={czfDeposited.sub(czusdBorrowed.mul(BigNumber.from(parseEther("1"))).mul(BigNumber.from(10000)).div(BigNumber.from(maxBorrowBasis)).div(czfBusdPriceTwap))} sendAction={sendWithdraw} account={account} />
+        )}
         <br/><br/>
         <Text><b>Your Vault info</b></Text>
         <Text>{czfarmLink()} Deposited: {weiToShortString(czfDeposited,2)}</Text>
@@ -177,7 +177,7 @@ return (<>
         <Text>{czusdLink()} max supply: {weiToShortString(maxCZUsd,2)}</Text>
         <Text>{czusdLink()} current supply: {weiToShortString(czusdTotalSupply,2)}</Text>
         <Text>Max Borrow Ratio: {maxBorrowBasis && (maxBorrowBasis.toNumber()/100).toFixed(2) + "%"}</Text>
-        <Text>Global Borrow Ratio: {(!!czusdTotalSupply && !!czfTotalLocked && !!czfBusdPricePair) && (czusdTotalSupply.sub(parseEther("15000")).mul(BigNumber.from("10000")).div(czfTotalLocked.mul(czfBusdPricePair).div(parseEther("1"))).toNumber() / 100)}%</Text>
+        <Text>Global Borrow Ratio: {(!!czusdTotalSupply && !!czfTotalLocked && !!czfBusdPricePair && !!czfBusdPricePair.gt(0) && !!czfTotalLocked.gt(0)) && (czusdTotalSupply.sub(parseEther("15000")).mul(BigNumber.from("10000")).div(czfTotalLocked.mul(czfBusdPricePair).div(parseEther("1"))).toNumber() / 100)}%</Text>
         <Text>{czfarmLink()} TWAP: {weiToFixed(czfBusdPriceTwap,8)}</Text>
         <Text>{czusdLink()} Pair Price: {
             (!!czfBusdPricePair && !!czfCzusdPricePair && czfCzusdPricePair.gt(BigNumber.from("0")))
