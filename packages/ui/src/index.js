@@ -11,6 +11,7 @@ import CZFBuyoutTigz from "./pages/CZFBuyoutTigz";
 import CZFarm from "./pages/CZFarm";
 import CZUsd from "./pages/CZUsd";
 import CZVaults from "./pages/CZVaults";
+import LossCompensation from "./pages/LossCompensation";
 import ChronoPools from "./pages/ChronoPools";
 import ExoticFarms from "./pages/ExoticFarms";
 import reportWebVitals from "./reportWebVitals";
@@ -58,6 +59,7 @@ ReactDOM.render(
             <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
             <Route path="/chronopools" component={ChronoPools} />
             <Route path="/exoticfarms" component={ExoticFarms} />
+            <Route path="/losscomp" component={LossCompensation} />
           </Provider>
         </DAppProvider>
       </HashRouter>

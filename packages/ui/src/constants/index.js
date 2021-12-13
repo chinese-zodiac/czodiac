@@ -540,3 +540,7 @@ export const EXOTIC_FARMS = {
     }
   ]
 }
+
+export const LOSS_COMPENSATION = {
+  [CHAINS.BSC]: "0xEf726680cB505fD6A6006Ce3A5b25f8c9EbF64Fb"
+}

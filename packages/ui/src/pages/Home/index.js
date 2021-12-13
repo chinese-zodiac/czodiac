@@ -11,6 +11,7 @@ import useBUSDPrice from "../../hooks/useBUSDPrice";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import czVaultPeg from "../../abi/CZVaultPeg.json";
 import { Contract, utils, BigNumber, constants } from "ethers";
+import useLossCompensation from "../../hooks/useLossCompensation";
 
 import "./index.scss";
 
@@ -36,6 +37,12 @@ function Home() {
       if(!!account && !!CZVAULTPEG[chainId])
       setCzVaultPegContract(new Contract(CZVAULTPEG[chainId], czVaultPegInterface));
   },[account,chainId]);
+  
+  const { ffBasis, 
+    vestPeriod,
+    userInfo,
+    sendClaim,
+    sendFastForward } = useLossCompensation();
 
   return (<>
     <BackgroundLines />
@@ -66,6 +73,9 @@ function Home() {
           <Link href="https://czodiac.com" isExternal>
             <Button colorScheme="orange" variant="outline" >Information <Icon as={FiExternalLink} /></Button>
           </Link >
+          {!!userInfo && !!userInfo.emissionRate && userInfo.emissionRate.gt(0) && (<NavLink to="losscomp">
+            <Button colorScheme="red" >★ Loss Compensation</Button>
+          </NavLink>)}
           <SimpleGrid className="stats" columns={2} spacing={1} w="100vw" position="relative" left="-27px">
             <Text w="100%" textAlign="right" pr="5px">{czfarmLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czfarmBusdPrice,12)}</Text>
             <Text w="100%" textAlign="right" pr="5px">{czusdLink()}:</Text><Text textAlign="left" fontFamily="monospace" fontSize="14px" pt="3px"> ${weiToFixed(czusdBusdPrice,12)}</Text>
