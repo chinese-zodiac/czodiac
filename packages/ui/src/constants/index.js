@@ -457,6 +457,13 @@ export const CHRONOPOOLS = {
       //apr: 30000
     },
     {
+      title: "30 DAYS",
+      pid: 7
+      //ffBasis: 5000,
+      //vestPeriod: 2592000
+      //apr: 40000
+    },
+    {
       title: "90 DAYS",
       pid: 1
       //ffBasis: 3000,
