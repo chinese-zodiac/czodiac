@@ -544,6 +544,36 @@ export const EXOTIC_FARMS = {
           //apr: 100000
         }
       ]
+    },
+    {
+      title: "CZF/BUSD on PCS",
+      lp: "0xAAC96d00C566571bafdfa3B8440Bdc3cDB223Ad0",
+      mintLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xe9e7cea3dedca5984780bafc599bd69add087d56",
+      baseEmissionRate: parseEther("1000"),
+      oracle: "0x741b0D9Bf195e7bE74DE138B7B5F7e7328d65f12",
+      farms: [
+        {
+          title: "7 DAYS",
+          pid: 3
+          //ffBasis: 7500,
+          //vestPeriod: 604800
+          //apr: 30000
+        },
+        {
+          title: "90 DAYS",
+          pid: 4
+          //ffBasis: 3000,
+          //vestPeriod: 7776000
+          //apr: 50000
+        },
+        {
+          title: "1 YEAR",
+          pid: 5
+          //ffBasis: 500,
+          //vestPeriod: 31536000
+          //apr: 100000
+        }
+      ]
     }
   ]
 }

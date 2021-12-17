@@ -45,7 +45,9 @@ function ExoticFarmsList() {
     sendClaimAll,
     sendClaim,
     sendFastForward } = useExoticFarms();
+    //TODO: Refactor so the LP Balance is fetched for each farm set in useExoticFarm hook
   const czfBnbLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][0].lp, account);
+  const czfBusdLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][1].lp, account);
   const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
 
   const [currentEpoch, setCurrentEpoch] = useState(Date.now());
@@ -66,7 +68,7 @@ function ExoticFarmsList() {
           <Box className="farmSet-heading">
             <Heading mt="10px">{farmSet.title}</Heading><br/>
             <Text >
-              <Link isExternal href={farmSet.mintLink} textDecoration="underline">🖙🖙 Mint CZF/BNB on PCS <Icon as={FiExternalLink} /> 🖘🖘</Link>
+              <Link isExternal href={farmSet.mintLink} textDecoration="underline">🖙🖙 Mint {farmSet.title} <Icon as={FiExternalLink} /> 🖘🖘</Link>
             </Text>
           </Box>
           {farmSet.farms.map((farm, index) => {
@@ -86,7 +88,14 @@ function ExoticFarmsList() {
                 sendFastForward={sendFastForward}
                 sendClaim={sendClaim}
                 currentEpoch={currentEpoch}
-                czfBnbLpBalance={!!czfBnbLpBalance ? czfBnbLpBalance : BigNumber.from("0")}
+                czfBnbLpBalance={
+                  //TODO: Refactor czfBnbLpBalance to exoticLpBalance
+                  (farmSet.lp == "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE") ? (
+                    !!czfBnbLpBalance ? czfBnbLpBalance : BigNumber.from("0")
+                  ) : (
+                    !!czfBusdLpBalance ? czfBusdLpBalance : BigNumber.from("0")
+                  )
+                }
                 czfPerLPWad={czfPerLPWad}
                 usdForOneCzfBnbLp={(!!czfarmBusdPrice && !!farm && !!czfPerLPWad) ? czfarmBusdPrice.mul(czfPerLPWad).div(parseEther("1")) : BigNumber.from("0")}
               />
@@ -100,7 +109,9 @@ function ExoticFarmsList() {
 
   return (
     <>
-      {displayFarms(farmSets[0])}
+      {farmSets.map((farmSet, index) => {
+        return displayFarms(farmSet);
+      })}
       <Box className="farmSet-footing">
         <Button m="10px" onClick={()=>{
           sendClaimAll();

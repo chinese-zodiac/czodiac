@@ -56,7 +56,7 @@ module.exports = {
       gasMultiplier: 1.2,
     },
     bsc: {
-      url: `https://bsc-dataseed.binance.org`,
+      url: `https://bscrpc.com`,
       accounts: [networkConfig.ethKey],
       gasMultiplier: 1,
     },
