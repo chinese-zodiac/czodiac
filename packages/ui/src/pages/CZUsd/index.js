@@ -144,17 +144,17 @@ return (<>
         </Text>
     <Box border="solid 1px" borderRadius="5px" p="10px" m="10px">
       <b>NOTICE</b><br/>
-      - {czusdLink()} is in BETA. You may need to refresh the page to update UI.
+      - {czusdLink()} minting is currently DISABLED. Do not deposit CZF or borrow CZUSD - only repay/withdraw is enabled.
       <br/>
       - Algorithmic peg may be activated at any time. It is recommended to expect the price of {czusdLink()} to return to 1.0000 once the peg is active.
       <br/>
       - {czusdLink()} minting is currently highly restricted. The cap will be raised once the price stabilizes.
     </Box>
-        <br/>
+        {/*<br/>
         <SliderStaker name="Deposit" token="CZF" basis={basisPointsDeposit} setBasis={setBasisPointsDeposit} balance={czfBalance} sendAction={sendDeposit} account={account} />
         <br/><br/>
         <SliderStaker name="Borrow" token="CZUSD" basis={basisPointsBorrow} setBasis={setBasisPointsBorrow} balance={maxBorrow.sub(czusdBorrowed)} sendAction={sendBorrow} account={account} />
-        <br/><br/>
+        <br/><br/>*/}
         <SliderStaker name="Repay" token="CZUSD" basis={basisPointsRepay} setBasis={setBasisPointsRepay} balance={czusdBorrowed} sendAction={sendRepay} account={account} />
         <br/><br/>
         {!!czfBusdPriceTwap.gt(0) && (    
