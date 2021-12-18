@@ -83,8 +83,8 @@ function ExoticFarm({
       <Button m="10px" onClick={()=>{
         sendClaim(pid);
       }}>Claim CZF</Button> <br/>
-      <Button m="10px" disabled={!!userInfo ? currentEpoch <= userInfo.fastForwardLockToEpoch : true} onClick={()=>{
-        sendFastForward(pid);
+      <Button m="10px" onClick={()=>{
+        if(window.confirm("WARNING! FastForward will cancel ALL your future vesting!!! You will only get "+(!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00")+"%. More info at czodiac.gitbook.io")) sendFastForward(pid);
       }}>FastForward {!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00"}% </Button> <br/>
       <Divider />
 
