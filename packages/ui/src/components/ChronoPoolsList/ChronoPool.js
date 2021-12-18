@@ -59,7 +59,7 @@ function ChronoPool({
         sendClaim(pid);
       }}>Claim CZF</Button> <br/>
       <Button m="10px" onClick={()=>{
-        sendFastForward(pid);
+        if(window.confirm("WARNING! FastForward will cancel ALL your future vesting!!! You will only get "+(!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00")+"%. More info at czodiac.gitbook.io")) sendFastForward(pid);
       }}>FastForward {!!ffBasis ? (ffBasis/100).toFixed(2) : "0.00"}% </Button> <br/>
       <Divider />
 
