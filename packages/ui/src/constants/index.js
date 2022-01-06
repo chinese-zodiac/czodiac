@@ -211,6 +211,13 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x8FC1A944c149762B6b578A06c0de2ABd6b7d2B89",
       rewardDecimals: 9,
       logo: "./pool/MAINST.png"
+    },
+    {
+      name: "DEP",
+      address: "0x7a40940316dB31533f7D6462b24274A25Cc1d5f5",
+      rewardAddress: "0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      rewardDecimals: 18,
+      logo: "./pool/DEP.png"
     }/*,
     {
       name: "GEM",
@@ -233,6 +240,17 @@ export const CZFARMPOOLS = {
       rewardDecimals: 18,
       logo: "./pool/GHD.png"
     }*/
+  ]
+}
+export const CZUSDPOOLS = {
+  [CHAINS.BSC] : [
+    {
+      name: "DEP",
+      address: "0x1E24567fE9D8609079780D84009b1077AC5E5d0E",
+      rewardAddress: "0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      rewardDecimals: 18,
+      logo: "./pool/DEP.png"
+    }
   ]
 }
 

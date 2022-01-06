@@ -3,32 +3,34 @@ import { Box, Button, LightMode, Icon, Link, Text, Heading, Image,
 Tabs, TabList, TabPanels, Tab, TabPanel, SimpleGrid, Divider, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from "@chakra-ui/react";
 import { FiExternalLink } from "react-icons/fi";
 import { useEthers } from "@pdusedapp/core";
-import { CZODIAC_ADDRESSES, BUSD_ADDRESSES, WETH_ADDRESSES, CZFARM_ADDRESSES } from "../../constants";
+import { CZODIAC_ADDRESSES, BUSD_ADDRESSES, WETH_ADDRESSES, CZFARM_ADDRESSES, CZUSD, CZFARMPOOLS, CZUSDPOOLS } from "../../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useBUSDPrice from "../../hooks/useBUSDPrice";
 import useCZPools from "../../hooks/useCZPools";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 import CZPool from "../CZPool";
+import CZUsdPool from "../CZUsdPool";
 
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$CZF");
 
 function CZPoolsList() {
   const {chainId} = useEthers();
-  const {
-    pools
-  } = useCZPools();
+  const {pools} = useCZPools(CZFARM_ADDRESSES[chainId],CZFARMPOOLS[chainId]);
+  const {pools:czusdPools} = useCZPools(CZUSD[chainId],CZUSDPOOLS[chainId]);
 
   const [basisPoints, setBasisPoints] = useState(pools.map((p)=>10000))
 
   const [currentDate] = useState(new Date())
 
-  const displayPools = (filter,pools) => {
+  const displayPools = (filter,pools,title) => {
     return (!!pools && pools.length > 0) && (<>
       {pools.map((pool, index)=>{
+        if(pool.name=="DEP") console.log(pool);
         if(!filter(pool)) return;
-        return(<Box key={"pid-"+pool.name+"-"+index} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
+        return(<Box key={"pid-"+title+pool.name+"-"+index} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
+          {title == "CZF" ? (
            <CZPool 
               sendDeposit={pool.sendDeposit}
               sendWithdraw={pool.sendWithdraw}
@@ -44,6 +46,23 @@ function CZPoolsList() {
               name={pool.name}
               logo={pool.logo}
             />
+          ) : (            
+           <CZUsdPool 
+              sendDeposit={pool.sendDeposit}
+              sendWithdraw={pool.sendWithdraw}
+              rewardAddress={pool.rewardAddress}
+              rewardDecimals={pool.rewardDecimals}
+              aprBasisPoints={pool.aprBasisPoints}
+              rewardPerDay={pool.rewardPerDay}
+              usdValue={pool.usdValue}
+              usdPerDay={pool.usdPerDay}
+              timeStart={pool.timeStart}
+              timeEnd={pool.timeEnd}
+              user={pool.user}
+              name={pool.name}
+              logo={pool.logo}
+            />
+          )}
         </Box>
       )})}</>)
   }
@@ -63,19 +82,37 @@ function CZPoolsList() {
         <TabPanel p="0px" pt="20px">
           {displayPools(
             pool=>(pool.timeStart <= currentDate && pool.timeEnd >= currentDate),
-            pools
+            pools,
+            "CZF"
+          )}
+          {displayPools(
+            pool=>(pool.timeStart <= currentDate && pool.timeEnd >= currentDate),
+            czusdPools,
+            "CZUSD"
           )}
         </TabPanel>
         <TabPanel p="0px" pt="20px">
           {displayPools(
             pool=>(pool.timeStart > currentDate),
-            pools
+            pools,
+            "CZF"
+          )}
+          {displayPools(
+            pool=>(pool.timeStart > currentDate),
+            czusdPools,
+            "CZUSD"
           )}
         </TabPanel>
         <TabPanel p="0px" pt="20px">
           {displayPools(
             pool=>(pool.timeEnd < currentDate),
-            pools
+            pools,
+            "CZF"
+          )}
+          {displayPools(
+            pool=>(pool.timeEnd < currentDate),
+            czusdPools,
+            "CZUSD"
           )}
         </TabPanel>
       </TabPanels>

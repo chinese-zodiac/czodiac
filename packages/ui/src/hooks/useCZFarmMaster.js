@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction, useBlockNumber } from "@pdusedapp/core";
-import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES, BUSD_ADDRESSES } from "../constants";
+import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES, BUSD_ADDRESSES, CZUSD } from "../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
 import useBUSDPrice from "./useBUSDPrice";
@@ -81,6 +81,8 @@ const farmLps = [
   "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
   "0x970b0c00880a5e2D5aa64aeb4a38CD3E82A2d5Cb", //CZF/MAINST -APE
   "0x6B000a834C1983Ad4C1E05209FFa619Ec4C79fBb", //CZF/BABY -BABY
+  "0xaCC6AF9C62B482Cb89522e262F8b315d870208ab", //CZF/DEP -APE
+  "0x8Bb25E9CD67AF1E2b961A905e76A95E675b69645", //CZUSD/DEP -APE
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
   //"0xC8F3Cc8514B3c7614Cd6C79983d054cDd2991F43", //CZF/BNB -JETS
@@ -110,6 +112,8 @@ const farmDex = [
   DEX.AMPL,
   DEX.APE,
   DEX.BABY,
+  DEX.APE,
+  DEX.APE,
   //DEX.SHRK,
   //DEX.DONK,
   //DEX.JETS,
@@ -317,6 +321,26 @@ const farmTokens = [
       address:"0x53e562b9b7e5e94b81f10e96ee70ad06df3d2657",
       symbol:"BABY"
     }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      symbol:"DEP"
+    }
+  ],
+  [
+    {
+      address:"0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      symbol:"CZUSD"
+    },
+    {
+      address:"0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      symbol:"DEP"
+    }
   ]
   /*[
     {
@@ -386,6 +410,7 @@ function useCZFarmMaster() {
   const [czFarmState, setCZFarmState] = useState(baseCZFarmState);
   const ierc20Interface = new Interface(ierc20);
   const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
+  const czusdBusdPrice = useBUSDPrice(CZUSD[chainId]);
   
   const [calls, setCalls] = useState([]);
   const callResults = useContractCalls(calls) ?? [];
@@ -424,6 +449,13 @@ function useCZFarmMaster() {
               newCalls.push({
                     abi:ierc20Interface,
                     address:BUSD_ADDRESSES[chainId],
+                    method:'balanceOf',
+                    args: [farmLps[pid]]
+              });
+            } else if(farmTokens[pid][0].address == CZUSD[chainId] || farmTokens[pid][1].address == CZUSD[chainId]) {
+              newCalls.push({
+                    abi:ierc20Interface,
+                    address:CZUSD[chainId],
                     method:'balanceOf',
                     args: [farmLps[pid]]
               });
@@ -532,6 +564,8 @@ function useCZFarmMaster() {
 
           if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
             pool.lpUsdPrice = pool.lpCzfBalance.mul(parseEther("1")).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+          } else if(farmTokens[i][0].address == CZUSD[chainId] || farmTokens[i][1].address == CZUSD[chainId]) {
+            pool.lpUsdPrice = pool.lpCzfBalance.mul(czusdBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);         
           } else {
             pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
           }

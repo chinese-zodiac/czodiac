@@ -12,7 +12,7 @@ const {Interface} = utils;
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
 
-function useCZPools() {
+function useCZPools(stakeTokenAddress, poolSet) {
   const pool = {
     timestampStart: null,
     timestampEnd: null,
@@ -47,12 +47,12 @@ function useCZPools() {
     }
   }
 
-  const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
-  const rewardBusdPrices = useBUSDPriceMulti(!!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p)=>p.rewardAddress) : []);
+  const czfBusdPrice = useBUSDPrice(stakeTokenAddress);
+  const rewardBusdPrices = useBUSDPriceMulti(!!poolSet ? poolSet.map((p)=>p.rewardAddress) : []);
 
   const ierc20Interface = new Interface(ierc20);
   const czFarmPoolInterface = new Interface(czFarmPool);
-  const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(!!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p)=>new Contract(p.address, czFarmPoolInterface)) : []);
+  const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(!!poolSet ? poolSet.map((p)=>new Contract(p.address, czFarmPoolInterface)) : []);
 
   const [pools, setPools] = useState([]);
   const [calls, setCalls] = useState([]);
@@ -60,11 +60,10 @@ function useCZPools() {
 
   useEffect(()=>{
     const newCalls = [];
-    if(!CZFARMPOOLS[chainId]) {
-      setCalls(newCalls)
+    if(!poolSet || !stakeTokenAddress || !account) {
       return;
     }
-    CZFARMPOOLS[chainId].forEach((p) => {
+    poolSet.forEach((p) => {
       let ca = p.address;
       newCalls.push({
         abi:czFarmPoolInterface,
@@ -83,7 +82,7 @@ function useCZPools() {
       });
       newCalls.push({
         abi:ierc20Interface,
-        address:CZFARM_ADDRESSES[chainId],
+        address:stakeTokenAddress,
         method:'balanceOf',
         args: [ca]
       });
@@ -102,21 +101,21 @@ function useCZPools() {
         });
         newCalls.push({
           abi:ierc20Interface,
-          address:CZFARM_ADDRESSES[chainId],
+          address:stakeTokenAddress,
           method:'balanceOf',
           args: [account]
         });
       }      
     });
     setCalls(newCalls);
-  },[account,chainId])
+  },[stakeTokenAddress,account,chainId])
 
   useDeepCompareEffect(()=>{
     let newPools = [];
-    if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMPOOLS[chainId] || !czfBusdPrice) {
+    if(!callResults || callResults.length === 0 || !callResults[0] || !poolSet || !czfBusdPrice || !account) {
         return;
     }
-    CZFARMPOOLS[chainId].forEach((p, index) => {
+    poolSet.forEach((p, index) => {
       let l = 7;
       if(!account) l = 4;
       let o = l*index
