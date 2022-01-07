@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { useEthers, useContractCalls, useContractFunction, useBlockNumber } from "@pdusedapp/core";
-import { CHRONOPOOLSERVICE, CHRONOPOOLS, CZFARM_ADDRESSES, CHAINS } from "../constants";
-import { Contract, utils, BigNumber, constants } from "ethers";
+import { CHRONOPOOLSERVICE, CHRONOPOOLS, CHAINS } from "../constants";
+import { Contract, utils, BigNumber } from "ethers";
 import useDeepCompareEffect from "../utils/useDeepCompareEffect";
-import useBUSDPrice from "./useBUSDPrice";
-import useBUSDPriceMulti from "./useBUSDPriceMulti";
 import chronoPoolServiceAbi from "../abi/ChronoPoolService.json";
-import ierc20 from "../abi/ierc20.json";
-import { parseEther } from "@ethersproject/units";
 const {Interface} = utils;
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"));
 
@@ -27,7 +23,7 @@ function useChronoPools() {
     }})
   }
   
-  const { account, chainId, library } = useEthers();
+  const { account, chainId } = useEthers();
   const chronoPoolServiceInterface = new Interface(chronoPoolServiceAbi);
   const [chronoPoolServiceContract, setChronoPoolServiceContract] = useState(
       null);
@@ -81,7 +77,6 @@ function useChronoPools() {
         return;
     }
     for(let i=0; i<basePoolsState.pools.length; i++) {
-      let pool = basePoolsState.pools[i];
       newPoolsState.pools[i] = {
         ...newPoolsState.pools[i],
         adjustedRateBasis:callResults[0+i][0],

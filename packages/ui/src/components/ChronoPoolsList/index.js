@@ -46,7 +46,6 @@ function ChronoPoolsList() {
     sendClaim,
     sendFastForward } = useChronoPools();
   const czfBalance = useTokenBalance(CZFARM_ADDRESSES[CHAINS.BSC], account);
-
   const [currentEpoch, setCurrentEpoch] = useState(Date.now());
 
   useEffect(() => {

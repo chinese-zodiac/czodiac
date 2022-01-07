@@ -74,7 +74,7 @@ function ExoticFarmsList() {
           {farmSet.farms.map((farm, index) => {
             return (
               <Box
-                key={"pid-" + farm.pid}
+                key={"pid-" + farm.pid +"-"+index}
                 border="solid 1px"
                 borderRadius="5px"
                 m="0px"
