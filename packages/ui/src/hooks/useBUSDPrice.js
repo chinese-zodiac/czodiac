@@ -19,8 +19,7 @@ function useBUSDPrice(address) {
   const [price,setPrice] = useState(null);
   
   useEffect(()=>{
-    if(chainId != CHAINS.BSC || !account) {
-      setPrice(null)
+    if(chainId != CHAINS.BSC || !account || !bnbBusdPair || !chainId || !account) {
       return
     }
     const busdContract = new Contract(BUSD_ADDRESSES[chainId], erc20Interface, library);
@@ -31,9 +30,11 @@ function useBUSDPrice(address) {
         const busdBalance = await busdContract.balanceOf(busdPair);
         if(busdBalance.gt(parseEther("10000")) || !wbnbPair) {
           const tokenBalance = await tokenContract.balanceOf(busdPair);
-          setPrice(
-            busdBalance.mul(parseEther("1")).div(tokenBalance)
-          );
+          if(!!tokenBalance && tokenBalance.gt(BigNumber.from("0"))) {
+            setPrice(
+              busdBalance.mul(parseEther("1")).div(tokenBalance)
+            );
+          }
           return;
         }
       }
@@ -42,9 +43,11 @@ function useBUSDPrice(address) {
         const bnbBalanceOfBNB = await bnbContract.balanceOf(bnbBusdPair);
         const bnbBalance = await bnbContract.balanceOf(wbnbPair);
         const tokenBalance = await tokenContract.balanceOf(wbnbPair);
-        setPrice(
-          bnbBalance.mul(parseEther("1")).div(tokenBalance).mul(busdBalanceOfBNB).div(bnbBalanceOfBNB)
-        );
+        if(!!bnbBalanceOfBNB && bnbBalanceOfBNB.gt(BigNumber.from("0"))) {
+          setPrice(
+            bnbBalance.mul(parseEther("1")).div(tokenBalance).mul(busdBalanceOfBNB).div(bnbBalanceOfBNB)
+          );
+        }
         return;
       }
       setPrice(null)

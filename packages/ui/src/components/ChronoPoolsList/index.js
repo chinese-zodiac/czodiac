@@ -38,7 +38,7 @@ const czfarmLink = () =>
   tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043", "$CZF");
 
 function ChronoPoolsList() {
-  const { chainId,account } = useEthers();
+  const { account } = useEthers();
   const { pools, 
     sendDeposit,
     sendReinvest,

@@ -532,7 +532,7 @@ function useCZFarmMaster() {
   
     useDeepCompareEffect(()=>{
         let newCZFarmState = {...czFarmState}
-        if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMMASTER_ADDRESSES[chainId] || !czfBusdPrice) {
+        if(!callResults || callResults.length === 0 || !callResults[0] || !CZFARMMASTER_ADDRESSES[chainId] || !czfBusdPrice || !czusdBusdPrice) {
             return;
         }        
         newCZFarmState.czfPerBlock = callResults[0][0];
@@ -561,13 +561,14 @@ function useCZFarmMaster() {
             lpTotalSupply: callResults[3+validFarmLength*2+pid][0],
             lpBalance: callResults[3+validFarmLength*3+pid][0]
           }
-
-          if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
-            pool.lpUsdPrice = pool.lpCzfBalance.mul(parseEther("1")).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
-          } else if(farmTokens[i][0].address == CZUSD[chainId] || farmTokens[i][1].address == CZUSD[chainId]) {
-            pool.lpUsdPrice = pool.lpCzfBalance.mul(czusdBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);         
-          } else {
-            pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+          if(pool.lpTotalSupply.gt(BigNumber.from("0"))) {
+            if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
+              pool.lpUsdPrice = pool.lpCzfBalance.mul(parseEther("1")).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+            } else if(farmTokens[i][0].address == CZUSD[chainId] || farmTokens[i][1].address == CZUSD[chainId]) {
+              pool.lpUsdPrice = pool.lpCzfBalance.mul(czusdBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);         
+            } else {
+              pool.lpUsdPrice = pool.lpCzfBalance.mul(czfBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
+            }
           }
           pool.czfPerBlock = newCZFarmState.czfPerBlock.mul(pool.allocPoint).div(newCZFarmState.totalAllocPoint);
           pool.czfPerDay = pool.czfPerBlock.mul(BigNumber.from("28800"));

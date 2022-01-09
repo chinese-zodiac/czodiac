@@ -27,7 +27,6 @@ function CZPoolsList() {
   const displayPools = (filter,pools,title) => {
     return (!!pools && pools.length > 0) && (<>
       {pools.map((pool, index)=>{
-        if(pool.name=="DEP") console.log(pool);
         if(!filter(pool)) return;
         return(<Box key={"pid-"+title+pool.name+"-"+index} border="solid 1px" borderRadius="5px" m="0px" mb="20px" p="20px" fontSize={{base:"x-small",md:"md"}}>
           {title == "CZF" ? (

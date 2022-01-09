@@ -39,7 +39,7 @@ const czfarmLink = () =>
   tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043", "$CZF");
 
 function ExoticFarmsList() {
-  const { chainId,account } = useEthers();
+  const { account } = useEthers();
   const { farmSets, 
     sendDeposit,
     sendClaimAll,
@@ -48,7 +48,7 @@ function ExoticFarmsList() {
     //TODO: Refactor so the LP Balance is fetched for each farm set in useExoticFarm hook
   const czfBnbLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][0].lp, account);
   const czfBusdLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][1].lp, account);
-  const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
+  const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[CHAINS.BSC]);
 
   const [currentEpoch, setCurrentEpoch] = useState(Date.now());
 

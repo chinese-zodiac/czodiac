@@ -24,8 +24,7 @@ function useBUSDPriceMulti(addresses) {
   const [prices,setPrices] = useState([]);
   
   useEffect(()=>{
-    if(chainId != CHAINS.BSC || !account) {
-      setPrices([])
+    if(chainId != CHAINS.BSC || !account || !bnbBusdPair) {
       return
     }
     const busdContract = new Contract(BUSD_ADDRESSES[chainId], erc20Interface, library);
