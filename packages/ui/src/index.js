@@ -14,6 +14,7 @@ import CZVaults from "./pages/CZVaults";
 import LossCompensation from "./pages/LossCompensation";
 import ChronoPools from "./pages/ChronoPools";
 import ExoticFarms from "./pages/ExoticFarms";
+import IBFRGames from "./pages/IBFRGames";
 import reportWebVitals from "./reportWebVitals";
 import { DAppProvider } from "@pdusedapp/core";
 import {
@@ -59,6 +60,7 @@ ReactDOM.render(
             <Route path="/czfbuyouttigz" component={CZFBuyoutTigz} />
             <Route path="/chronopools" component={ChronoPools} />
             <Route path="/exoticfarms" component={ExoticFarms} />
+            <Route path="/ibfrgames" component={IBFRGames} />
             <Route path="/losscomp" component={LossCompensation} />
           </Provider>
         </DAppProvider>
