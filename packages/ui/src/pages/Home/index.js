@@ -61,9 +61,9 @@ function Home() {
           <NavLink to="czfarm">
             <Button colorScheme="red" >★ v1Pools, v1Farms</Button>
           </NavLink>
-          <NavLink to="ibfrgames">
+          {/*<NavLink to="ibfrgames">
             <Button colorScheme="red">iBFR Games</Button>
-          </NavLink>
+          </NavLink>*/}
           <NavLink to="vaults">
             <Button colorScheme="orange">Antidump Vaults</Button>
           </NavLink>
