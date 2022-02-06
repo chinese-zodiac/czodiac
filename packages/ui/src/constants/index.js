@@ -220,6 +220,13 @@ export const CZFARMPOOLS = {
       logo: "./pool/DEP.png"
     },
     /*{
+      name: "iBFR",
+      address: "0xaBB29043ae684d8c0A9cB876EAC7dc2a5eDC6338",
+      rewardAddress: "0xa296ad1c47fe6bdc133f39555c1d1177bd51fbc5",
+      rewardDecimals: 18,
+      logo: "./pool/iBFR.png"
+    }
+    /*{
       name: "WSOW",
       address: "0xb345f4a196f0B385DA561B51cDD2278f2e019f87",
       rewardAddress: "0xe70d287aad130e2cee520e75d12c6efa4f1a377d",
@@ -264,7 +271,21 @@ export const CZUSDPOOLS = {
       rewardAddress: "0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
       rewardDecimals: 9,
       logo: "./pool/IF1.png"
-    }
+    },
+    {
+      name: "CZF",
+      address: "0x586B7Ed172BceF93aEcA938a70CD425a8EF06A69",
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      rewardDecimals: 18,
+      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+    },
+    /*{
+      name: "iBFR",
+      address: "0x9decC767d3d6EB1d6b17F8F33B4c4ab7BE691681",
+      rewardAddress: "0xa296ad1c47fe6bdc133f39555c1d1177bd51fbc5",
+      rewardDecimals: 18,
+      logo: "./pool/iBFR.png"
+    }*/
   ]
 }
 
