@@ -32,14 +32,16 @@ function useBUSDPriceMulti(addresses) {
     const tokenContracts = (!!addresses && addresses.length > 0) ? addresses.map((a)=>new Contract(a, erc20Interface, library)) : [];
     
     (async () =>{
+      console.log("bnbBusdPair",bnbBusdPair)
+      console.log("busdPairs",busdPairs)
       if(!bnbBusdPair) return Promise.resolve(BigNumber.from("0")); 
       const busdBalanceOfBNB = await busdContract.balanceOf(bnbBusdPair);
       const bnbBalanceOfBNB = await bnbContract.balanceOf(bnbBusdPair);
       let pricePromises = []
-      if(!!busdPairs && busdPairs.length>0 && "0x0000000000000000000000000000000000000000" != busdPairs[0]) {
+      if(!!busdPairs && busdPairs.length>0) {
         const busdBalances = await Promise.all(busdPairs.map((pair)=>busdContract.balanceOf(pair)));
         pricePromises = busdBalances.map((busdBalance, index)=>{
-          if(busdBalance.gt(parseEther("50"))) {
+          if(busdBalance.gt(parseEther("1"))) {
             return tokenContracts[index].balanceOf(busdPairs[index]).then((res)=>busdBalance.mul(parseEther("1")).div(res))
            } else {
              if(!!wbnbPairs && wbnbPairs.length>0 && "0x0000000000000000000000000000000000000000" != wbnbPairs[index]){
@@ -53,7 +55,7 @@ function useBUSDPriceMulti(addresses) {
         })
       }
       let newPrices = await Promise.all(pricePromises);
-      setPrices(newPrices)
+      setPrices(newPrices);
     })();
   },[chainId,account,bnbBusdPair,busdPairs])
 

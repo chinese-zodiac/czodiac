@@ -138,7 +138,7 @@ function useCZPools(stakeTokenAddress, poolSet) {
 
       //Fixes bug where TVL includes the CZF rewards in CZF->CZF pool
       let tvlOffset = BigNumber.from("0")
-      if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
+      /*if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
         let seconds = 0;
         if(new Date() >= p.timeStart && new Date() <= p.timeEnd) {
           seconds = Math.floor((p.timeEnd - new Date()) / 1000);
@@ -147,7 +147,7 @@ function useCZPools(stakeTokenAddress, poolSet) {
         }
         tvlOffset = p.usdPerDay.mul(BigNumber.from(seconds.toString()).div(BigNumber.from("86400")));
         p.usdValue = p.usdValue.sub(tvlOffset);
-      }
+      }*/
 
       if(p.usdValue.gt(BigNumber.from("0"))) {
         p.aprBasisPoints = p.usdPerDay.mul(BigNumber.from("365")).mul(BigNumber.from("10000")).div(p.usdValue);
