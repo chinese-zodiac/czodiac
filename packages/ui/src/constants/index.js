@@ -107,7 +107,7 @@ export const CZFARMPOOLFACTORY_ADDRESSES = {
 
 export const CZFARMPOOLS = {
   [CHAINS.BSC] : [
-    {
+    /*{
       name: "TIGZ",
       address: "0xeAAe8daEe860eFc43851d4234eB944F8C9B5f968",
       rewardAddress: "0x535874bfbecac5f235717faea7c26d01c67b38c5",
@@ -204,7 +204,7 @@ export const CZFARMPOOLS = {
       rewardAddress: "0xa269A9942086f5F87930499dC8317ccC9dF2b6CB",
       rewardDecimals: 18,
       logo: "./pool/LATTE.png"
-    },
+    },*/
     {
       name: "MAINST",
       address: "0x4e7545a42Be56E93D1dff1c83Acf867c6fE33E9E",
