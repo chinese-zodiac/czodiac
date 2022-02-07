@@ -161,11 +161,11 @@ function useCZPools(stakeTokenAddress, poolSet) {
         p.aprBasisPoints = BigNumber.from("0");
       }
 
-       if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
+      /*if(p.rewardAddress == "0x7c1608C004F20c3520f70b924E2BfeF092dA0043" && p.usdPerDay.gt(BigNumber.from("0"))) {
         p.usdValue = p.usdValue.add(
           parseEther("288385966").mul(czfBusdPrice).div(weiFactor)
         );
-       }
+       }*/
 
 
 
