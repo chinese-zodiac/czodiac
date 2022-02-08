@@ -80,9 +80,11 @@ function CZFarmsList() {
               }}>Stake All {poolName}</Button>
             ) : (
               <Text display="inline-block">
-                <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline" m="10px">
-                  Get {poolName} LP
-                </Link>
+                {pool.dex.shortName == "EPS" ? (
+                  <Link isExternal href={`${p.dex.baseUrl}`}  textDecoration="underline" m="10px">Get {poolName} LP</Link>
+                ) : (
+                  <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`}  textDecoration="underline" m="10px">Get {poolName} LP</Link>
+                )}
               </Text>
             )}
             {p.userInfo.amount.gt(BigNumber.from("0")) ? (
