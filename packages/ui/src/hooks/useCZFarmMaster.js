@@ -56,6 +56,11 @@ const DEX = {
     name: "Apeswap",
     shortName: "APE",
     baseUrl: "https://app.apeswap.finance/"
+  },
+  EPS: {
+    name: "Ellipsis",
+    shortName: "EPS",
+    baseUrl: "https://ellipsis.finance/pool/0"
   }
 }
 const farmLps = [
@@ -83,6 +88,7 @@ const farmLps = [
   "0x6B000a834C1983Ad4C1E05209FFa619Ec4C79fBb", //CZF/BABY -BABY
   "0xaCC6AF9C62B482Cb89522e262F8b315d870208ab", //CZF/DEP -APE
   "0x8Bb25E9CD67AF1E2b961A905e76A95E675b69645", //CZUSD/DEP -APE
+  "0xC1a52E938fFd0eda3C6AD78CE86179adC9D59FeB", //CZUSD/3EPS -EPS
   //"0x7acafdf90a85a88b1bcdb802d708752dd4478bf5", //CZF/WSOW -BABY
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
@@ -115,6 +121,7 @@ const farmDex = [
   DEX.BABY,
   DEX.APE,
   DEX.APE,
+  DEX.EPS,
   //DEX.BABY,
   //DEX.SHRK,
   //DEX.DONK,
@@ -342,6 +349,16 @@ const farmTokens = [
     {
       address:"0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
       symbol:"DEP"
+    }
+  ],
+  [
+    {
+      address:"0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      symbol:"CZUSD"
+    },
+    {
+      address:"0xaf4de8e872131ae328ce21d909c74705d3aaf452",
+      symbol:"3EPS"
     }
   ],
   /*[
@@ -574,7 +591,9 @@ function useCZFarmMaster() {
             lpBalance: callResults[3+validFarmLength*3+pid][0]
           }
           if(pool.lpTotalSupply.gt(BigNumber.from("0"))) {
-            if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
+            if(pool.dex == DEX.EPS) {
+              pool.lpUsdPrice = parseEther("1");
+            } else if(farmTokens[i][0].address == BUSD_ADDRESSES[chainId] || farmTokens[i][1].address == BUSD_ADDRESSES[chainId]) {
               pool.lpUsdPrice = pool.lpCzfBalance.mul(parseEther("1")).mul(BigNumber.from("2")).div(pool.lpTotalSupply);
             } else if(farmTokens[i][0].address == CZUSD[chainId] || farmTokens[i][1].address == CZUSD[chainId]) {
               pool.lpUsdPrice = pool.lpCzfBalance.mul(czusdBusdPrice).mul(BigNumber.from("2")).div(pool.lpTotalSupply);         

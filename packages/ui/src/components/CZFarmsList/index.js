@@ -61,8 +61,12 @@ function CZFarmsList() {
           </Heading>   
           <Image maxW="250px" src={`./farm/${p.tokens[0].symbol}-${p.tokens[1].symbol}${(p.dex.shortName != "PCS") ? ("-"+p.dex.shortName) : ""}.jpg`} ml="auto" mr="auto" mb="10px" mt="10px" />
           <Text>
-            <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on {p.dex.shortName} <Icon as={FiExternalLink} /> 🖘🖘</Link>
-          </Text>
+            {pool.dex.shortName == "EPS" ? (
+              <Link isExternal href={`${p.dex.baseUrl}`} textDecoration="underline">🖙🖙 Mint {poolName} on {p.dex.shortName} <Icon as={FiExternalLink} /> 🖘🖘</Link>
+            ) : (
+              <Link isExternal href={`${p.dex.baseUrl}add/${p.tokens[0].address}/${p.tokens[1].address}`} textDecoration="underline">🖙🖙 Mint {poolName} on {p.dex.shortName} <Icon as={FiExternalLink} /> 🖘🖘</Link>
+            )}
+            </Text>
           <Divider />
           {(!!p.tokens && p.tokens.length == 2 && !!p.userInfo) ? (<>
             {(p.userInfo.lpAllowance.lte(p.userInfo.lpBalance)) ? (<>
