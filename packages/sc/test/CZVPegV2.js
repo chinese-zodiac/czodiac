@@ -82,9 +82,8 @@ describe("CZVPegV2", function() {
     await czusdSc
     .connect(deployer)
     .grantRole(ethers.utils.id("MINTER_ROLE"), czvPegV2.address);
-    await czusdSc
-    .connect(deployer)
-    .setContractSafe(czvPegV2.address);
+
+    await czvPegV2.setIsRestrictedToOwner(false);
   });
 
   describe("Deploy success", function() {

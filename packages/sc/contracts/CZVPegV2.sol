@@ -43,6 +43,8 @@ contract CZVPegV2 is ReentrancyGuard, Ownable, Pausable {
     uint256 public withdrawBusdMultiplierBasis;
     uint256 public feeBasisUniswap;
 
+    bool public isRestrictedToOwner = true;
+
     constructor(
         IBeltLP _belt4LP,
         IERC20 _belt4,
@@ -71,9 +73,18 @@ contract CZVPegV2 is ReentrancyGuard, Ownable, Pausable {
         feeBasisUniswap = _feeBasisUniswap;
     }
 
+    modifier whenNotRestricted() {
+        require(
+            !isRestrictedToOwner || msg.sender == owner(),
+            "CZVPeg: Currently Restricted"
+        );
+        _;
+    }
+
     function repeg(uint256 _usdEllipsis, bool isOverPeg)
         external
         whenNotPaused
+        whenNotRestricted
     {
         if (isOverPeg) {
             _repegDown(_usdEllipsis);
@@ -242,7 +253,7 @@ contract CZVPegV2 is ReentrancyGuard, Ownable, Pausable {
         vault.deposit(address(this), belt4Wad);
     }
 
-    function depositBusd() external whenNotPaused {
+    function depositBusd() external whenNotPaused whenNotRestricted {
         _depositBusd();
     }
 
@@ -290,5 +301,9 @@ contract CZVPegV2 is ReentrancyGuard, Ownable, Pausable {
 
     function setMinUniswapDelta(uint256 _to) external onlyOwner {
         minUniswapDelta = _to;
+    }
+
+    function setIsRestrictedToOwner(bool _to) external onlyOwner {
+        isRestrictedToOwner = _to;
     }
 }
