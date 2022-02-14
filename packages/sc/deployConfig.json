@@ -32,5 +32,9 @@
     "lpCzfBnbPcs": "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
     "treasuryAddr": "0x08f4fBA1DabD2884b869b11AC42cff329d261ED7",
     "exoticMasterAddr": "0x37E4dDAfF95d684E1443B5F18C81deD953B627dD",
-    "lossCompensation": "0xEf726680cB505fD6A6006Ce3A5b25f8c9EbF64Fb"
+    "lossCompensation": "0xEf726680cB505fD6A6006Ce3A5b25f8c9EbF64Fb",
+    "ellipsisBasePool":"0x160CAed03795365F3A589f10C379FfA7d75d4E76",
+    "ellipsisBasePoolToken":"0xaF4dE8E872131AE328Ce21D909C74705d3Aaf452",
+    "ellipsisCzusd3psPool":"0x56266175A4770c6C28a786602cB629e9d35e3E09",
+    "ellipsisCzusd3psPoolToken":"0xC1a52E938fFd0eda3C6AD78CE86179adC9D59FeB"
 }
