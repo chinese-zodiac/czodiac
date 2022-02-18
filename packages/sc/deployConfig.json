@@ -36,5 +36,6 @@
     "ellipsisBasePool":"0x160CAed03795365F3A589f10C379FfA7d75d4E76",
     "ellipsisBasePoolToken":"0xaF4dE8E872131AE328Ce21D909C74705d3Aaf452",
     "ellipsisCzusd3psPool":"0x56266175A4770c6C28a786602cB629e9d35e3E09",
-    "ellipsisCzusd3psPoolToken":"0xC1a52E938fFd0eda3C6AD78CE86179adC9D59FeB"
+    "ellipsisCzusd3psPoolToken":"0xC1a52E938fFd0eda3C6AD78CE86179adC9D59FeB",
+    "czvPegV2":"0x365FEe072022eCa1f569D41fA7Fca8adaedEd6d9"
 }

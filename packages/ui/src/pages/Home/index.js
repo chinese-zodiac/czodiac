@@ -8,6 +8,7 @@ import { FiExternalLink } from "react-icons/fi";
 import { useContractFunction, useEthers } from "@pdusedapp/core";
 import { CZODIAC_ADDRESSES, CZFARM_ADDRESSES, TIGERHP_ADDRESSES, CZUSD, CZVAULTPEG } from "../../constants";
 import useBUSDPrice from "../../hooks/useBUSDPrice";
+import useCZVPegV2 from "../../hooks/useCZVPegV2";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import czVaultPeg from "../../abi/CZVaultPeg.json";
 import { Contract, utils, BigNumber, constants } from "ethers";
@@ -26,9 +27,11 @@ const czusdLink = ()=>tokenLink("0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70","$C
 
 
 function Home() {  
-  const {chainId, account} = useEthers();
+  const {chainId, account, library} = useEthers();
   const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId]);
   const czusdBusdPrice = useBUSDPrice(CZUSD[chainId]);
+
+  const {repegWad, isOverPeg, sendRepegV2} = useCZVPegV2(chainId, account, library);
 
   const czVaultPegInterface = new Interface(czVaultPeg);
   const [czVaultPegContract, setCzVaultPegContract] = useState(null);
@@ -82,7 +85,9 @@ function Home() {
           </SimpleGrid>
       </Box>
     </LightMode>
-    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepeg()} variant="outline" >Repeg CZUSD</Button>
+    <br/>
+    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepegV2(repegWad,isOverPeg)} variant="outline" >Repeg CZUSD EPS+PCS</Button>
+    <Text textAlign="center" display="block" position="relative" zIndex="10">Ellipsis: {repegWad == null ? "calculating" : (weiToFixed(repegWad,2)+" USD " + (isOverPeg ? "over peg" : "under peg"))}</Text>
     <br/><br/>
     <Footer />
 </>);
