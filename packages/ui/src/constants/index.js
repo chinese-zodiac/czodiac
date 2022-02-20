@@ -219,6 +219,13 @@ export const CZFARMPOOLS = {
       rewardDecimals: 18,
       logo: "./pool/DEP.png"
     },
+    {
+      name: "CWE",
+      address: "0x9a20076c3f476C2d9a8cA102073535ce97E34c73",
+      rewardAddress: "0x9c6b7221cDDA3b8136fbF9D27ac07AeeCC1087B5",
+      rewardDecimals: 18,
+      logo: "./pool/CWE.png"
+    }
     /*{
       name: "iBFR",
       address: "0xaBB29043ae684d8c0A9cB876EAC7dc2a5eDC6338",
