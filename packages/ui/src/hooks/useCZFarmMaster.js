@@ -91,6 +91,7 @@ const farmLps = [
   "0xC1a52E938fFd0eda3C6AD78CE86179adC9D59FeB", //CZUSD/3EPS -EPS
   "0x336b2ea94fca2798b0679e4d12b96472fe067baf", //CZF/OLIVE -PCS
   "0x6b080059Fdd75113CeE43fb57A8B8c900d527D81", //CZF/CWE -PCS
+  "0x01ab57d5062eFa63F87F062C981F7BE6C2Fe2739", //CZF/WNOW -PCS
   //"0x7acafdf90a85a88b1bcdb802d708752dd4478bf5", //CZF/WSOW -BABY
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
@@ -124,6 +125,7 @@ const farmDex = [
   DEX.APE,
   DEX.APE,
   DEX.EPS,
+  DEX.PCS,
   DEX.PCS,
   DEX.PCS,
   //DEX.BABY,
@@ -385,6 +387,16 @@ const farmTokens = [
       symbol:"CWE"
     }
   ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x56AA0237244C67B9A854B4Efe8479cCa0B105289",
+      symbol:"WNOW"
+    }
+  ]
   /*[
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
