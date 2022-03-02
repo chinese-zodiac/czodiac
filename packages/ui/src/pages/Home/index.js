@@ -52,8 +52,8 @@ function Home() {
     <Header />
     <LightMode>
       <Box as="main" className="horizontal-center home-page" paddingTop="10vh">
-          <Link href="https://app.1inch.io/#/56/swap/BNB/0x7c1608C004F20c3520f70b924E2BfeF092dA0043" isExternal>
-            <Button colorScheme="purple"  >Buy CZF <Icon as={FiExternalLink} /></Button>
+          <Link href="https://cz.cash/#/swap?outputCurrency=0x7c1608C004F20c3520f70b924E2BfeF092dA0043" isExternal>
+            <Button colorScheme="purple"  >Buy CZF on CZ.Cash<Icon as={FiExternalLink} /></Button>
           </Link >
           <NavLink to="exoticfarms">
             <Button colorScheme="red" >★ Exotic Farms</Button>
