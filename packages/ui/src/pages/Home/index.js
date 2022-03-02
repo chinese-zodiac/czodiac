@@ -86,11 +86,15 @@ function Home() {
       </Box>
     </LightMode>
     <br/>
-    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepegV2(repegWad,isOverPeg)} variant="outline" >Repeg CZUSD EPS+PCS</Button>
-    <Text textAlign="center" display="block" position="relative" zIndex="10">Ellipsis: {repegWad == null ? "calculating" : (weiToFixed(repegWad,2)+" USD " + (isOverPeg ? "over peg" : "under peg"))}</Text>
+    <Button ml="auto" mr="auto" display="block" onClick={()=>sendRepegV2(repegWad,overPegCalc(repegWad,isOverPeg,czusdBusdPrice))} variant="outline" >Repeg CZUSD EPS+PCS</Button>
+    <Text textAlign="center" display="block" position="relative" zIndex="10">Ellipsis: {repegWad == null ? "calculating" : (weiToFixed(repegWad,2)+" USD " + (overPegCalc(repegWad,isOverPeg,czusdBusdPrice) ? "over peg" : "under peg"))}</Text>
     <br/><br/>
     <Footer />
 </>);
+}
+
+function overPegCalc(repegWad,isOverPeg,czusdBusdPrice) {
+  return repegWad?.gt(parseEther("1")) ? isOverPeg : czusdBusdPrice?.gt(parseEther("1"))
 }
 
 export default Home;
