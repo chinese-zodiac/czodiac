@@ -61,6 +61,11 @@ const DEX = {
     name: "Ellipsis",
     shortName: "EPS",
     baseUrl: "https://ellipsis.finance/pool/0"
+  },
+  DONK: {
+    name: "DonkSwap",
+    shortName: "DONK",
+    baseUrl: "https://www.donkswap.com/#/"
   }
 }
 const farmLps = [
