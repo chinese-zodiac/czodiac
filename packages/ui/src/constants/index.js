@@ -644,7 +644,7 @@ export const EXOTIC_FARMS = {
     },
     {
       title: "CZF/CZUSD on PCS",
-      lp: "0x98b5f5e7ec32cda1f3e89936c9972f92296afe47",
+      lp: "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47",
       mintLink: "https://cz.cash/#/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
       baseEmissionRate: parseEther("1000"),
       oracle: "0x53C95Ecfde2ED3a8438cFF4F365cf06a07199551",

@@ -48,6 +48,7 @@ function ExoticFarmsList() {
     //TODO: Refactor so the LP Balance is fetched for each farm set in useExoticFarm hook
   const czfBnbLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][0].lp, account);
   const czfBusdLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][1].lp, account);
+  const czfCzusdLpBalance = useTokenBalance(EXOTIC_FARMS[CHAINS.BSC][2].lp, account);
   const czfarmBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[CHAINS.BSC]);
 
   const [currentEpoch, setCurrentEpoch] = useState(Date.now());
@@ -93,7 +94,11 @@ function ExoticFarmsList() {
                   (farmSet.lp == "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE") ? (
                     !!czfBnbLpBalance ? czfBnbLpBalance : BigNumber.from("0")
                   ) : (
-                    !!czfBusdLpBalance ? czfBusdLpBalance : BigNumber.from("0")
+                    (farmSet.lp == "0x98b5F5E7Ec32cda1F3E89936c9972f92296aFE47") ? (
+                      !!czfCzusdLpBalance ? czfCzusdLpBalance : BigNumber.from("0")
+                    ) : (
+                      !!czfBusdLpBalance ? czfBusdLpBalance : BigNumber.from("0")
+                    )                    
                   )
                 }
                 czfPerLPWad={czfPerLPWad}
