@@ -89,11 +89,11 @@ function ExoticFarm({
       <Divider />
 
       <Text>Est. Claimable: {
-        !!userInfo && !!userInfo.totalVesting && !!userInfo.emissionRate  && 
+        !!userInfo && !!userInfo?.totalVesting && !!userInfo?.emissionRate  && 
         (
-          userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch).lt(userInfo.totalVesting) ? 
-            weiToShortString(userInfo.emissionRate.mul(currentEpoch-userInfo.updateEpoch),5) : 
-            weiToShortString(userInfo.totalVesting.mul(ffBasis).div(10000),2)
+          userInfo?.emissionRate.mul(currentEpoch-userInfo?.updateEpoch).lt(userInfo?.totalVesting) ? 
+            weiToShortString(userInfo?.emissionRate.mul(currentEpoch-userInfo?.updateEpoch),5) : 
+            weiToShortString(userInfo?.totalVesting.mul(ffBasis).div(10000),2)
           )}</Text>
       <Text>Est. CZF/day: {
         !!userInfo && !!userInfo.totalVesting && !!userInfo.emissionRate && 

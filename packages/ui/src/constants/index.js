@@ -585,7 +585,7 @@ export const EXOTIC_FARMS = {
     {
       title: "CZF/BNB on PCS",
       lp: "0xeF8e8CfADC0b634b6d0065080a69F139159a17dE",
-      mintLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
+      mintLink: "https://cz.cash/#/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/BNB",
       baseEmissionRate: parseEther("1000"),
       oracle: "0x1D5D8bF7345D3cB611Dd4A98Fa5F7159Cb6d1451",
       farms: [
@@ -615,7 +615,7 @@ export const EXOTIC_FARMS = {
     {
       title: "CZF/BUSD on PCS",
       lp: "0xAAC96d00C566571bafdfa3B8440Bdc3cDB223Ad0",
-      mintLink: "https://pancakeswap.finance/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xe9e7cea3dedca5984780bafc599bd69add087d56",
+      mintLink: "https:/cz.cash/#/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xe9e7cea3dedca5984780bafc599bd69add087d56",
       baseEmissionRate: parseEther("1000"),
       oracle: "0x741b0D9Bf195e7bE74DE138B7B5F7e7328d65f12",
       farms: [
@@ -636,6 +636,36 @@ export const EXOTIC_FARMS = {
         {
           title: "1 YEAR",
           pid: 5
+          //ffBasis: 500,
+          //vestPeriod: 31536000
+          //apr: 100000
+        }
+      ]
+    },
+    {
+      title: "CZF/CZUSD on PCS",
+      lp: "0x98b5f5e7ec32cda1f3e89936c9972f92296afe47",
+      mintLink: "https://cz.cash/#/add/0x7c1608C004F20c3520f70b924E2BfeF092dA0043/0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      baseEmissionRate: parseEther("1000"),
+      oracle: "0x53C95Ecfde2ED3a8438cFF4F365cf06a07199551",
+      farms: [
+        {
+          title: "7 DAYS",
+          pid: 6
+          //ffBasis: 7500,
+          //vestPeriod: 604800
+          //apr: 30000
+        },
+        {
+          title: "90 DAYS",
+          pid: 7
+          //ffBasis: 3000,
+          //vestPeriod: 7776000
+          //apr: 50000
+        },
+        {
+          title: "1 YEAR",
+          pid: 8
           //ffBasis: 500,
           //vestPeriod: 31536000
           //apr: 100000

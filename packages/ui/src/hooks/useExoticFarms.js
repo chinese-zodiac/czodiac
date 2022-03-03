@@ -75,6 +75,7 @@ function useExoticFarms() {
     const newCalls = []
     if(!!EXOTIC_MASTER[chainId] && !!account) {
       for(let i=0; i<baseFarmSetsState.farmSets.length; i++) {
+        console.log('i',i)
         newCalls.push({
           abi:exoticMasterInterface,
           address:EXOTIC_MASTER[chainId],
@@ -88,6 +89,7 @@ function useExoticFarms() {
           args: [account,EXOTIC_MASTER[chainId]]
         });
         for(let j=0; j<baseFarmSetsState.farmSets[i].farms.length; j++){
+          console.log('j',j)
           let farm = baseFarmSetsState.farmSets[i].farms[j];
           let pid = farm.pid;
           newCalls.push({
@@ -116,9 +118,13 @@ function useExoticFarms() {
     let farmsProcessed = 0;
     let callsPerFarm = 2;
     let callsPerFarmSet = 2;
+    console.log(baseFarmSetsState.farmSets);
+    console.log(callResults);
     for(let i=0; i<baseFarmSetsState.farmSets.length; i++) {
       let farmSet = baseFarmSetsState.farmSets[i];
-      let farmSetOffset = i*(callsPerFarmSet + farmsProcessed * callsPerFarm);
+      let farmSetOffset = callsPerFarmSet*i + callsPerFarm*farmsProcessed;
+      console.log(farmsProcessed)
+      console.log(farmSetOffset)
       newFarmSetsState.farmSets[i].czfPerLPWad = callResults[0+farmSetOffset][0];
 
       for(let j=0; j<farmSet.farms.length; j++){

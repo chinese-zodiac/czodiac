@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
-pragma solidity ^0.8.4;
+/*pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -9,7 +9,7 @@ import "./interfaces/IAmmRouter02.sol";
 import "./interfaces/IAmmFactory.sol";
 import "./TribeDividends.sol";
 
-contract DampIt is ERC20, AccessControlEnumerable {
+contract TribeToken is ERC20, AccessControlEnumerable {
     using SafeERC20 for IERC20;
     bytes32 public constant PROJECT_OWNER = keccak256("PROJECT_OWNER");
     bytes32 public constant CZODIAC_ADMIN = keccak256("CZODIAC_ADMIN");
@@ -547,4 +547,4 @@ contract DampIt is ERC20, AccessControlEnumerable {
         dividendTracker.distributeCZUSDDividends(dividends);
         emit SendDividends(tokens, dividends);
     }
-}
+}*/
