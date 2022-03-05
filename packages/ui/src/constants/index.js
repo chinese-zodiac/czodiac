@@ -232,42 +232,14 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x56AA0237244C67B9A854B4Efe8479cCa0B105289",
       rewardDecimals: 18,
       logo: "/pool/WNOW.png"
-    }
-    /*{
-      name: "iBFR",
-      address: "0xaBB29043ae684d8c0A9cB876EAC7dc2a5eDC6338",
-      rewardAddress: "0xa296ad1c47fe6bdc133f39555c1d1177bd51fbc5",
-      rewardDecimals: 18,
-      logo: "./pool/iBFR.png"
-    }
-    /*{
-      name: "WSOW",
-      address: "0xb345f4a196f0B385DA561B51cDD2278f2e019f87",
-      rewardAddress: "0xe70d287aad130e2cee520e75d12c6efa4f1a377d",
-      rewardDecimals: 18,
-      logo: "./pool/WSOW.png"
-    }/*,
-    {
-      name: "GEM",
-      address: "0x9a56c4363bd5ca8c6b12433d700f0b9ac3e13eda",
-      rewardAddress: "0xbac1df744df160877cdc45e13d0394c06bc388ff",
-      rewardDecimals: 18,
-      logo: "./pool/GHD.png"
-    }*//*,
-    {
-      name: "GENX",
-      address: "0x288739594E0cab36c492CE0BF349F86183C7631f",
-      rewardAddress: "0x9aa18a4e73e1016918fa360eed950d9580c9551d",
-      rewardDecimals: 18,
-      logo: "./pool/GHD.png"
-    }*//*,
+    },
     {
       name: "DST",
-      address: "0x288739594E0cab36c492CE0BF349F86183C7631f",
-      rewardAddress: "0x3969fe107bae2537cb58047159a83c33dfbd73f9",
+      address: "0xAB455e20362C4984cfbFa048Bf3FBC4f5e46d584",
+      rewardAddress: "0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
       rewardDecimals: 18,
-      logo: "./pool/GHD.png"
-    }*/
+      logo: "/pool/DST.png"
+    }
   ]
 }
 export const CZUSDPOOLS = {
