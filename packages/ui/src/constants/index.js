@@ -237,7 +237,7 @@ export const CZFARMPOOLS = {
       name: "DST",
       address: "0xAB455e20362C4984cfbFa048Bf3FBC4f5e46d584",
       rewardAddress: "0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
-      rewardDecimals: 18,
+      rewardDecimals: 9,
       logo: "/pool/DST.png"
     }
   ]
