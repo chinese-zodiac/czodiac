@@ -8,6 +8,8 @@ import "./CZUsd.sol";
 import "./SilverDollarTypePriceSheet.sol";
 import "./JsonNftTemplate.sol";
 
+import "hardhat/console.sol";
+
 contract CzUstsdReserves is Ownable {
     using SafeERC20 for IERC20;
 
@@ -22,7 +24,7 @@ contract CzUstsdReserves is Ownable {
     uint16 public sellFeeRcBP = 125;
 
     address public rcWallet = 0xfC74a37FFF6EA97fF555e5ff996193e12a464431;
-    address public czWallet = 0x70e1cB759996a1527eD1801B169621C18a9f38F9;
+    address public czWalletBusdReceiver = 0x365FEe072022eCa1f569D41fA7Fca8adaedEd6d9;
 
     IERC20 public constant BUSD = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
     CZUsd public constant CZUSD = CZUsd(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
@@ -34,17 +36,17 @@ contract CzUstsdReserves is Ownable {
 
     function buy(uint[] calldata _ids, CURRENCY _currency) external {
         uint256 priceWad = _centsToWad(USTSD_PRICE_ORACLE.getCoinNftSum(USTSD, _ids));
-        uint256 czFeesWad = _ids.length*_centsToWad(buyFeeCzCents) + (priceWad*buyFeeCzBP/10000);
+        uint256 czFeesWad = _ids.length*_centsToWad(buyFeeCzCents) + (priceWad*uint256(buyFeeCzBP)/10000);
         uint256 rcFeesWad = (priceWad*buyFeeRcBP/10000);
         if(CURRENCY.CZUSD == _currency) {
-            CZUSD.transferFrom(msg.sender,address(this),priceWad+czFeesWad);
-            CZUSD.transferFrom(msg.sender,rcWallet,rcFeesWad);
+            CZUSD.burnFrom(msg.sender,priceWad+czFeesWad);
+            rcFeesWad != 0 && CZUSD.transferFrom(msg.sender,rcWallet,rcFeesWad);
         } else {
-            BUSD.transferFrom(msg.sender,czWallet,priceWad+czFeesWad);
-            BUSD.transferFrom(msg.sender,rcWallet,rcFeesWad);
+            BUSD.transferFrom(msg.sender,czWalletBusdReceiver,priceWad+czFeesWad);
+            rcFeesWad != 0 && BUSD.transferFrom(msg.sender,rcWallet,rcFeesWad);
         }
         for(uint i = 0; i<_ids.length; i++) {
-            USTSD.safeTransferFrom(address(this), msg.sender, _ids[i]);
+            USTSD.transferFrom(address(this), msg.sender, _ids[i]);
         }
     }
 
@@ -54,16 +56,16 @@ contract CzUstsdReserves is Ownable {
         uint256 rcFeesWad = (priceWad*sellFeeRcBP/10000);
 
         CZUSD.transfer(msg.sender,priceWad-czFeesWad-rcFeesWad);
-        CZUSD.transfer(msg.sender,rcFeesWad);
+        rcFeesWad != 0 && CZUSD.transfer(rcWallet,rcFeesWad);
 
         for(uint i = 0; i<_ids.length; i++) {
-            USTSD.safeTransferFrom(msg.sender, address(this), _ids[i]);
+            USTSD.transferFrom(msg.sender, address(this), _ids[i]);
         }
     }
 
 
     function _centsToWad(uint32 _cents) internal pure returns (uint256 wad_) {
-        return _cents * 1 ether / 100;
+        return uint256(_cents) * 1 ether / 100;
     }
 
     function recoverERC20(address _tokenAddress) external onlyOwner {
@@ -90,7 +92,7 @@ contract CzUstsdReserves is Ownable {
 
     function setAddresses(address _rcWallet, address _czWallet) external onlyOwner {
         rcWallet = _rcWallet;
-        czWallet = _czWallet;
+        czWalletBusdReceiver = _czWallet;
     }
 
 

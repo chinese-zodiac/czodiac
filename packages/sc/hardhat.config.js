@@ -32,7 +32,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: `https://speedy-nodes-nyc.moralis.io/${networkConfig.moralisRpcKey}/bsc/mainnet/archive`,
-        blockNumber:  15130000
+        blockNumber:  16310000
       }
     },
     rinkeby: {
