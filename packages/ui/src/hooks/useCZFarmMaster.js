@@ -62,10 +62,10 @@ const DEX = {
     shortName: "EPS",
     baseUrl: "https://ellipsis.finance/pool/0"
   },
-  DONK: {
-    name: "DonkSwap",
-    shortName: "DONK",
-    baseUrl: "https://www.donkswap.com/#/"
+  KNIGHT: {
+    name: "KnightSwap",
+    shortName: "KNIGHT",
+    baseUrl: "https://dex.knightswap.financial/#/"
   }
 }
 const farmLps = [
@@ -98,6 +98,7 @@ const farmLps = [
   "0x6b080059Fdd75113CeE43fb57A8B8c900d527D81", //CZF/CWE -PCS
   "0x01ab57d5062eFa63F87F062C981F7BE6C2Fe2739", //CZF/WNOW -PCS
   "0x33FcB84f5e79082f62BA7de8285C9b37a68f1a02", //CZF/DONK -PCS
+  //"", //CZF/KNIGHT -KNIGHT
   //"0x7acafdf90a85a88b1bcdb802d708752dd4478bf5", //CZF/WSOW -BABY
   //"0x1865ba1400ade61d3e01974e63a5bd31362f6683", //CZF/JAWS -SHRK
   //"0xF2F04Fa27274d02E9E72B324dE11440B36DBFC11", //CZF/BNB -DONK
@@ -135,6 +136,7 @@ const farmDex = [
   DEX.PCS,
   DEX.PCS,
   DEX.DONK,
+  //DEX.KNIGHT,
   //DEX.BABY,
   //DEX.SHRK,
   //DEX.DONK,
@@ -412,6 +414,16 @@ const farmTokens = [
     {
       address:"0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
       symbol:"DST"
+    }
+  ],
+  /*[
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xE36E4CdF538ab62d283d1AE49007EEdFA9020497",
+      symbol:"DUST"
     }
   ]
   /*[

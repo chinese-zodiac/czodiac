@@ -109,10 +109,19 @@ const {
             expect(czvPegV2BusdBalFinal.sub(czvPegV2BusdBalInitial)).to.eq(expectedDelta);
             expect(traderBusdBalInitial.sub(traderBusdBalFinal)).to.eq(expectedDelta);
         })
+        it("Should revert if buying nft not in reserve", async function() {
+            await expect(czUstsdReservesSc.connect(trader).buy([69])).to.be.reverted;
+        });
+        it("Should revert if buying nft twice", async function() {
+            await expect(czUstsdReservesSc.connect(trader).buy([23])).to.be.reverted;
+        });
     })
     describe("Sell", function() {
-        it("Should transfer CZUSD and transfer USTSD", async function () {
+        it("Should revert if selling unowned nft", async function() {
             await ustsdSc.connect(trader).setApprovalForAll(czUstsdReservesSc.address,true);
+            await expect(czUstsdReservesSc.connect(trader).sell([49])).to.be.reverted;
+        });
+        it("Should transfer CZUSD and transfer USTSD", async function () {
             const rcCzusdBalInitial = await czusdSc.balanceOf(rcWalletAddr);
             const traderCzusdBalInitial = await czusdSc.balanceOf(trader.address);
             const reserveCzusdBalInitial = await czusdSc.balanceOf(czUstsdReservesSc.address);
@@ -130,6 +139,9 @@ const {
             expect(reserveCzusdBalInitial.sub(reserveCzusdBalFinal)).to.eq(value.sub(czFees));
             expect(traderCzusdBalFinal.sub(traderCzusdBalInitial)).to.eq(value.sub(czFees).sub(rcFees));
 
+        });
+        it("Should revert if selling nft twice", async function() {
+            await expect(czUstsdReservesSc.connect(trader).sell([4])).to.be.reverted;
         });
     });
 })
