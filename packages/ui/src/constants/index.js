@@ -244,7 +244,7 @@ export const CZFARMPOOLS = {
 }
 export const CZUSDPOOLS = {
   [CHAINS.BSC] : [
-    /**/{
+    {
       name: "DEP",
       address: "0x1E24567fE9D8609079780D84009b1077AC5E5d0E",
       rewardAddress: "0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
@@ -265,7 +265,7 @@ export const CZUSDPOOLS = {
       rewardDecimals: 18,
       logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     },
-    /*{
+    {
       name: "DUST",
       address: "0x5f1170b2d80eEAD87699ef52d85c96125301CB54",
       rewardAddress: "0xE36E4CdF538ab62d283d1AE49007EEdFA9020497",
