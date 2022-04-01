@@ -112,14 +112,14 @@ export const CZFARMPOOLS = {
       address: "0xeAAe8daEe860eFc43851d4234eB944F8C9B5f968",
       rewardAddress: "0x535874bfbecac5f235717faea7c26d01c67b38c5",
       rewardDecimals: 18,
-      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/common-files/tigz200.png"
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/common-files/tigz200.png"
     },
     {
       name: "CZF",
       address: "0x7981fed94a74e3b92a8974b5fe20c9359b695d12",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
-      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     },
     {
       name: "FG",
@@ -147,7 +147,7 @@ export const CZFARMPOOLS = {
       address: "0x8c7678cd08580d4ba55dff215229c6e6cb6b6df4",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
-      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     },
     {
       name: "FINS",
@@ -263,7 +263,7 @@ export const CZUSDPOOLS = {
       address: "0x586B7Ed172BceF93aEcA938a70CD425a8EF06A69",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
-      logo: "https://storageapi.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
     },
     {
       name: "DUST",
