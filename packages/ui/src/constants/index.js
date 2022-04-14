@@ -659,7 +659,7 @@ export const LOSS_COMPENSATION = {
 }
 
 export const CZVPEGV2 = {
-  [CHAINS.BSC]: "0x365FEe072022eCa1f569D41fA7Fca8adaedEd6d9"
+  [CHAINS.BSC]: "0xa8e608067C019c8920c4Dd3DB65A30a1780577Ac"
 }
 
 export const CZUSD3EPS_POOL = {
