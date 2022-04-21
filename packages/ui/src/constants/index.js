@@ -257,14 +257,14 @@ export const CZUSDPOOLS = {
       rewardAddress: "0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
       rewardDecimals: 9,
       logo: "./pool/IF1.png"
-    },
+    },*/
     {
       name: "CZF",
       address: "0x586B7Ed172BceF93aEcA938a70CD425a8EF06A69",
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
       logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
-    },*/
+    },
     {
       name: "DUST",
       address: "0x5f1170b2d80eEAD87699ef52d85c96125301CB54",
