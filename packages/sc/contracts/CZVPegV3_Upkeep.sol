@@ -83,7 +83,7 @@ contract CZVPegV3_Upkeep is KeeperCompatibleInterface, Ownable {
             nextProfit = getProfit(i, j, dx);
         }
         //Next search by golden ratio
-        uint256 a = dx / 10;
+        uint256 a = 0;
         uint256 b = dx;
         uint256 c = b - (((b - a) * precision) / goldenRatio);
         uint256 d = a + (((b - a) * precision) / goldenRatio);
