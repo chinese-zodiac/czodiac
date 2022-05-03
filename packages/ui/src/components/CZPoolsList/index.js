@@ -43,6 +43,7 @@ function CZPoolsList() {
               timeEnd={pool.timeEnd}
               user={pool.user}
               name={pool.name}
+              subtitle={pool.subtitle}
               logo={pool.logo}
             />
           ) : (            

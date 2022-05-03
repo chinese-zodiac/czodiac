@@ -24,6 +24,7 @@ function CZPool({
   timeEnd,
   user,
   name,
+  subtitle,
   logo
 }) {
   const {chainId} = useEthers();
@@ -35,7 +36,9 @@ function CZPool({
       <Image src={logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
       <Heading display="inline-block" as="h3" fontSize="2xl" >{tokenLink(rewardAddress,name)}</Heading>
       <br/>
-      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Text>{subtitle}</Text>
+      <br/>
+      <Link isExternal href={`https://cz.cash/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on cz.cash<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider
