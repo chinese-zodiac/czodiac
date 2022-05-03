@@ -38,7 +38,7 @@ function CZPool({
       <br/>
       <Text>{subtitle}</Text>
       <br/>
-      <Link isExternal href={`https://cz.cash/swap#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on cz.cash<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Link isExternal href={`https://cz.cash/#/swap?outputCurrency=${CZFARM_ADDRESSES[chainId]}`} textDecoration="underline">🖙🖙 Get CZF on cz.cash<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider
