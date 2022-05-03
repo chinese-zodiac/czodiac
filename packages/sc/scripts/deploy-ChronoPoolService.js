@@ -14,6 +14,7 @@ async function main() {
   const chronoPoolService = await ChronoPoolService.deploy(
     czfToken.address, //CZFarm _czf
     parseEther("4800") //uint112 _baseEmissionRate
+    //NOTE: Updated to 300
   );
   await chronoPoolService.deployed();
   console.log("ChronoPoolService deployed to:", chronoPoolService.address);
