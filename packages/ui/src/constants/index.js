@@ -239,6 +239,23 @@ export const CZFARMPOOLS = {
       rewardAddress: "0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
       rewardDecimals: 9,
       logo: "/pool/DST.png"
+    },
+    {
+      name: "CZUSD",
+      address: "0x8B299092691240d3420c7f2c87aF5fd84812546d",
+      rewardAddress: "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      rewardDecimals: 18,
+      logo: "/pool/CZUSD.png",
+      feeBasis:1000
+    },
+    {
+      name: "CZUSD",
+      address: "0xde9fcb5b05B1BDB16Af10bd4051712A0F1e0fA25",
+      rewardAddress: "0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70",
+      rewardDecimals: 18,
+      logo: "/pool/CZUSD.png",
+      feeBasis:500,
+      lrtRequired:parseEther("5")
     }
   ]
 }
