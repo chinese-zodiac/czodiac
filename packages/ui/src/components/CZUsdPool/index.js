@@ -24,6 +24,7 @@ function CZUsdPool({
   timeEnd,
   user,
   name,
+  subtitle,
   logo
 }) {
   const {chainId} = useEthers();
@@ -35,7 +36,9 @@ function CZUsdPool({
       <Image src={logo} maxW="32px" display="inline-block" mr="7px" position="relative" top="-3px"></Image>
       <Heading display="inline-block" as="h3" fontSize="2xl" >{tokenLink(rewardAddress,name)}</Heading>
       <br/>
-      <Link isExternal href={`https://pancakeswap.finance/swap#/swap?outputCurrency=${CZUSD[chainId]}`} textDecoration="underline">🖙🖙 Get CZUSD on PCS<Icon as={FiExternalLink} /> 🖘🖘</Link>
+      <Text>{subtitle}</Text>
+      <br/>
+      <Link isExternal href={`https://cz.cash/#/swap?outputCurrency=${CZUSD[chainId]}`} textDecoration="underline">🖙🖙 Get CZUSD on cz.cash<Icon as={FiExternalLink} /> 🖘🖘</Link>
       <Divider />
 
       <Slider

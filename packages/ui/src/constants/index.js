@@ -283,6 +283,24 @@ export const CZUSDPOOLS = {
       rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       rewardDecimals: 18,
       logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png"
+    },    
+    {
+      name: "CZF",
+      subtitle: "4% CZUSD burn on withdraw",
+      address: "0x380A01792C2227AC4357D30822631dE8f85B922D",
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      rewardDecimals: 18,
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png",
+      feeBasis:400
+    },
+    {
+      name: "CZF",
+      subtitle: "Hold 50 LRT to withdraw, claim, or stake. No fees.",
+      address: "0xD5112ffd4cEf35d8F73c58a48a50051AC2C96121",
+      rewardAddress: "0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      rewardDecimals: 18,
+      logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png",
+      lrtRequired:parseEther("50")
     },
     {
       name: "DUST",
