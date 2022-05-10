@@ -308,6 +308,13 @@ export const CZUSDPOOLS = {
       rewardAddress: "0xE36E4CdF538ab62d283d1AE49007EEdFA9020497",
       rewardDecimals: 18,
       logo: "./pool/DUST.png"
+    },
+    {
+      name: "IF2",
+      address: "0x36Cd92223E98dFe362E672988d92E006B63Ae3F1",
+      rewardAddress: "0x308811b388B3b34f0F683BCED45Ee6B7B0E0c6f1",
+      rewardDecimals: 18,
+      logo: "./pool/IF2.png"
     }
     /*{
       name: "iBFR",
