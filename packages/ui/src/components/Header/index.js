@@ -8,16 +8,31 @@ import {
   Box,
   Icon,
 } from "@chakra-ui/react";
+import WalletConnectProvider from '@walletconnect/web3-provider'
 import { FiSun, FiMoon, FiCornerDownRight, FiHelpCircle } from "react-icons/fi";
-import { CHAIN_LABELS, CHAINS } from "../../constants";
+import { CHAIN_LABELS, CHAINS, RPC_URLS } from "../../constants";
 import { NavLink } from "react-router-dom";
 import { addChainToMetaMask } from "../../utils/metamask";
 import "./index.scss";
 
 const ADDRESSS_STORAGE_KEY = 'UserWalletAddress';
 
+
 function Header() {
-  const { activateBrowserWallet, account, chainId } = useEthers();
+  const { activateBrowserWallet, activate, account, chainId } = useEthers();
+
+  async function onConnect() {
+    const provider = new WalletConnectProvider({
+      rpc: RPC_URLS[CHAINS.BSC]
+    })
+    try{
+      await provider.enable()
+      activate(provider)
+    }catch(e) {
+      console.log(e)
+    }
+  }
+
   const { colorMode, toggleColorMode } = useColorMode();
 
 // connection logic should be moved to hook
@@ -58,6 +73,12 @@ function Header() {
                 onClick={activateBrowserWallet}
               >
                 Connect
+              </Button>
+              <Button
+                className="connect connect-walletconnect"
+                onClick={onConnect}
+              >
+                WalletConnect
               </Button>
             </>
           )}
@@ -109,7 +130,7 @@ function Header() {
           </>
         )}
       </div>
-      <Text className="version">v0.11.21</Text>
+      <Text className="version">v0.11.22</Text>
     </header>
   );
 }

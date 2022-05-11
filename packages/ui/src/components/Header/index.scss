@@ -21,15 +21,20 @@
       border-bottom: solid;
       border-radius: 0 0 0 20px;
       width: 150px;
-      height: 55px;
+      height: 110px;
       position: absolute;
       top: 0px;
       right: 0px;
       .connect {
         border: none;
-        border-radius: 0 0 0 20px;
+        border-bottom:solid;
+        border-radius: 0 0 0 0px;
         width: 100%;
-        height: 100%;
+        height: 50%;
+      }
+      .connect-walletconnect{
+        border-radius: 0 0 0 20px;
+        border:none;
       }
       .info {
         width: 100%;
@@ -47,7 +52,7 @@
     }
     .color-mode {
       position: absolute;
-      top: 55px;
+      top: 108px;
       right: 0px;
       border-radius: 0 0 0 20px;
       border-left: solid;
