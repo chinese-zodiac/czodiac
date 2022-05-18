@@ -542,44 +542,44 @@ export const CHRONOPOOLS = {
     {
       title: "7 DAYS",
       pid: 0
-      //ffBasis: 7500,
+      //ffBasis: 9500,
       //vestPeriod: 604800
-      //apr: 30000
+      //apr: 1200
     },
     {
       title: "30 DAYS",
       pid: 7
-      //ffBasis: 5000,
+      //ffBasis: 9000,
       //vestPeriod: 2592000
-      //apr: 40000
+      //apr: 1400
     },
     {
       title: "90 DAYS",
       pid: 1
-      //ffBasis: 3000,
+      //ffBasis: 8000,
       //vestPeriod: 7776000
-      //apr: 50000
+      //apr: 1600
     },
     {
       title: "1 YEAR",
       pid: 2
-      //ffBasis: 500,
+      //ffBasis: 1500,
       //vestPeriod: 31536000
-      //apr: 100000
+      //apr: 1800
     },
     {
       title: "18 MONTHS",
       pid: 3
-      //ffBasis: 300,
+      //ffBasis: 1200,
       //vestPeriod: 47304000
-      //apr: 130000
+      //apr: 1900
     },
     {
       title: "4 YEARS",
       pid: 4
-      //ffBasis: 75,
+      //ffBasis: 500,
       //vestPeriod: 126144000
-      //apr: 200000
+      //apr: 2000
     },/*,
     {
       title: "1 CENTURY",
@@ -591,9 +591,9 @@ export const CHRONOPOOLS = {
     {
       title: "10 YEARS",
       pid: 6
-      //ffBasis: 35,
+      //ffBasis: 100,
       //vestPeriod: 315360000
-      //apr: 250000
+      //apr: 2100
     }
   ]
 }
