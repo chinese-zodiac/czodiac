@@ -45,7 +45,7 @@ contract LuckySilverDollarToken is
     uint256 public taxBps = 200;
     mapping(address => bool) public isExempt;
     IAmmPair public ammCzusdPair;
-    address public czusd;
+    CZUsd public czusd;
     uint256 public baseCzusdLocked;
     //Ticket properties
     uint256 public constant MAX_ADDRESS_TICKETS = 200;
@@ -59,9 +59,10 @@ contract LuckySilverDollarToken is
     uint256 public czusdLockPerReward = 80 ether;
     uint256 public lastUstsdRewardEpoch;
     uint256 public totalUstsdRewarded;
+    uint256 public totalCzusdSpent;
     uint256 public ustsdRewardPeriod = 12 hours;
     CzUstsdReserves czustsdReserves;
-    IERC721Enumerable ustsdNft;
+    JsonNftTemplate ustsdNft;
     //State
     bool public state_isVrfPending;
     bool public state_isRandomWordReady;
@@ -74,9 +75,9 @@ contract LuckySilverDollarToken is
         address _link,
         bytes32 _gweiKeyHash,
         CzUstsdReserves _czustsdReserves,
-        IERC721Enumerable _ustsdNft,
+        JsonNftTemplate _ustsdNft,
         IAmmFactory _factory,
-        address _czusd,
+        CZUsd _czusd,
         uint256 _baseCzusdLocked
     )
         ERC20PresetFixedSupply(
@@ -99,7 +100,9 @@ contract LuckySilverDollarToken is
         setBaseCzusdLocked(_baseCzusdLocked);
 
         czusd = _czusd;
-        ammCzusdPair = IAmmPair(_factory.createPair(address(this), czusd));
+        ammCzusdPair = IAmmPair(
+            _factory.createPair(address(this), address(czusd))
+        );
 
         setHasWon(address(ammCzusdPair), true);
         setHasWon(msg.sender, true);
@@ -115,7 +118,7 @@ contract LuckySilverDollarToken is
         czustsdReserves = _to;
     }
 
-    function setUstsdNft(IERC721Enumerable _to) public onlyOwner {
+    function setUstsdNft(JsonNftTemplate _to) public onlyOwner {
         ustsdNft = _to;
     }
 
@@ -125,6 +128,10 @@ contract LuckySilverDollarToken is
 
     function setTotalUstsdRewarded(uint256 _to) public onlyOwner {
         totalUstsdRewarded = _to;
+    }
+
+    function setTotalCzusdSpent(uint256 _to) public onlyOwner {
+        totalCzusdSpent = _to;
     }
 
     function setTokensPerTicket(uint256 _to) public onlyOwner {
@@ -148,13 +155,12 @@ contract LuckySilverDollarToken is
     }
 
     function ustsdToReward() public view returns (uint256 rabbitMintCount_) {
-        return
-            ((lockedCzusd() - baseCzusdLocked) / czusdLockPerReward) -
-            totalUstsdRewarded;
+        return ((lockedCzusd() - baseCzusdLocked - totalCzusdSpent) /
+            czusdLockPerReward);
     }
 
     function lockedCzusd() public view returns (uint256 lockedCzusd_) {
-        bool czusdIsToken0 = ammCzusdPair.token0() == czusd;
+        bool czusdIsToken0 = ammCzusdPair.token0() == address(czusd);
         (uint112 reserve0, uint112 reserve1, ) = ammCzusdPair.getReserves();
         uint256 lockedLP = ammCzusdPair.balanceOf(address(this));
         uint256 totalLP = ammCzusdPair.totalSupply();
@@ -276,13 +282,33 @@ contract LuckySilverDollarToken is
 
         address winner = getWinner(randomWord);
 
-        _deleteAccount(winner, addressTickets[winner]);
+        //Buy and send USTSD from reserves to winner
+        //Requires permission to mint czusd
+        uint256 rewardId = ustsdNft.tokenOfOwnerByIndex(
+            address(czustsdReserves),
+            randomWord % ustsdNft.balanceOf(address(czustsdReserves))
+        );
+        SilverDollarTypePriceSheet ustsdPriceOracle = czustsdReserves
+            .USTSD_PRICE_ORACLE();
+        uint256 priceWad = _centsToWad(
+            ustsdPriceOracle.getCoinNftPriceCents(
+                JsonNftTemplate(ustsdNft),
+                rewardId
+            )
+        );
+        uint256 czFeesWad = _centsToWad(czustsdReserves.buyFeeCzCents()) +
+            ((priceWad * uint256(czustsdReserves.buyFeeCzBP())) / 10000);
+        uint256 rcFeesWad = ((priceWad * czustsdReserves.buyFeeRcBP()) / 10000);
+        uint256 totalPriceWad = priceWad + czFeesWad + rcFeesWad;
+        czusd.mint(address(this), totalPriceWad);
+        uint256[] memory toBuy = new uint256[](1);
+        toBuy[0] = rewardId;
+        czustsdReserves.buy(toBuy, CzUstsdReserves.CURRENCY.CZUSD);
 
+        totalCzusdSpent += totalPriceWad;
+        ustsdNft.transferFrom(address(this), winner, rewardId);
         addressHasWon[winner] = true;
-
-        //TODO: Buy and send USTSD from reserves to winner
-        //TODO: Rollover unused CZUSD
-        //rabbitMinter.freeMint(winner);
+        _updateAccount(winner);
     }
 
     function _deleteAccount(address _account, uint256 _prevTickets) internal {
@@ -346,5 +372,9 @@ contract LuckySilverDollarToken is
 
         _updateAccount(sender);
         _updateAccount(recipient);
+    }
+
+    function _centsToWad(uint32 _cents) internal pure returns (uint256 wad_) {
+        return (uint256(_cents) * 1 ether) / 100;
     }
 }
