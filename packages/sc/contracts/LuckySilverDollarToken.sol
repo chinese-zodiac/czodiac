@@ -63,6 +63,7 @@ contract LuckySilverDollarToken is
     uint256 public ustsdRewardPeriod = 12 hours;
     CzUstsdReserves czustsdReserves;
     JsonNftTemplate ustsdNft;
+    address public rewardDistributor;
     //State
     bool public state_isVrfPending;
     bool public state_isRandomWordReady;
@@ -78,6 +79,7 @@ contract LuckySilverDollarToken is
         JsonNftTemplate _ustsdNft,
         IAmmFactory _factory,
         CZUsd _czusd,
+        address _rewardDistributor,
         uint256 _baseCzusdLocked
     )
         ERC20PresetFixedSupply(
@@ -98,6 +100,7 @@ contract LuckySilverDollarToken is
         setCzustsdReserves(_czustsdReserves);
         setUstsdNft(_ustsdNft);
         setBaseCzusdLocked(_baseCzusdLocked);
+        setRewardDistributor(_rewardDistributor);
 
         czusd = _czusd;
         ammCzusdPair = IAmmPair(
@@ -152,6 +155,10 @@ contract LuckySilverDollarToken is
 
     function setUstsdRewardPeriodPeriod(uint256 _to) public onlyOwner {
         ustsdRewardPeriod = _to;
+    }
+
+    function setRewardDistributor(address _to) public onlyOwner {
+        rewardDistributor = _to;
     }
 
     function ustsdToReward() public view returns (uint256 rabbitMintCount_) {
@@ -364,10 +371,17 @@ contract LuckySilverDollarToken is
         if (isExempt[sender] || isExempt[recipient]) {
             super._transfer(sender, recipient, amount);
         } else {
-            //TODO: Add tax transfer for ustsd lottery
+            uint256 totalFeeWad = (amount * (burnBps + taxBps)) / 10000;
             uint256 burnAmount = (amount * burnBps) / 10000;
             if (burnAmount > 0) super._burn(sender, burnAmount);
-            super._transfer(sender, recipient, amount - burnAmount);
+            if (totalFeeWad - burnAmount > 0) {
+                super._transfer(
+                    sender,
+                    rewardDistributor,
+                    totalFeeWad - burnAmount
+                );
+            }
+            super._transfer(sender, recipient, amount - totalFeeWad);
         }
 
         _updateAccount(sender);
