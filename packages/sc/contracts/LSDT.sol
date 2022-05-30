@@ -110,6 +110,8 @@ contract LSDT is
 
         setHasWon(address(ammCzusdPair), true);
         setHasWon(msg.sender, true);
+        setHasWon(rewardDistributor, true);
+        setIsExempt(rewardDistributor, true);
         setIsExempt(msg.sender, true);
     }
 
