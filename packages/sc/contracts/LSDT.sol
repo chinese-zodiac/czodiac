@@ -16,9 +16,9 @@ import "./libs/AmmLibrary.sol";
 import "./interfaces/IAmmFactory.sol";
 import "./interfaces/IAmmPair.sol";
 import "./CzUstsdReserves.sol";
+import "./LSDTRewards.sol";
 
-contract LuckySilverDollarToken is
-    Context,
+contract LSDT is
     ERC20PresetFixedSupply,
     VRFConsumerBaseV2,
     KeeperCompatibleInterface,
@@ -79,7 +79,6 @@ contract LuckySilverDollarToken is
         JsonNftTemplate _ustsdNft,
         IAmmFactory _factory,
         CZUsd _czusd,
-        address _rewardDistributor,
         uint256 _baseCzusdLocked
     )
         ERC20PresetFixedSupply(
@@ -100,7 +99,9 @@ contract LuckySilverDollarToken is
         setCzustsdReserves(_czustsdReserves);
         setUstsdNft(_ustsdNft);
         setBaseCzusdLocked(_baseCzusdLocked);
-        setRewardDistributor(_rewardDistributor);
+        setRewardDistributor(
+            address(new LSDTRewards(msg.sender, IERC20(this), _ustsdNft))
+        );
 
         czusd = _czusd;
         ammCzusdPair = IAmmPair(
@@ -390,5 +391,12 @@ contract LuckySilverDollarToken is
 
     function _centsToWad(uint32 _cents) internal pure returns (uint256 wad_) {
         return (uint256(_cents) * 1 ether) / 100;
+    }
+
+    function recoverERC20(address tokenAddress) external onlyOwner {
+        IERC20(tokenAddress).safeTransfer(
+            _msgSender(),
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
     }
 }
