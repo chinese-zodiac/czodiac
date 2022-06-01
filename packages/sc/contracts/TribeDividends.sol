@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
-pragma solidity ^0.8.4;
+/*pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -444,3 +444,4 @@ contract TribeDividends is Ownable, DividendPayingToken {
         IERC20(CZUSD).transfer(owner(), IERC20(CZUSD).balanceOf(address(this)));
     }
 }
+*/

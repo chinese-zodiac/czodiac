@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
-pragma solidity ^0.8.4;
+/*pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -318,3 +318,4 @@ contract TribeTokenWithoutReflect is ERC20, AccessControlEnumerable {
         );
     }
 }
+*/
