@@ -35,12 +35,14 @@ describe("LSDT", function () {
       params: [czDeployer]
     });
     deployer = await ethers.getSigner(czDeployer);
+    console.log("Got deployer");
 
     ustsd = await ethers.getContractAt("JsonNftTemplate",SilverDollarNfts);
     ustsdOracle = await ethers.getContractAt("SilverDollarTypePriceSheet",SilverDollarTypePriceSheet);
     czusdSc = await ethers.getContractAt("CZUsd", czusd);
     pcsRouter = await ethers.getContractAt("IAmmRouter02", pancakeswapRouter);
     ustsdReserves = await ethers.getContractAt("CzUstsdReserves", CzUstsdReserves);
+    console.log("Got contracts");
 
     const VRFCoordinatorV2Mock = await ethers.getContractFactory("VRFCoordinatorV2Mock");
     vrfCoordinatorMock = await VRFCoordinatorV2Mock.deploy(parseEther("0.005"),5000000000*27); //27 LINK = 1 BNB, BSC gas price of 5 gwei
@@ -48,10 +50,12 @@ describe("LSDT", function () {
     await vrfCoordinatorMock.createSubscription();
     subscriptionId = 1; //First subscription is always 1
     await vrfCoordinatorMock.fundSubscription(subscriptionId,parseEther("100"));
+    console.log("Deployed vrfCoordinatorMock");
 
     const IterableArrayWithoutDuplicateKeys = await ethers.getContractFactory('IterableArrayWithoutDuplicateKeys');
     const iterableArrayWithoutDuplicateKeys = await IterableArrayWithoutDuplicateKeys.deploy();
     await iterableArrayWithoutDuplicateKeys.deployed();
+    console.log("Deployed IterableArrayWithoutDuplicateKeys");
 
     const LSDT = await ethers.getContractFactory("LSDT",{
       libraries: {
@@ -70,26 +74,47 @@ describe("LSDT", function () {
         BASE_CZUSD_LP//uint256 _baseCzusdLocked
     );
     await lsdt.deployed();
+    console.log("Deployed LSDT");
 
     const lsdtCzusdPair_address = await lsdt.ammCzusdPair();
     const lsdtRewards_address = await lsdt.rewardDistributor();
     lsdtCzusdPair = await ethers.getContractAt("IAmmPair", lsdtCzusdPair_address);
     lsdtRewards = await ethers.getContractAt("LSDTRewards", lsdtRewards_address);
+    console.log("Got new contracts");
+
+    await czusdSc.connect(deployer).mint(owner.address,BASE_CZUSD_LP);
+    await lsdt.approve(pcsRouter.address,ethers.constants.MaxUint256);
+    await czusdSc.approve(pcsRouter.address,ethers.constants.MaxUint256);
+    console.log("Approved for liquidity");
+    await pcsRouter.addLiquidity(
+      czusdSc.address,
+      lsdt.address,
+      BASE_CZUSD_LP,
+      parseEther("10000"),
+      0,
+      0,
+      owner.address,
+      ethers.constants.MaxUint256
+    );
+    console.log("Added liquidity");
   });
   it("Should deploy lsdt", async function () {
-    const ustsdToReward = await lsdt.ustsdToReward();
+    const pairCzusdBal = await czusdSc.balanceOf(lsdtCzusdPair.address);
+    const pairLsdtBal = await lsdt.balanceOf(lsdtCzusdPair.address);
     const baseCzusdLocked = await lsdt.baseCzusdLocked();
     const totalUstsdRewarded = await lsdt.totalUstsdRewarded();
     const totalCzusdSpent = await lsdt.totalCzusdSpent();
     const totalTickets = await lsdt.totalTickets();
     const addressTickets = await lsdt.addressTickets(owner.address);
     const lastUstsdRewardEpoch = await lsdt.lastUstsdRewardEpoch();
-    expect(ustsdToReward).to.eq(0);
+    expect(pairCzusdBal).to.eq(BASE_CZUSD_LP);
+    expect(pairLsdtBal).to.eq(parseEther("10000"));
     expect(baseCzusdLocked).to.eq(BASE_CZUSD_LP);
     expect(totalUstsdRewarded).to.eq(0);
     expect(totalCzusdSpent).to.eq(0);
     expect(addressTickets).to.eq(0);
-    expect(lastUstsdRewardEpoch).to.eq(0);
+    expect(lastUstsdRewardEpoch).to.be.gt(1600000000);
+    expect(lastUstsdRewardEpoch).to.be.lt(2000000000);
     expect(totalTickets).to.eq(0);
   });
 });
