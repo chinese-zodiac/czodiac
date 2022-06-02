@@ -93,7 +93,7 @@ describe("LSDT", function () {
       parseEther("10000"),
       0,
       0,
-      owner.address,
+      lsdt.address,
       ethers.constants.MaxUint256
     );
     console.log("Added liquidity");
@@ -107,6 +107,10 @@ describe("LSDT", function () {
     const totalTickets = await lsdt.totalTickets();
     const addressTickets = await lsdt.addressTickets(owner.address);
     const lastUstsdRewardEpoch = await lsdt.lastUstsdRewardEpoch();
+    const ownerHasWon = await lsdt.addressHasWon(owner.address);
+    const pairHasWon = await lsdt.addressHasWon(lsdtCzusdPair.address);
+    const ownerIsExempt = await lsdt.isExempt(owner.address);
+    const pairIsExempt = await lsdt.isExempt(lsdtCzusdPair.address);
     expect(pairCzusdBal).to.eq(BASE_CZUSD_LP);
     expect(pairLsdtBal).to.eq(parseEther("10000"));
     expect(baseCzusdLocked).to.eq(BASE_CZUSD_LP);
@@ -116,5 +120,53 @@ describe("LSDT", function () {
     expect(lastUstsdRewardEpoch).to.be.gt(1600000000);
     expect(lastUstsdRewardEpoch).to.be.lt(2000000000);
     expect(totalTickets).to.eq(0);
+    expect(ownerHasWon).to.be.true;
+    expect(pairHasWon).to.be.true;
+    expect(ownerIsExempt).to.be.true;
+    expect(pairIsExempt).to.be.false;
+  });
+  it("Should burn 8% and tax 2% on buy and get tickets", async function () {
+    console.log("Minting and approving czusd...");
+    await czusdSc.connect(deployer).mint(trader.address,parseEther("10000"));
+    await czusdSc.connect(trader).approve(pcsRouter.address,ethers.constants.MaxUint256);
+    console.log("Buying LSDT on pcs...");
+    await pcsRouter.connect(trader).swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        parseEther("100"),
+        0,
+        [czusdSc.address,lsdt.address],
+        trader.address,
+        ethers.constants.MaxUint256
+    );
+    console.log("Collecting data from view methods...");
+    const traderBal = await lsdt.balanceOf(trader.address);
+    const totalSupply = await lsdt.totalSupply();
+    const lockedCzusd = await lsdt.lockedCzusd();
+    const traderTickets = await lsdt.addressTickets(trader.address);
+    const totalTickets = await lsdt.totalTickets();
+    const ustsdToReward = await lsdt.ustsdToReward();
+    const checkUpkeepVrf = await lsdt.checkUpkeep(checkDataVrf);
+    const checkUpkeepMint = await lsdt.checkUpkeep(checkDataMint);
+    const rewardDistributorBal = await lsdt.balanceOf(lsdtRewards.address);
+    const getWinner1 = await lsdt.getWinner(0);
+    const getWinner2 = await lsdt.getWinner(1);
+    const getWinner3 = await lsdt.getWinner(87);
+    const getWinner4 = await lsdt.getWinner(88);
+    const getWinner5 = await lsdt.getWinner(89);
+    const getWinner6 = await lsdt.getWinner(10000);
+    expect(traderBal).to.be.closeTo(parseEther("88.8"),parseEther("0.1"));
+    expect(totalSupply).to.be.closeTo(parseEther("9992.1"),parseEther("0.1"));
+    expect(lockedCzusd).to.be.closeTo(parseEther("10008.3"),parseEther("0.1"));
+    expect(traderTickets).to.eq(88);
+    expect(totalTickets).to.eq(88);
+    expect(ustsdToReward).to.eq(0);
+    expect(checkUpkeepVrf[0]).to.be.false;
+    expect(checkUpkeepMint[0]).to.be.false;
+    expect(rewardDistributorBal).to.be.closeTo(parseEther("2.0"),parseEther("0.1"));
+    expect(getWinner1.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner2.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner3.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner4.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner5.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner6.toUpperCase()).to.eq(trader.address.toUpperCase());
   });
 });

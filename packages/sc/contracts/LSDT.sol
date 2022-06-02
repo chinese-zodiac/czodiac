@@ -18,6 +18,8 @@ import "./interfaces/IAmmPair.sol";
 import "./CzUstsdReserves.sol";
 import "./LSDTRewards.sol";
 
+//import "hardhat/console.sol";
+
 contract LSDT is
     ERC20PresetFixedSupply,
     VRFConsumerBaseV2,
@@ -177,18 +179,18 @@ contract LSDT is
 
         uint256 lockedLpCzusdBal = ((czusdIsToken0 ? reserve0 : reserve1) *
             lockedLP) / totalLP;
-        uint256 lockedLpLrtBal = ((czusdIsToken0 ? reserve1 : reserve0) *
+        uint256 lockedLpLsdtBal = ((czusdIsToken0 ? reserve1 : reserve0) *
             lockedLP) / totalLP;
 
-        if (lockedLpLrtBal == totalSupply()) {
+        if (lockedLpLsdtBal == totalSupply()) {
             lockedCzusd_ = lockedLpCzusdBal;
         } else {
             lockedCzusd_ =
                 lockedLpCzusdBal -
                 (
                     AmmLibrary.getAmountOut(
-                        totalSupply() - lockedLpLrtBal,
-                        lockedLpLrtBal,
+                        totalSupply() - lockedLpLsdtBal,
+                        lockedLpLsdtBal,
                         lockedLpCzusdBal
                     )
                 );
@@ -278,14 +280,14 @@ contract LSDT is
     function _performUpkeepRequestVrf() internal {
         require(
             _isUpkeepAllowedRequestVrf(),
-            "LRT: Request VRF Upkeep not allowed"
+            "LSDT: Request VRF Upkeep not allowed"
         );
         state_isVrfPending = true;
         _requestRandomWords();
     }
 
     function _performUpkeepReward() internal {
-        require(_isUpkeepAllowedMint(), "LRT: Mint Upkeep not allowed");
+        require(_isUpkeepAllowedMint(), "LSDT: Mint Upkeep not allowed");
         state_isRandomWordReady = false;
         setLastUstsdRewardEpoch(block.timestamp);
         totalUstsdRewarded++;
