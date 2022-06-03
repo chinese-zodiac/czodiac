@@ -97,6 +97,9 @@ describe("LSDT", function () {
       ethers.constants.MaxUint256
     );
     console.log("Added liquidity");
+    await czusdSc
+    .connect(deployer)
+    .grantRole(ethers.utils.id("MINTER_ROLE"), lsdt.address);
   });
   it("Should deploy lsdt", async function () {
     const pairCzusdBal = await czusdSc.balanceOf(lsdtCzusdPair.address);
@@ -168,5 +171,81 @@ describe("LSDT", function () {
     expect(getWinner4.toUpperCase()).to.eq(trader.address.toUpperCase());
     expect(getWinner5.toUpperCase()).to.eq(trader.address.toUpperCase());
     expect(getWinner6.toUpperCase()).to.eq(trader.address.toUpperCase());
+  });
+  it("Should grant max of 200 tickets", async function () {
+    await pcsRouter.connect(trader).swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        parseEther("3000"),
+        0,
+        [czusdSc.address,lsdt.address],
+        trader.address,
+        ethers.constants.MaxUint256
+    );
+    const traderTickets = await lsdt.addressTickets(trader.address);
+    const totalTickets = await lsdt.totalTickets();
+    const lockedCzusd = await lsdt.lockedCzusd();
+    const ustsdToReward = await lsdt.ustsdToReward();
+    const checkUpkeepVrf = await lsdt.checkUpkeep(checkDataVrf);
+    const checkUpkeepMint = await lsdt.checkUpkeep(checkDataMint);
+    const getWinner1 = await lsdt.getWinner(1);
+    const getWinner2 = await lsdt.getWinner(89);
+    expect(lockedCzusd).to.be.closeTo(parseEther("10203.2"),parseEther("0.1"));
+    expect(traderTickets).to.eq(200);
+    expect(totalTickets).to.eq(200);
+    expect(ustsdToReward).to.eq(2);
+    expect(checkUpkeepVrf[0]).to.be.false;
+    expect(checkUpkeepMint[0]).to.be.false;
+    expect(getWinner1.toUpperCase()).to.eq(trader.address.toUpperCase());
+    expect(getWinner2.toUpperCase()).to.eq(trader.address.toUpperCase());
+    await expect(lsdt.performUpkeep(checkDataVrf)).to.be.reverted;
+    await expect(lsdt.performUpkeep(checkDataMint)).to.be.reverted;
+  });
+  it("Should enable vrf after 12 hours", async function () {
+    await time.increase(time.duration.hours(12));
+    await time.advanceBlock();
+    const checkUpkeepVrf = await lsdt.checkUpkeep(checkDataVrf);
+    const checkUpkeepMint = await lsdt.checkUpkeep(checkDataMint);
+    expect(checkUpkeepVrf[0]).to.be.true;
+    expect(checkUpkeepMint[0]).to.be.false;
+    await expect(lsdt.performUpkeep(checkDataMint)).to.be.reverted;
+  });
+  it("Should get random words", async function () {
+    const vrfGasEsimation = await lsdt.estimateGas.performUpkeep(checkDataVrf);
+    await lsdt.performUpkeep(checkDataVrf);
+    const requestId = await lsdt.vrfRequestId();
+    const checkUpkeepMintInitial = await lsdt.checkUpkeep(checkDataMint);
+    await vrfCoordinatorMock.fulfillRandomWords(requestId,lsdt.address);
+    const randomWord = await lsdt.randomWord();
+    const checkUpkeepVrf = await lsdt.checkUpkeep(checkDataVrf);
+    const checkUpkeepMintFinal = await lsdt.checkUpkeep(checkDataMint);
+    expect(vrfGasEsimation.toNumber()).to.eq(136377);
+    expect(randomWord).to.not.eq(0);
+    expect(checkUpkeepVrf[0]).to.be.false;
+    expect(checkUpkeepMintInitial[0]).to.be.false;
+    expect(checkUpkeepMintFinal[0]).to.be.true;
+  });
+  it("Should send NFT to winner", async function () {
+    const nftBalReservesInitial = await ustsd.balanceOf(CzUstsdReserves);
+    await lsdt.performUpkeep(checkDataMint);
+    const nftBalReservesFinal = await ustsd.balanceOf(CzUstsdReserves);
+    const totalCzusdSpent = await lsdt.totalCzusdSpent();
+    const currentTime = (await time.latest()).toNumber();
+    const nftBal = await ustsd.balanceOf(trader.address);
+    const lastUstsdRewardEpoch = await lsdt.lastUstsdRewardEpoch();
+    const checkUpkeepVrf = await lsdt.checkUpkeep(checkDataVrf);
+    const checkUpkeepMint = await lsdt.checkUpkeep(checkDataMint);
+    const ustsdToReward = await lsdt.ustsdToReward();
+    const traderTickets = await lsdt.addressTickets(trader.address);
+    const totalTickets = await lsdt.totalTickets();
+    expect(nftBal).to.eq(1);
+    expect(checkUpkeepVrf[0]).to.be.false;
+    expect(ustsdToReward).to.eq(1);
+    expect(checkUpkeepMint[0]).to.be.false;
+    expect(lastUstsdRewardEpoch).to.equal(currentTime);
+    expect(traderTickets).to.eq(0);
+    expect(totalTickets).to.eq(0);
+    expect(nftBalReservesInitial.sub(nftBalReservesFinal)).to.eq(1);
+    expect(totalCzusdSpent).to.be.gt(parseEther("30"));
+    expect(totalCzusdSpent).to.be.lt(parseEther("200"));
+    expect(totalCzusdSpent).to.be.eq(parseEther("52.99"));
   });
 });
