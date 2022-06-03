@@ -236,6 +236,7 @@ describe("LSDT", function () {
     const ustsdToReward = await lsdt.ustsdToReward();
     const traderTickets = await lsdt.addressTickets(trader.address);
     const totalTickets = await lsdt.totalTickets();
+    const traderHasWon = await lsdt.addressHasWon(trader.address);
     expect(nftBal).to.eq(1);
     expect(checkUpkeepVrf[0]).to.be.false;
     expect(ustsdToReward).to.eq(1);
@@ -247,5 +248,6 @@ describe("LSDT", function () {
     expect(totalCzusdSpent).to.be.gt(parseEther("30"));
     expect(totalCzusdSpent).to.be.lt(parseEther("200"));
     expect(totalCzusdSpent).to.be.eq(parseEther("52.99"));
+    expect(traderHasWon).to.be.true;
   });
 });
