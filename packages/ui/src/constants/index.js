@@ -226,20 +226,20 @@ export const CZFARMPOOLS = {
       rewardDecimals: 18,
       logo: "./pool/CWE.png"
     },*/
-    {
+    /*{
       name: "WNOW",
       address: "0xDE5166A15bD3C0cbbaBb0860437e75065f393586",
       rewardAddress: "0x56AA0237244C67B9A854B4Efe8479cCa0B105289",
       rewardDecimals: 18,
       logo: "/pool/WNOW.png"
-    },
-    {
+    },*/
+    /*{
       name: "DST",
       address: "0xAB455e20362C4984cfbFa048Bf3FBC4f5e46d584",
       rewardAddress: "0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
       rewardDecimals: 9,
       logo: "/pool/DST.png"
-    },
+    },*/
     {
       name: "CZUSD",
       subtitle: "10% CZF burn on withdraw",
@@ -258,6 +258,25 @@ export const CZFARMPOOLS = {
       logo: "/pool/CZUSD.png",
       feeBasis:500,
       lrtRequired:parseEther("5")
+    },
+    {
+      name: "DEP",
+      subtitle: "15% CZF burn on withdraw",
+      address: "0xf1D3aFE3E064CD5A42Fb601695D5b93e9De0BAd9",
+      rewardAddress: "0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      rewardDecimals: 18,
+      logo: "./pool/DEP.png",
+      feeBasis:1500
+    },
+    {
+      name: "DEP",
+      subtitle: "Hold 50 LRT to withdraw, claim, or stake. 5% CZF burn on withdraw",
+      address: "0x3829723cE582aE372571A8CE5AdcB1107422BbF1",
+      rewardAddress: "0xcaF5191fc480F43e4DF80106c7695ECA56E48B18",
+      rewardDecimals: 18,
+      logo: "./pool/DEP.png",
+      feeBasis:500,
+      lrtRequired:parseEther("50")
     }
   ]
 }
@@ -302,13 +321,13 @@ export const CZUSDPOOLS = {
       logo: "https://storageapi2.fleek.co/plasticdigits-team-bucket/czfarm/czf-logo-200.png",
       lrtRequired:parseEther("50")
     },
-    {
+    /*{
       name: "DUST",
       address: "0x5f1170b2d80eEAD87699ef52d85c96125301CB54",
       rewardAddress: "0xE36E4CdF538ab62d283d1AE49007EEdFA9020497",
       rewardDecimals: 18,
       logo: "./pool/DUST.png"
-    },
+    },*/
     {
       name: "IF2",
       address: "0x36Cd92223E98dFe362E672988d92E006B63Ae3F1",
