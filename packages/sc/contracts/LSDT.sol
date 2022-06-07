@@ -62,7 +62,7 @@ contract LSDT is
     uint256 public lastUstsdRewardEpoch;
     uint256 public totalUstsdRewarded;
     uint256 public totalCzusdSpent;
-    uint256 public ustsdRewardPeriod = 12 hours;
+    uint256 public ustsdRewardPeriod = 30 hours;
     CzUstsdReserves czustsdReserves;
     JsonNftTemplate ustsdNft;
     address public rewardDistributor;
