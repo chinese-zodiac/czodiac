@@ -50,7 +50,7 @@ function useBUSDPrice(address) {
         }
         return;
       }
-      setPrice(null)
+      //setPrice(null)
     })();
   },[chainId,account,address,busdPair,wbnbPair,bnbBusdPair])
 

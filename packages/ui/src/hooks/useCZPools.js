@@ -54,7 +54,7 @@ function useCZPools(stakeTokenAddress, poolSet) {
   const czFarmPoolInterface = new Interface(czFarmPool);
   const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(!!poolSet ? poolSet.map((p)=>new Contract(p.address, czFarmPoolInterface)) : []);
 
-  const [pools, setPools] = useState([]);
+  const [pools, setPools] = useState(poolSet ?? []);
   const [calls, setCalls] = useState([]);
   const callResults = useContractCalls(calls) ?? [];
 
@@ -111,11 +111,14 @@ function useCZPools(stakeTokenAddress, poolSet) {
   },[stakeTokenAddress,account,chainId])
 
   useDeepCompareEffect(()=>{
-    let newPools = [];
-    if(!callResults || callResults.length === 0 || !callResults[0] || !poolSet || !czfBusdPrice || !account) {
+    if(!callResults || callResults.length === 0 || !callResults[0] || !poolSet || !czfBusdPrice || !account || rewardBusdPrices.length == 0) {
         return;
     }
+    let newPools = [...pools];
+    console.log("newPools",newPools)
+    console.log("rewardBusdPrices",rewardBusdPrices);
     poolSet.forEach((p, index) => {
+      if(rewardBusdPrices[index].eq("0") && !!p.usdPerDay && !p.usdPerDay.eq("0")) return;
       let l = 7;
       if(!account) l = 4;
       let o = l*index
@@ -184,7 +187,7 @@ function useCZPools(stakeTokenAddress, poolSet) {
         }
         
       }
-      newPools.push(p)
+      newPools[index] = p;
     });
     setPools(newPools);
   },[callResults,czfBusdPrice,rewardBusdPrices])

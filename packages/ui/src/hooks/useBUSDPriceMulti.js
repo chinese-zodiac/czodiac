@@ -52,10 +52,10 @@ function useBUSDPriceMulti(addresses) {
              }            
            }
            return Promise.resolve(BigNumber.from("0"));
-        })
+        });
+        let newPrices = await Promise.all(pricePromises);
+        setPrices(newPrices);
       }
-      let newPrices = await Promise.all(pricePromises);
-      setPrices(newPrices);
     })();
   },[chainId,account,bnbBusdPair,busdPairs])
 

@@ -20,7 +20,8 @@ function CZPoolsList() {
   const {pools} = useCZPools(CZFARM_ADDRESSES[chainId],CZFARMPOOLS[chainId]);
   const {pools:czusdPools} = useCZPools(CZUSD[chainId],CZUSDPOOLS[chainId]);
 
-  const [basisPoints, setBasisPoints] = useState(pools.map((p)=>10000))
+  console.log("pools",pools)
+  const [basisPoints, setBasisPoints] = useState(!!pools ? pools.map((p)=>10000) : [])
 
   const [currentDate] = useState(new Date())
 
