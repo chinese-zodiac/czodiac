@@ -115,8 +115,6 @@ function useCZPools(stakeTokenAddress, poolSet) {
         return;
     }
     let newPools = [...pools];
-    console.log("newPools",newPools)
-    console.log("rewardBusdPrices",rewardBusdPrices);
     poolSet.forEach((p, index) => {
       if(rewardBusdPrices[index].eq("0") && !!p.usdPerDay && !p.usdPerDay.eq("0")) return;
       let l = 7;
