@@ -290,25 +290,16 @@ contract CZFarmMasterRoutable is Ownable {
     }
 
     function claim(uint256 _pid) public {
-        _claim(_pid, msg.sender);
-    }
-
-    function claimRoutabale(address _for, uint256 _pid) public {
-        require(msg.sender == router);
-        _claim(_pid, _for);
-    }
-
-    function _claim(uint256 _pid, address _for) internal {
         PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][_for];
+        UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
         uint256 pending = user.amount.mul(pool.accCzfPerShare).div(1e12).sub(
             user.rewardDebt
         );
         if (pending > 0 || user.pendingRewards > 0) {
             user.pendingRewards = user.pendingRewards.add(pending);
-            safeCzfTransfer(_for, user.pendingRewards);
-            emit Claim(_for, _pid, user.pendingRewards);
+            safeCzfTransfer(msg.sender, user.pendingRewards);
+            emit Claim(msg.sender, _pid, user.pendingRewards);
             user.pendingRewards = 0;
         }
         user.rewardDebt = user.amount.mul(pool.accCzfPerShare).div(1e12);
