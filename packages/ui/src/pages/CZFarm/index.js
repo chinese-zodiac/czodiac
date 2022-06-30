@@ -4,6 +4,7 @@ import BackgroundNetwork from "../../components/BackgroundNetwork";
 import { Box, Link,
 Tabs, TabList, TabPanels, Tab, TabPanel,  } from "@chakra-ui/react";
 import CZFarmsList from "../../components/CZFarmsList";
+import CZFarmsRoutableList from "../../components/CZFarmsRoutableList";
 import CZPoolsList from "../../components/CZPoolsList";
 
 
@@ -20,13 +21,17 @@ function CZFarm() {
     <Box as="main" className="czfarm-page horizontal-center">
       <Tabs>
         <TabList variant="enclosed">
-          <Tab>Farms</Tab>
+          <Tab>Farms.v1</Tab>
+          <Tab>Farms.v2</Tab>
           <Tab>Pools</Tab>
         </TabList>
 
         <TabPanels>
           <TabPanel>
             <CZFarmsList />
+          </TabPanel>
+          <TabPanel>
+            <CZFarmsRoutableList />
           </TabPanel>
           <TabPanel>
             <CZPoolsList />

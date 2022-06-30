@@ -6,14 +6,14 @@ import { useEthers } from "@pdusedapp/core";
 import { CZODIAC_ADDRESSES, BUSD_ADDRESSES, WETH_ADDRESSES } from "../../constants";
 import { Contract, utils, BigNumber, constants } from "ethers";
 import useBUSDPrice from "../../hooks/useBUSDPrice";
-import useCZFarmMaster from "../../hooks/useCZFarmMaster";
+import useCZFarmMasterRoutable from "../../hooks/useCZFarmMasterRoutable";
 import {weiToFixed, weiToShortString, toShortString} from "../../utils/bnDisplay";
 import "./index.scss";
 
 const tokenLink = (address, name)=>{return (<Link style={{fontWeight:"bold",textDecoration:"underline"}} isExternal href={`https://bscscan.com/token/${address}`}>{name}</Link>)}
 const czfarmLink = ()=>tokenLink("0x7c1608C004F20c3520f70b924E2BfeF092dA0043","$CZF");
 
-function CZFarmsList() {
+function CZFarmsListRoutable() {
   const {chainId} = useEthers();
   const {
       pools,
@@ -27,10 +27,12 @@ function CZFarmsList() {
       sendWithdraw,
       stateClaim,
       sendClaim
-    } = useCZFarmMaster();
+    } = useCZFarmMasterRoutable();
 
   return (<>
-    <Text><b>!!ATTENTION!!</b> Emissions to v1 farms will cease shortly. All emissions will be moved to Farms.v2 (see tab above). Unstake your LP and move it to Farms.v2.<br/><br/>This upgrade is in anticipation of the release of v2.cz.farm which will allow claiming all chrono, exotic, and farms in one transaction greatly reducing gas costs.</Text>
+    <Text>Earn {czfarmLink()} by staking Pancakeswap liquidity.</Text>
+    <br/>
+    <Text>How it works: Each Farm below (for instance, CZF/CZUSD) is for Pancakeswap Liquidity Tokens (called LP). So if you want to stake your CZF and your CZUSD, you should scroll down to that farm and click "Mint CZF/CZUSD on PCS". That will take you to the page on Pancakeswap where you can combine your CZUSD and CZF to mint the LP tokens. Then come back to this page and refresh, your balance should show up in your wallet. Then, approve and "Stake All CZF/CZUSD" to start earning!</Text>
     <br/>
     <Divider />
     {(!!pools && pools.length > 0) ? (<Box>
@@ -146,4 +148,4 @@ function CZFarmsList() {
   </>)
 }
 
-export default CZFarmsList;
+export default CZFarmsListRoutable;

@@ -176,6 +176,24 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_for",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_pid",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimRoutabale",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "czf",
       "outputs": [
@@ -596,4 +614,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]
+  ]
