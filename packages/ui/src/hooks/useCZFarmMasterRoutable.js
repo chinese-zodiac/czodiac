@@ -80,12 +80,14 @@ const farmLps = [
   "0x13573b1970611bb401f0B75994C80E16c8F56C35", //CZF/CAKE -PCS
   "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
   "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
+  false,
   "0xaCC6AF9C62B482Cb89522e262F8b315d870208ab", //CZF/DEP -APE
   "0x8Bb25E9CD67AF1E2b961A905e76A95E675b69645", //CZUSD/DEP -APE
   "0x336b2ea94fca2798b0679e4d12b96472fe067baf", //CZF/OLIVE -PCS
   "0x6b080059Fdd75113CeE43fb57A8B8c900d527D81", //CZF/CWE -PCS
   "0x01ab57d5062eFa63F87F062C981F7BE6C2Fe2739", //CZF/WNOW -PCS
   "0x33FcB84f5e79082f62BA7de8285C9b37a68f1a02", //CZF/DONK -DONK
+  "0xcf3C2f9768F95171770Cc50d64A573fC7fE9Ff02", //CZF/DUST -KNIGHT
 ];
 
 const farmDex = [
@@ -102,10 +104,12 @@ const farmDex = [
   DEX.AMPL,
   DEX.APE,
   DEX.APE,
+  DEX.APE,
   DEX.PCS,
   DEX.PCS,
   DEX.PCS,
   DEX.DONK,
+  DEX.KNIGHT
 ];
 const farmTokens = [
   [
@@ -219,6 +223,10 @@ const farmTokens = [
     }
   ],
   [
+    false,
+    false
+  ],
+  [
     {
       address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
       symbol:"CZF"
@@ -276,6 +284,16 @@ const farmTokens = [
     {
       address:"0x3969Fe107bAe2537cb58047159a83C33dfbD73f9",
       symbol:"DST"
+    }
+  ],
+  [
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0xE36E4CdF538ab62d283d1AE49007EEdFA9020497",
+      symbol:"DUST"
     }
   ]
 ];
@@ -349,6 +367,7 @@ function useCZFarmMasterRoutable() {
             });
           }
           for(let pid=0; pid<farmLps.length; pid++) {
+            console.log(pid);
             if(!farmLps[pid]) continue;
             //lp calls for lp czf balance
             if(farmTokens[pid][0].address == BUSD_ADDRESSES[chainId] || farmTokens[pid][1].address == BUSD_ADDRESSES[chainId]) {
