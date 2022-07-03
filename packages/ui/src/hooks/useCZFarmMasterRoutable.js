@@ -80,7 +80,7 @@ const farmLps = [
   "0x13573b1970611bb401f0B75994C80E16c8F56C35", //CZF/CAKE -PCS
   "0x4E80c807233546F3F820ADEbCE64E75f5Eac3AB8", //CZF/ADA -PCS
   "0xd5654a515f1cec88d1e3011e6729a3bd023b7533", //CZF/AMPLE -AMPL
-  false,
+  "0x970b0c00880a5e2D5aa64aeb4a38CD3E82A2d5Cb", //CZF/MAINST -APE
   "0xaCC6AF9C62B482Cb89522e262F8b315d870208ab", //CZF/DEP -APE
   "0x8Bb25E9CD67AF1E2b961A905e76A95E675b69645", //CZUSD/DEP -APE
   "0x336b2ea94fca2798b0679e4d12b96472fe067baf", //CZF/OLIVE -PCS
@@ -223,8 +223,14 @@ const farmTokens = [
     }
   ],
   [
-    false,
-    false
+    {
+      address:"0x7c1608C004F20c3520f70b924E2BfeF092dA0043",
+      symbol:"CZF"
+    },
+    {
+      address:"0x8fc1a944c149762b6b578a06c0de2abd6b7d2b89",
+      symbol:"MAINST"
+    },
   ],
   [
     {
