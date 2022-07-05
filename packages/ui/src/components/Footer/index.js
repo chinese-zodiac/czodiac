@@ -33,6 +33,9 @@ function Footer() {
         <Box p="10px" >
           <Text>Partnerships</Text>
           <Link fontWeight="bold" textDecoration="underline" href="https://docs.google.com/forms/d/e/1FAIpQLSc7CgsErMRKUqXWeTTui9NdgdhcbFCXk3g0bi_AHsuTiKvblg/viewform?usp=fb_send_twt" >Farm/pool application</Link>
+          <Text>Pitch Deck</Text>
+          <Link m="5px" href="./czodiac-pitch-deck-22-07-04.pdf" isExternal><Icon as={FaDiscord} /></Link>
+
         </Box>
       </Flex>
     </>)
