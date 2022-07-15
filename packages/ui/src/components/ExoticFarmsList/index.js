@@ -113,7 +113,7 @@ function ExoticFarmsList() {
   };
 
   return (
-    <>
+    <><Text style={{maxWidth:"960px",width:"100%",paddingRight:"1em",paddingLeft:"1em",paddingTop:"1em",paddingBottom:"1em",backgroundColor:"black"}}>ATTENTION: app.czodiac.com is being retired. Switch to <a href="https://cz.farm" style={{textDecoration:"underline",fontWeight:"bold",fontSize:"1.5em"}}>CZ.FARM</a>. Pools, Farms, Chrono, Exotic, Loss Comp are all there. app.czodiac.com will no longer be updated.</Text>
       {farmSets.map((farmSet, index) => {
         return displayFarms(farmSet);
       })}

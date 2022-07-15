@@ -30,6 +30,7 @@ function CZFarmsListRoutable() {
     } = useCZFarmMasterRoutable();
 
   return (<>
+    <Text style={{maxWidth:"960px",width:"100%",paddingRight:"1em",paddingLeft:"1em",paddingTop:"1em",paddingBottom:"1em",backgroundColor:"black"}}>ATTENTION: app.czodiac.com is being retired. Switch to <a href="https://cz.farm" style={{textDecoration:"underline",fontWeight:"bold",fontSize:"1.5em"}}>CZ.FARM</a>. Pools, Farms, Chrono, Exotic, Loss Comp are all there. app.czodiac.com will no longer be updated.</Text>
     <Text>Earn {czfarmLink()} by staking Pancakeswap liquidity.</Text>
     <br/>
     <Text>How it works: Each Farm below (for instance, CZF/CZUSD) is for Pancakeswap Liquidity Tokens (called LP). So if you want to stake your CZF and your CZUSD, you should scroll down to that farm and click "Mint CZF/CZUSD on PCS". That will take you to the page on Pancakeswap where you can combine your CZUSD and CZF to mint the LP tokens. Then come back to this page and refresh, your balance should show up in your wallet. Then, approve and "Stake All CZF/CZUSD" to start earning!</Text>
