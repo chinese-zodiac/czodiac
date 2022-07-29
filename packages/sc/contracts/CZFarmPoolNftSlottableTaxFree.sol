@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
+contract CZFarmPoolNftSlottableTaxFree is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using SafeERC20 for ERC20Burnable;
 
@@ -126,7 +126,7 @@ contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
         whitelistToken = _whitelistToken;
         whitelistWad = _whitelistWad;
 
-        _slottableNftTaxFree = slottableNftTaxFree;
+        slottableNftTaxFree = _slottableNftTaxFree;
         nftLockPeriod = _nftLockPeriod;
 
         PRECISION_FACTOR = uint256(
@@ -142,7 +142,15 @@ contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
         transferOwnership(_admin);
     }
 
-    function getSlottedNft(address _account) external {}
+    function getSlottedNft(address _account, IERC721 _nftSc)
+        external
+        view
+        returns (uint256 id_, uint256 timestamp_)
+    {
+        SlottedNft storage slottedNft = userInfo[_account].slottedNfts[_nftSc];
+        id_ = slottedNft.id;
+        timestamp_ = slottedNft.timestamp;
+    }
 
     function slotNft(IERC721 _nftSc, uint256 _nftId) public nonReentrant {
         SlottedNft storage slottedNft = userInfo[msg.sender].slottedNfts[
@@ -151,7 +159,7 @@ contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
         require(slottedNft.timestamp == 0, "CZ: NFT already slotted");
         slottedNft.id = _nftId;
         slottedNft.timestamp = block.timestamp;
-        _nftSc.safeTransferFrom(msg.sender, address(this), _nftId);
+        _nftSc.transferFrom(msg.sender, address(this), _nftId);
     }
 
     function unslotNft(IERC721 _nftSc) public nonReentrant {
@@ -163,7 +171,7 @@ contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
             block.timestamp > slottedNft.timestamp + nftLockPeriod,
             "CZ: NFT Locked"
         );
-        _nftSc.safeTransferFrom(address(this), msg.sender, slottedNft.id);
+        _nftSc.transferFrom(address(this), msg.sender, slottedNft.id);
         delete slottedNft.id;
         delete slottedNft.timestamp;
         delete userInfo[msg.sender].slottedNfts[_nftSc];
@@ -295,57 +303,6 @@ contract CZFarmPoolWithFeeWhitelisting is Ownable, ReentrancyGuard {
         IERC20(_tokenAddress).safeTransfer(address(msg.sender), _tokenAmount);
 
         emit AdminTokenRecovery(_tokenAddress, _tokenAmount);
-    }
-
-    /*
-     * @notice Stop rewards
-     * @dev Only callable by owner
-     */
-    function stopReward() external onlyOwner {
-        timestampEnd = block.timestamp;
-    }
-
-    /*
-     * @notice Update reward per second
-     * @dev Only callable by owner.
-     * @param _rewardPerSecond: the reward per second
-     */
-    function updateRewardPerSecond(uint256 _rewardPerSecond)
-        external
-        onlyOwner
-    {
-        require(block.timestamp < timestampStart, "Pool has started");
-        rewardPerSecond = _rewardPerSecond;
-        emit NewRewardPerSecond(_rewardPerSecond);
-    }
-
-    /**
-     * @notice It allows the admin to update start and end timestamps
-     * @dev This function is only callable by owner.
-     * @param _timestampStart: the new start timestamp
-     * @param _timestampEnd: the new end timestamp
-     */
-    function updateStartAndEndTimestamps(
-        uint256 _timestampStart,
-        uint256 _timestampEnd
-    ) external onlyOwner {
-        require(block.timestamp < timestampStart, "Pool has started");
-        require(
-            _timestampStart < _timestampEnd,
-            "New timestampStart must be lower than new end timestamp"
-        );
-        require(
-            block.timestamp < _timestampStart,
-            "New timestampStart must be higher than current timestamp"
-        );
-
-        timestampStart = _timestampStart;
-        timestampEnd = _timestampEnd;
-
-        // Set the timestampLast as the timestampStart
-        timestampLast = timestampStart;
-
-        emit NewStartAndEndTimestamps(_timestampStart, _timestampEnd);
     }
 
     /*
