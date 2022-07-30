@@ -59,7 +59,7 @@ describe("CZFarmPoolNftSlottableTaxFree", function() {
 
     await czusdSc.connect(deployer).setContractSafe(poolSc.address);
     await czfSc.connect(deployer).mint(poolSc.address,parseEther("1000000000"));
-    await poolSc.connect(deployer).czfarmUpdateRewardPerSecond()
+    await poolSc.connect(deployer).czfarmUpdateRewardPerSecond();
 
 
   });
