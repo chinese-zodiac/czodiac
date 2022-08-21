@@ -32,7 +32,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: `https://bsc-mainnet.nodereal.io/v1/${networkConfig.noderealRpcKey}`,
-        blockNumber:  19940000
+        blockNumber:  20622000//19940000
       }
     },
     rinkeby: {

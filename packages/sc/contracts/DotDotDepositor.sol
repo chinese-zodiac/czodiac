@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IAmmRouter02.sol";
 import "./interfaces/IDotDot.sol";
+import "./interfaces/IDepxFeeDistributor.sol";
 
 contract DotDotDepositor is KeeperCompatibleInterface, Ownable {
     using SafeERC20 for IERC20;
@@ -21,8 +22,53 @@ contract DotDotDepositor is KeeperCompatibleInterface, Ownable {
     IDotDot public dotdot = IDotDot(0x8189F0afdBf8fE6a9e13c69bA35528ac6abeB1af);
 
     address public ddd = 0x84c97300a190676a19D1E13115629A11f8482Bd1;
+    address public epx = 0xAf41054C1487b0e5E2B9250C0332eCBCe6CE9d71;
+    IDepxFeeDistributor public depxFeeDistributor =
+        IDepxFeeDistributor(0xd4F7b4BC46e6e499D35335D270fd094979D815A0);
     address public wbnb = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
     address public busd = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+
+    function executeOnDotDot(bytes memory abiSignatureEncoded)
+        external
+        onlyOwner
+    {
+        (bool success, bytes memory returndata) = address(dotdot).call(
+            abiSignatureEncoded
+        );
+    }
+
+    function executeOnDepxFeeDistributor(bytes memory abiSignatureEncoded)
+        external
+        onlyOwner
+    {
+        (bool success, bytes memory returndata) = address(depxFeeDistributor)
+            .call(abiSignatureEncoded);
+    }
+
+    function claimDepxFees(uint256 _start, uint256 _count) public {
+        address[] memory tokens = new address[](_count);
+        for (uint256 i = _start; i < _start + _count; i++) {
+            if (i == 0) {
+                tokens[i] = ddd;
+            } else if (i == 1) {
+                tokens[i] = epx;
+            } else {
+                tokens[i] = depxFeeDistributor.feeTokens(i - 2);
+            }
+        }
+        depxFeeDistributor.claim(address(this), tokens);
+
+        for (uint256 i = _start; i < _start + _count; i++) {
+            IERC20(tokens[i]).transfer(
+                treasury,
+                IERC20(tokens[i]).balanceOf(address(this))
+            );
+        }
+    }
+
+    function claimAllDepxFees() external {
+        claimDepxFees(0, depxFeeDistributor.feeTokensLength() + 2);
+    }
 
     function depositedBalance() public view returns (uint256) {
         return dotdot.userBalances(address(this), czusdLp);
@@ -54,12 +100,14 @@ contract DotDotDepositor is KeeperCompatibleInterface, Ownable {
         );
     }
 
-    function deposit(uint256 _wad) external onlyOwner {
-        if (_wad != 0)
-            IERC20(czusdLp).transferFrom(msg.sender, address(this), _wad);
+    function depositAll() public {
         uint256 amount = IERC20(czusdLp).balanceOf(address(this));
-        IERC20(czusdLp).approve(address(dotdot), amount);
-        dotdot.deposit(address(this), czusdLp, amount);
+        deposit(amount);
+    }
+
+    function deposit(uint256 _wad) public {
+        IERC20(czusdLp).approve(address(dotdot), _wad);
+        dotdot.deposit(address(this), czusdLp, _wad);
     }
 
     function withdraw() external onlyOwner {
@@ -76,10 +124,6 @@ contract DotDotDepositor is KeeperCompatibleInterface, Ownable {
     }
 
     function performUpkeep(bytes calldata) external override {
-        require(
-            claimableDdd() >= dddTriggerLevel,
-            "DotDotDepositor: Not enough to claim"
-        );
         claim();
     }
 
