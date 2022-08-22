@@ -3,6 +3,7 @@
 pragma solidity ^0.8.4;
 //import "hardhat/console.sol";
 
+import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -14,7 +15,12 @@ import "./interfaces/ICurve.sol";
 import "./CZUsd.sol";
 import "./libs/Babylonian.sol";
 
-contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
+contract CZVPegV4 is
+    KeeperCompatibleInterface,
+    ReentrancyGuard,
+    Ownable,
+    Pausable
+{
     using SafeERC20 for IERC20;
 
     enum PEG_STATUS {
@@ -33,6 +39,10 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
         IAmmPair(0xd7C6Fc00FAe64cb7D242186BFD21e31C5b175671);
     address public treasury = 0x745A676C5c472b50B50e18D4b59e9AeEEc597046;
 
+    uint256 public lastUpkeepEpoch;
+    uint256 public upkeepPeriod = 4 hours;
+    uint8 public upkeepIter = 12;
+
     uint256 public minUniswapDelta = 100 ether;
     uint256 public minEllipsisDelta = 1000 ether;
     uint256 public maxEllipsisDelta = 10000 ether;
@@ -40,7 +50,29 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
     uint256 public constant goldenRatio = 1618033999749;
     uint256 public constant precision = 1000000000000;
 
-    function repeg(uint8 _ellipsisMaxIter) external whenNotPaused {
+    function checkUpkeep(bytes calldata)
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory)
+    {
+        if (block.timestamp >= lastUpkeepEpoch + upkeepPeriod) {
+            PEG_STATUS ellipsisPegStatus = getEllipsisPegStatus();
+            PEG_STATUS pancakeswapPegStatus = getPancakeswapPegStatus();
+            if (
+                ellipsisPegStatus != PEG_STATUS.on ||
+                pancakeswapPegStatus != PEG_STATUS.on
+            ) {
+                upkeepNeeded = true;
+            }
+        }
+    }
+
+    function performUpkeep(bytes calldata) external override {
+        repeg(upkeepIter);
+    }
+
+    function repeg(uint8 _ellipsisMaxIter) public whenNotPaused {
         (
             uint256 ellipsisUsd,
             PEG_STATUS ellipsisPegStatus
@@ -78,8 +110,6 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
         if (pancakeswapPegStatus == PEG_STATUS.under) {
             _correctUnderPegUniswap(pancakeswapUsd);
         }
-        czusd.burn(czusd.balanceOf(address(this)));
-        busd.transfer(treasury, busd.balanceOf(address(this)));
     }
 
     function getLpWadsPancakeswap()
@@ -161,18 +191,10 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
         returns (PEG_STATUS pegStatus_)
     {
         (uint256 lpCzusdWad, uint256 lpBusdWad) = getLpWadsPancakeswap();
-        if (lpBusdWad < lpCzusdWad) {
-            if (lpBusdWad < lpCzusdWad + minUniswapDelta) {
-                pegStatus_ = PEG_STATUS.on;
-            } else {
-                pegStatus_ = PEG_STATUS.under;
-            }
-        } else if (lpCzusdWad < lpBusdWad) {
-            if (lpCzusdWad < lpBusdWad + minUniswapDelta) {
-                pegStatus_ = PEG_STATUS.on;
-            } else {
-                pegStatus_ = PEG_STATUS.over;
-            }
+        if (lpBusdWad < lpCzusdWad - minUniswapDelta) {
+            pegStatus_ = PEG_STATUS.under;
+        } else if (lpCzusdWad < lpBusdWad - minUniswapDelta) {
+            pegStatus_ = PEG_STATUS.over;
         } else {
             pegStatus_ = PEG_STATUS.on;
         }
@@ -235,11 +257,13 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
     function _correctOverPegEllipsis(uint256 _czusdWadToSell) internal {
         czusd.approve(address(czusdBusdPairEps), _czusdWadToSell);
         czusdBusdPairEps.exchange(0, 1, _czusdWadToSell, _czusdWadToSell);
+        busd.transfer(treasury, busd.balanceOf(address(this)));
     }
 
     function _correctUnderPegEllipsis(uint256 _busdWadToSell) internal {
         busd.approve(address(czusdBusdPairEps), _busdWadToSell);
         czusdBusdPairEps.exchange(1, 0, _busdWadToSell, _busdWadToSell);
+        czusd.burn(czusd.balanceOf(address(this)));
     }
 
     function recoverERC20(address tokenAddress) external onlyOwner {
@@ -255,5 +279,25 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
         } else {
             _unpause();
         }
+    }
+
+    function setMinUniswapDelta(uint256 _to) external onlyOwner {
+        minUniswapDelta = _to;
+    }
+
+    function setMinEllipsisDelta(uint256 _to) external onlyOwner {
+        minEllipsisDelta = _to;
+    }
+
+    function setMaxEllipsisDelta(uint256 _to) external onlyOwner {
+        maxEllipsisDelta = _to;
+    }
+
+    function setUpkeepIter(uint8 _to) external onlyOwner {
+        upkeepIter = _to;
+    }
+
+    function setUpkeepPeriod(uint256 _seconds) external onlyOwner {
+        upkeepPeriod = _seconds;
     }
 }

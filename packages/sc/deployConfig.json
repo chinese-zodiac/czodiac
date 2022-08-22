@@ -57,5 +57,6 @@
     "czodiacNft":"0x6Bf5843b39EB6D5d7ee38c0b789CcdE42FE396b4",
     "gnosisTreasury":"0x745A676C5c472b50B50e18D4b59e9AeEEc597046",
     "lsdtPatch":"0x072Bf497c3DdEc134f86437410F56F70f403d6aa",
-    "dotdotDepositor":"0xB32B4C1Ff19dCC3a5D69b20cb6c1dFc5C3049Bc0"
+    "dotdotDepositor":"0xB32B4C1Ff19dCC3a5D69b20cb6c1dFc5C3049Bc0",
+    "czvPegV4":"0x1FE977592733413d3fa91e4E728cdaa30C342073"
 }
