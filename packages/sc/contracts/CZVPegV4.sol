@@ -43,7 +43,7 @@ contract CZVPegV4 is
     uint256 public upkeepPeriod = 4 hours;
     uint8 public upkeepIter = 12;
 
-    uint256 public minUniswapDelta = 100 ether;
+    uint256 public minUniswapDelta = 200 ether;
     uint256 public minEllipsisDelta = 1000 ether;
     uint256 public maxEllipsisDelta = 10000 ether;
     uint256 public feeBasisUniswap = 25;
@@ -110,6 +110,7 @@ contract CZVPegV4 is
         if (pancakeswapPegStatus == PEG_STATUS.under) {
             _correctUnderPegUniswap(pancakeswapUsd);
         }
+        lastUpkeepEpoch = block.timestamp;
     }
 
     function getLpWadsPancakeswap()
@@ -191,9 +192,11 @@ contract CZVPegV4 is
         returns (PEG_STATUS pegStatus_)
     {
         (uint256 lpCzusdWad, uint256 lpBusdWad) = getLpWadsPancakeswap();
-        if (lpBusdWad < lpCzusdWad - minUniswapDelta) {
+        if (_getFeeAdjustedLp(lpBusdWad) + minUniswapDelta < lpCzusdWad) {
             pegStatus_ = PEG_STATUS.under;
-        } else if (lpCzusdWad < lpBusdWad - minUniswapDelta) {
+        } else if (
+            _getFeeAdjustedLp(lpCzusdWad) + minUniswapDelta < lpBusdWad
+        ) {
             pegStatus_ = PEG_STATUS.over;
         } else {
             pegStatus_ = PEG_STATUS.on;
@@ -212,18 +215,20 @@ contract CZVPegV4 is
         (uint256 lpCzusdWad, uint256 lpBusdWad) = getLpWadsPancakeswap();
         if (pegStatus_ == PEG_STATUS.over) {
             return (
-                ((Babylonian.sqrt(lpCzusdWad * lpBusdWad) - lpCzusdWad) *
-                    20000) / (20000 - feeBasisUniswap),
+                (lpBusdWad - _getFeeAdjustedLp(lpCzusdWad)) / 2,
                 pegStatus_
             );
         }
         if (pegStatus_ == PEG_STATUS.under) {
             return (
-                ((Babylonian.sqrt(lpCzusdWad * lpBusdWad) - lpBusdWad) *
-                    20000) / (20000 - feeBasisUniswap),
+                (lpCzusdWad - _getFeeAdjustedLp(lpBusdWad)) / 2,
                 pegStatus_
             );
         }
+    }
+
+    function _getFeeAdjustedLp(uint256 _lpwad) internal view returns (uint256) {
+        return (_lpwad * (10000 + feeBasisUniswap)) / (10000);
     }
 
     function _correctOverPegUniswap(uint256 _czusdWadToSell) internal {
@@ -299,5 +304,9 @@ contract CZVPegV4 is
 
     function setUpkeepPeriod(uint256 _seconds) external onlyOwner {
         upkeepPeriod = _seconds;
+    }
+
+    function setFeeBasisUniswap(uint256 _to) external onlyOwner {
+        feeBasisUniswap = _to;
     }
 }
