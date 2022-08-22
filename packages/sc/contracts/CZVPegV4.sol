@@ -66,6 +66,20 @@ contract CZVPegV3 is ReentrancyGuard, Ownable, Pausable {
         if (requiredCzusd > 0) czusd.mint(address(this), requiredCzusd);
         if (requiredBusd > 0)
             busd.transferFrom(treasury, address(this), requiredBusd);
+        if (ellipsisPegStatus == PEG_STATUS.over) {
+            _correctOverPegEllipsis(ellipsisUsd);
+        }
+        if (ellipsisPegStatus == PEG_STATUS.under) {
+            _correctUnderPegEllipsis(ellipsisUsd);
+        }
+        if (pancakeswapPegStatus == PEG_STATUS.over) {
+            _correctOverPegUniswap(pancakeswapUsd);
+        }
+        if (pancakeswapPegStatus == PEG_STATUS.under) {
+            _correctUnderPegUniswap(pancakeswapUsd);
+        }
+        czusd.burn(czusd.balanceOf(address(this)));
+        busd.transfer(treasury, busd.balanceOf(address(this)));
     }
 
     function getLpWadsPancakeswap()
