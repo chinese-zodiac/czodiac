@@ -81,7 +81,11 @@ contract CZFarmPoolNftSlottableTaxFree is Ownable, ReentrancyGuard {
     event Withdraw(address indexed user, uint256 amount);
 
     modifier onlyWhitelist() {
-        if (whitelistWad != 0 && whitelistToken != IERC20(address(0x0))) {
+        if (
+            whitelistWad != 0 &&
+            whitelistToken != IERC20(address(0x0)) &&
+            msg.sender != owner()
+        ) {
             require(
                 whitelistToken.balanceOf(msg.sender) >= whitelistWad,
                 "Not enough whitelist token to deposit"
@@ -177,12 +181,28 @@ contract CZFarmPoolNftSlottableTaxFree is Ownable, ReentrancyGuard {
         delete userInfo[msg.sender].slottedNfts[_nftSc];
     }
 
+    function depositFors(uint256[] calldata _amounts, address[] calldata _fors)
+        external
+    {
+        for (uint256 i; i < _amounts.length; i++) {
+            deposit(_amounts[i], _fors[i]);
+        }
+    }
+
+    function deposit(uint256 _amount) external {
+        deposit(_amount, msg.sender);
+    }
+
     /*
      * @notice Deposit staked tokens and collect reward tokens (if any)
      * @param _amount: amount to withdraw (in rewardToken)
      */
-    function deposit(uint256 _amount) external nonReentrant onlyWhitelist {
-        UserInfo storage user = userInfo[msg.sender];
+    function deposit(uint256 _amount, address _for)
+        public
+        nonReentrant
+        onlyWhitelist
+    {
+        UserInfo storage user = userInfo[_for];
 
         _updatePool();
 
@@ -191,7 +211,7 @@ contract CZFarmPoolNftSlottableTaxFree is Ownable, ReentrancyGuard {
                 PRECISION_FACTOR -
                 user.rewardDebt;
             if (pending > 0) {
-                rewardToken.safeTransfer(address(msg.sender), pending);
+                rewardToken.safeTransfer(address(_for), pending);
             }
         }
 
@@ -206,14 +226,14 @@ contract CZFarmPoolNftSlottableTaxFree is Ownable, ReentrancyGuard {
 
         user.rewardDebt = (user.amount * accTokenPerShare) / PRECISION_FACTOR;
 
-        emit Deposit(msg.sender, _amount);
+        emit Deposit(_for, _amount);
     }
 
     /*
      * @notice Withdraw staked tokens and collect reward tokens
      * @param _amount: amount to withdraw (in rewardToken)
      */
-    function withdraw(uint256 _amount) external nonReentrant onlyWhitelist {
+    function withdraw(uint256 _amount) public nonReentrant onlyWhitelist {
         UserInfo storage user = userInfo[msg.sender];
         require(user.amount >= _amount, "Amount to withdraw too high");
 

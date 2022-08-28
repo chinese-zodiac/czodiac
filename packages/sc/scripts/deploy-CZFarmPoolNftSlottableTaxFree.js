@@ -33,11 +33,11 @@ async function main() {
     czf,//ERC20Burnable _stakedToken,
     czusd,//IERC20 _rewardToken,
     0,//uint256 _rewardPerSecond,
-    1659614400,//uint256 _timestampStart,
-    1659614400+90*86400,//uint256 _timestampEnd,
-    998,//uint256 _withdrawFeeBasis,
+    1661673600,//uint256 _timestampStart,
+    1661673600+90*86400,//uint256 _timestampEnd,
+    1498,//uint256 _withdrawFeeBasis,
     lrt,//IERC20 _whitelistToken,
-    parseEther("50"),//uint256 _whitelistWad,
+    parseEther("0"),//uint256 _whitelistWad,
     zeroAddress,//IERC721 _slottableNftTaxFree,
     30*86400,//uint256 _nftLockPeriod,
     czDeployer//address _admin
@@ -46,7 +46,7 @@ async function main() {
   console.log("granting permissions...")
 
   await czfSc.setContractSafe(pool.address);
-  await czusdSc.mint(pool.address,parseEther("11250"));
+  await czusdSc.mint(pool.address,parseEther(" "));
 
   console.log("waiting 15 seconds...");
   await delay(15000);

@@ -7,7 +7,6 @@ require("solidity-coverage")
 const loadJsonFile = require("load-json-file");
 const networkConfig = loadJsonFile.sync("./networkConfig.json");
 
-
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -56,9 +55,9 @@ module.exports = {
       gasMultiplier: 1.2,
     },
     bsc: {
-      url: `https://bscrpc.com`,
+      url: `https://rpc.ankr.com/bsc`,
       accounts: [networkConfig.ethKey],
-      gasMultiplier: 1.2,
+      gasMultiplier: 1,
     },
     bscTestnet: {
       url: `https://data-seed-prebsc-1-s2.binance.org:8545`,
