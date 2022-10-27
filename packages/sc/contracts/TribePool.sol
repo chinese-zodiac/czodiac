@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
-// Credit to Olive.cash, Pancakeswap
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./interfaces/IAmmRouter02.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
-contract TribePool is Ownable, ReentrancyGuard {
+contract TribePool is Ownable {
     using IterableArrayWithoutDuplicateKeys for IterableArrayWithoutDuplicateKeys.Map;
 
     using SafeERC20 for IERC20;
@@ -48,6 +47,13 @@ contract TribePool is Ownable, ReentrancyGuard {
     IERC20 public stakedToken =
         IERC20(0x7c1608C004F20c3520f70b924E2BfeF092dA0043);
 
+    // Token used to purchase rewards (CZUSD)
+    IERC20 public purchasingToken =
+        IERC20(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
+
+    IAmmRouter02 public ammRouter =
+        IAmmRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+
     // Info of each user that stakes tokens (stakedToken)
     mapping(address => uint256) public userRewardDebt;
     event NewRewardPerSecond(uint256 rewardPerSecpmd);
@@ -56,9 +62,6 @@ contract TribePool is Ownable, ReentrancyGuard {
     mapping(address => bool) isRewardExempt;
 
     bool isInitialized;
-
-    //wants autoclaim
-    IterableArrayWithoutDuplicateKeys.Map autoclaimAccounts;
 
     function initialize(address _tribeToken) external onlyOwner {
         require(!isInitialized);
@@ -74,12 +77,12 @@ contract TribePool is Ownable, ReentrancyGuard {
     }
 
     function deposit(uint256 _amount) external {
-        stakedToken.transferFrom(msg.sender, address(this), _amount);
+        stakedToken.safeTransferFrom(msg.sender, address(this), _amount);
         _deposit(msg.sender, _amount);
     }
 
-    function withdrawFor(uint256 _amount) external {
-        stakedToken.transfer(msg.sender, _amount);
+    function withdraw(uint256 _amount) external {
+        stakedToken.safeTransfer(msg.sender, _amount);
         _withdraw(msg.sender, _amount);
     }
 
@@ -160,6 +163,24 @@ contract TribePool is Ownable, ReentrancyGuard {
         totalStaked -= _amount;
     }
 
+    function addPendingRewards() public {
+        uint256 purchasingWad = purchasingToken.balanceOf(address(this));
+
+        address[] memory purchasingToTribePath = new address[](2);
+        purchasingToTribePath[0] = address(purchasingToken);
+        purchasingToTribePath[1] = address(tribeToken);
+
+        purchasingToken.approve(address(ammRouter), purchasingWad);
+        ammRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            purchasingWad,
+            0,
+            purchasingToTribePath,
+            address(this),
+            block.timestamp
+        );
+        _updatePool();
+    }
+
     function setIsRewardExempt(address _for, bool _to) public onlyOwner {
         if (isRewardExempt[_for] == _to) return;
         if (_to) {
@@ -183,6 +204,18 @@ contract TribePool is Ownable, ReentrancyGuard {
         IERC20(_tokenAddress).safeTransfer(address(msg.sender), _tokenAmount);
     }
 
+    function setPeriod(uint256 _to) external onlyOwner {
+        period = _to;
+    }
+
+    function setAmmRouter(IAmmRouter02 _to) external onlyOwner {
+        ammRouter = _to;
+    }
+
+    function setPurchasingToken(IERC20 _to) external onlyOwner {
+        purchasingToken = _to;
+    }
+
     /*
      * @notice View function to see pending reward on frontend.
      * @param _user: user address
@@ -204,11 +237,6 @@ contract TribePool is Ownable, ReentrancyGuard {
                 PRECISION_FACTOR -
                 userRewardDebt[_user];
         }
-    }
-
-    function updatePool() external {
-        //manually trigger update
-        _updatePool();
     }
 
     /*
@@ -257,19 +285,5 @@ contract TribePool is Ownable, ReentrancyGuard {
         } else {
             return timestampEnd - _from;
         }
-    }
-
-    function getIsAccountAutoClaim(address _account)
-        external
-        view
-        returns (bool)
-    {
-        return autoclaimAccounts.getIndexOfKey(_account) != -1;
-    }
-
-    function setAutoclaim(bool _to) external {
-        _to
-            ? autoclaimAccounts.add(msg.sender)
-            : autoclaimAccounts.remove(msg.sender);
     }
 }
