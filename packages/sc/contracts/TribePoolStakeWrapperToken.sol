@@ -16,6 +16,7 @@ and Pancakeswap TWAP oracles for determining both CZUSD and collateral prices.
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./TribePool.sol";
@@ -28,8 +29,8 @@ contract TribePoolStakeWrapperToken is Context, ERC20Wrapper, Ownable {
     constructor(
         string memory _name,
         string memory _symbol,
-        address _underlying,
-        address _pool
+        address _underlying, //should be czf
+        address _pool //will issue claimable rewards to holders
     ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(_underlying)) {}
 
     function _beforeTokenTransfer(
@@ -40,5 +41,9 @@ contract TribePoolStakeWrapperToken is Context, ERC20Wrapper, Ownable {
         super._beforeTokenTransfer(from, to, amount);
         pool.withdraw(from, amount);
         pool.deposit(to, amount);
+    }
+
+    function setPool(TribePool _to) external onlyOwner {
+        pool = _to;
     }
 }
