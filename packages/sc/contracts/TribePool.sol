@@ -43,13 +43,11 @@ contract TribePool is Ownable {
     // The tribe token
     IERC20 public tribeToken;
 
-    // The staked token (CZF)
-    IERC20 public stakedToken =
-        IERC20(0x7c1608C004F20c3520f70b924E2BfeF092dA0043);
-
     // Token used to purchase rewards (CZUSD)
     IERC20 public purchasingToken =
         IERC20(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
+
+    address public stakeWrapperToken;
 
     IAmmRouter02 public ammRouter =
         IAmmRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
@@ -63,10 +61,17 @@ contract TribePool is Ownable {
 
     bool isInitialized;
 
-    function initialize(address _tribeToken) external onlyOwner {
+    function initialize(address _tribeToken, address _stakeWrapperToken)
+        external
+        onlyOwner
+    {
         require(!isInitialized);
         isInitialized = true;
         tribeToken = IERC20(_tribeToken);
+
+        setStakeWrapperToken(_stakeWrapperToken);
+
+        isRewardExempt[address(0)] = true;
 
         PRECISION_FACTOR = uint256(
             10**(uint256(30) - (IERC20Metadata(address(tribeToken)).decimals()))
@@ -76,14 +81,20 @@ contract TribePool is Ownable {
         timestampLast = block.timestamp;
     }
 
-    function deposit(uint256 _amount) external {
-        stakedToken.safeTransferFrom(msg.sender, address(this), _amount);
-        _deposit(msg.sender, _amount);
+    function deposit(address _for, uint256 _amount) external {
+        require(
+            msg.sender == stakeWrapperToken,
+            "TribePool: Only call deposit from stake wrapper token"
+        );
+        _deposit(_for, _amount);
     }
 
-    function withdraw(uint256 _amount) external {
-        stakedToken.safeTransfer(msg.sender, _amount);
-        _withdraw(msg.sender, _amount);
+    function withdraw(address _for, uint256 _amount) external {
+        require(
+            msg.sender == stakeWrapperToken,
+            "TribePool: Only call withdraw from stake wrapper token"
+        );
+        _withdraw(_for, _amount);
     }
 
     function claim() external {
@@ -189,6 +200,10 @@ contract TribePool is Ownable {
             _deposit(_for, stakedBal[_for]);
         }
         isRewardExempt[_for] = _to;
+    }
+
+    function setStakeWrapperToken(address _to) public onlyOwner {
+        stakeWrapperToken = _to;
     }
 
     /**
