@@ -72,8 +72,9 @@ contract TribePoolStakeWrapperToken is
     constructor(
         string memory _name,
         string memory _symbol,
-        TribePool _pool, //will issue claimable rewards to holders
-        bool _isLrtWhitelist
+        address _tribeToken,
+        bool _isLrtWhitelist,
+        address _owner
     ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czf)) Ownable() {
         if (_isLrtWhitelist) {
             setWhitelistWad(50 ether);
@@ -81,7 +82,10 @@ contract TribePoolStakeWrapperToken is
         } else {
             setWithdrawFeeBasis(1498);
         }
-        setPool(_pool);
+        TribePool newPool = new TribePool();
+        newPool.initialize(_tribeToken, address(this), owner());
+        setPool(newPool);
+        transferOwnership(_owner);
     }
 
     function _beforeTokenTransfer(

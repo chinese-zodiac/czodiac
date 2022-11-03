@@ -3,8 +3,10 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./TribePool.sol";
+import "./TribePoolStakeWrapperToken.sol";
 import "./CZUsd.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
@@ -62,15 +64,25 @@ contract TribePoolMaster is AccessControlEnumerable {
         return tribePools.getIndexOfKey(_address) != -1;
     }
 
-    function addTribePool(address _pool, uint256 _weight)
-        public
-        onlyRole(MANAGER_POOLS)
-    {
+    function addTribePool(
+        IERC20Metadata _tribeToken,
+        bool _isLrtWhitelist,
+        uint256 _weight,
+        address _owner
+    ) public onlyRole(MANAGER_POOLS) {
         updateAllPools();
-        tribePools.add(_pool);
-        weights[_pool] = _weight;
+        TribePoolStakeWrapperToken poolWrapper = new TribePoolStakeWrapperToken(
+            string(abi.encodePacked("CZF Staked in ", _tribeToken.name())), //string memory _name,
+            string(abi.encodePacked("cz-", _tribeToken.symbol())), //string memory _symbol,
+            address(_tribeToken), //address _tribeToken,
+            _isLrtWhitelist, //bool _isLrtWhitelist
+            _owner
+        );
+        address newPool = address(poolWrapper.pool());
+        tribePools.add(newPool);
+        weights[newPool] = _weight;
         totalWeight += _weight;
-        lastUpdate[_pool] = block.timestamp;
+        lastUpdate[newPool] = block.timestamp;
     }
 
     function removeTribePool(address _pool) external onlyRole(MANAGER_POOLS) {

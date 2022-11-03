@@ -61,10 +61,11 @@ contract TribePool is Ownable {
 
     bool isInitialized;
 
-    function initialize(address _tribeToken, address _stakeWrapperToken)
-        external
-        onlyOwner
-    {
+    function initialize(
+        address _tribeToken,
+        address _stakeWrapperToken,
+        address _owner
+    ) external onlyOwner {
         require(!isInitialized);
         isInitialized = true;
         tribeToken = IERC20(_tribeToken);
@@ -79,6 +80,8 @@ contract TribePool is Ownable {
 
         // Set the timestampLast as now
         timestampLast = block.timestamp;
+
+        transferOwnership(_owner);
     }
 
     function deposit(address _for, uint256 _amount) external {
