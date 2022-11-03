@@ -90,6 +90,7 @@ contract TribePoolMaster is AccessControlEnumerable {
             "TribePoolMaster: Not tribe pool"
         );
         updateAllPools();
+        totalWeight -= weights[_pool];
         weights[_pool] = _weight;
         totalWeight += _weight;
     }

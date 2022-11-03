@@ -43,11 +43,13 @@ contract TribePoolStakeWrapperToken is
     mapping(address => mapping(IERC721 => SlottedNft)) accountSlottedNfts;
 
     //slot this NFT to remove fees
-    IERC721 public slottableNftTaxFree;
+    IERC721 public slottableNftTaxFree =
+        IERC721(0x17B44eBb07a9861A3E566308DE3578a71Bf52906); //1BAD
     //Nft unlock period
-    uint256 public nftLockPeriod;
+    uint256 public nftLockPeriod = 30 days;
     // Whitelist token
-    IERC20 public whitelistToken;
+    IERC20 public whitelistToken =
+        IERC20(0xE95412D2d374B957ca7f8d96ABe6b6c1148fA438);
     // Whitelist token wad required
     uint256 public whitelistWad;
     //withdraw fee in basis points (0.01%)
@@ -70,13 +72,17 @@ contract TribePoolStakeWrapperToken is
     constructor(
         string memory _name,
         string memory _symbol,
-        address _pool, //will issue claimable rewards to holders
-        uint256 _withdrawFeeBasis,
-        IERC20 _whitelistToken,
-        uint256 _whitelistWad,
-        IERC721 _slottableNftTaxFree,
-        uint256 _nftLockPeriod
-    ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czf)) Ownable() {}
+        TribePool _pool, //will issue claimable rewards to holders
+        bool _isLrtWhitelist
+    ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czf)) Ownable() {
+        if (_isLrtWhitelist) {
+            setWhitelistWad(50 ether);
+            setWithdrawFeeBasis(998);
+        } else {
+            setWithdrawFeeBasis(1498);
+        }
+        setPool(_pool);
+    }
 
     function _beforeTokenTransfer(
         address from,
@@ -113,7 +119,7 @@ contract TribePoolStakeWrapperToken is
         return true;
     }
 
-    function setPool(TribePool _to) external onlyOwner {
+    function setPool(TribePool _to) public onlyOwner {
         pool = _to;
     }
 
