@@ -30,8 +30,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://data-seed-prebsc-1-s2.binance.org:8545`,
-        blockNumber: 22720000
+        url: `https://bsc.getblock.io/mainnet/?api_key=${networkConfig.noderealRpcKey}`
       }
     },
     rinkeby: {

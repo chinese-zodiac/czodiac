@@ -35,6 +35,10 @@ describe("TribePoolMaster", function () {
             params: [czodiacGnosis],
         });
         czusdAdmin = await ethers.getSigner(czodiacGnosis);
+        await owner.sendTransaction({
+            to: czodiacGnosis,
+            value: ethers.utils.parseEther("1.0")
+        })
 
         czfSc = await ethers.getContractAt("CZFarm", czf);
         czusdSc = await ethers.getContractAt("CZUsd", czusd);
@@ -51,9 +55,33 @@ describe("TribePoolMaster", function () {
         });
         tribePoolMasterSc = await TribePoolMaster.deploy();
         await tribePoolMasterSc.deployed();
+        await czusdSc.connect(czusdAdmin).grantRole(ethers.utils.id("MINTER_ROLE"), tribePoolMasterSc.address);
+        await tribePoolMasterSc.grantRole(ethers.utils.id("MANAGER_SETTINGS"), owner.address);
+        await tribePoolMasterSc.grantRole(ethers.utils.id("MANAGER_POOLS"), owner.address);
         const masterCzusd = await tribePoolMasterSc.czusd();
         const totalWeight = await tribePoolMasterSc.totalWeight();
         expect(totalWeight).to.eq(0);
         expect(masterCzusd).to.eq(czusd);
+    });
+    it("Should create lrt pool", async function () {
+        console.log("adding pool");
+        await tribePoolMasterSc.addTribePool(
+            lrtSc.address,//IERC20Metadata _tribeToken,
+            false,//bool _isLrtWhitelist,
+            1000,//uint256 _weight,
+            owner.address//address _owner
+        );
+        console.log("getting pool info");
+        const lrtPoolAddress = await tribePoolMasterSc.getTribePoolAddress(0);
+        console.log("lrtPoolAddress", lrtPoolAddress);
+        lrtPoolSc = await ethers.getContractAt("TribePool", lrtPoolAddress);
+        const lrtPoolWrapperAddress = await lrtPoolSc.stakeWrapperToken();
+        lrtPoolWrapperSc = await ethers.getContractAt("TribePoolStakeWrapperToken", lrtPoolWrapperAddress);
+        const whitelistWad = await lrtPoolWrapperSc.whitelistWad();
+        const withdrawFeeBasis = await lrtPoolWrapperSc.withdrawFeeBasis();
+        const tribeToken = await lrtPoolSc.tribeToken();
+        expect(whitelistWad).to.eq(0);
+        expect(withdrawFeeBasis).to.eq(1498);
+        expect(tribeToken).to.eq(lrtSc.address);
     });
 });

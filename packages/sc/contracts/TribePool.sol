@@ -30,7 +30,7 @@ contract TribePool is Ownable {
     uint256 public globalRewardDebt;
 
     // The precision factor
-    uint256 public PRECISION_FACTOR;
+    uint256 public PRECISION_FACTOR = 10**12;
 
     uint256 public period = 7 days;
 
@@ -61,6 +61,8 @@ contract TribePool is Ownable {
 
     bool isInitialized;
 
+    constructor() Ownable() {}
+
     function initialize(
         address _tribeToken,
         address _stakeWrapperToken,
@@ -73,10 +75,6 @@ contract TribePool is Ownable {
         setStakeWrapperToken(_stakeWrapperToken);
 
         isRewardExempt[address(0)] = true;
-
-        PRECISION_FACTOR = uint256(
-            10**(uint256(30) - (IERC20Metadata(address(tribeToken)).decimals()))
-        );
 
         // Set the timestampLast as now
         timestampLast = block.timestamp;

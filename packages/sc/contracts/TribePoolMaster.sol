@@ -10,6 +10,8 @@ import "./TribePoolStakeWrapperToken.sol";
 import "./CZUsd.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
+//import "hardhat/console.sol";
+
 contract TribePoolMaster is AccessControlEnumerable {
     using IterableArrayWithoutDuplicateKeys for IterableArrayWithoutDuplicateKeys.Map;
     using SafeERC20 for IERC20;
@@ -26,6 +28,10 @@ contract TribePoolMaster is AccessControlEnumerable {
     uint256 public totalWeight;
 
     mapping(address => uint256) public lastUpdate;
+
+    constructor() {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
 
     function setCzusdPerSecond(uint256 _to)
         external
@@ -64,13 +70,23 @@ contract TribePoolMaster is AccessControlEnumerable {
         return tribePools.getIndexOfKey(_address) != -1;
     }
 
+    function getTribePoolAddress(uint256 _pid) public view returns (address) {
+        return tribePools.getKeyAtIndex(_pid);
+    }
+
+    function getTribePoolCount() public view returns (uint256) {
+        return tribePools.size();
+    }
+
     function addTribePool(
-        IERC20Metadata _tribeToken,
+        ERC20 _tribeToken,
         bool _isLrtWhitelist,
         uint256 _weight,
         address _owner
     ) public onlyRole(MANAGER_POOLS) {
-        updateAllPools();
+        if (totalWeight != 0) {
+            updateAllPools();
+        }
         TribePoolStakeWrapperToken poolWrapper = new TribePoolStakeWrapperToken(
             string(abi.encodePacked("CZF Staked in ", _tribeToken.name())), //string memory _name,
             string(abi.encodePacked("cz-", _tribeToken.symbol())), //string memory _symbol,

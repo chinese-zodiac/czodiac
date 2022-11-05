@@ -24,6 +24,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./CZFarm.sol";
 import "./TribePool.sol";
 
+//import "hardhat/console.sol";
+
 contract TribePoolStakeWrapperToken is
     Context,
     ERC20Wrapper,

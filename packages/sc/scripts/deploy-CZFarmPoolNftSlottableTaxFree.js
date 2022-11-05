@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const loadJsonFile = require("load-json-file");
 
-const {ethers} = hre;
+const { ethers } = hre;
 const { parseEther } = ethers.utils;
 const {
   ellipsisV2Czusd3psPool,
@@ -12,14 +12,14 @@ const { zeroAddress, czDeployer, czf, czusd, lrt, czodiacNft, } = loadJsonFile.s
 
 
 async function main() {
-    
+
   const czfSc = await ethers.getContractAt("CZFarm", czf);
   const czusdSc = await ethers.getContractAt("CZUsd", czusd);
   const lrtSc = await ethers.getContractAt("IERC20", lrt);
   const czodiacNftSc = await ethers.getContractAt("IERC721", czodiacNft);
 
   const CZFarmPoolNftSlottableTaxFree = await ethers.getContractFactory("CZFarmPoolNftSlottableTaxFree");
-  
+
   console.log("deploying..")
   const pool = await CZFarmPoolNftSlottableTaxFree.deploy();
   await pool.deployed();
@@ -30,29 +30,29 @@ async function main() {
   console.log("initializing...");
 
   await pool.initialize(
-    czf,//ERC20Burnable _stakedToken,
-    czusd,//IERC20 _rewardToken,
+    czusd,//ERC20Burnable _stakedToken,
+    czf,//IERC20 _rewardToken,
     0,//uint256 _rewardPerSecond,
-    1661673600,//uint256 _timestampStart,
-    1661673600+90*86400,//uint256 _timestampEnd,
-    1498,//uint256 _withdrawFeeBasis,
+    1667822400,//uint256 _timestampStart,
+    1667822400 + 100 * 86400,//uint256 _timestampEnd,
+    198,//uint256 _withdrawFeeBasis,
     lrt,//IERC20 _whitelistToken,
-    parseEther("0"),//uint256 _whitelistWad,
+    parseEther("50"),//uint256 _whitelistWad,
     zeroAddress,//IERC721 _slottableNftTaxFree,
-    30*86400,//uint256 _nftLockPeriod,
+    30 * 86400,//uint256 _nftLockPeriod,
     czDeployer//address _admin
   );
 
-  console.log("granting permissions...")
+  //console.log("granting permissions...")
 
-  await czfSc.setContractSafe(pool.address);
-  await czusdSc.mint(pool.address,parseEther(" "));
+  //await czfSc.setContractSafe(pool.address);
+  //await czusdSc.mint(pool.address,parseEther(" "));
 
-  console.log("waiting 15 seconds...");
-  await delay(15000);
-  console.log("updating rps...");
+  //console.log("waiting 15 seconds...");
+  //await delay(15000);
+  //console.log("updating rps...");
 
-  await pool.czfarmUpdateRewardPerSecond()
+  //await pool.czfarmUpdateRewardPerSecond()
 }
 
 function delay(ms) {
