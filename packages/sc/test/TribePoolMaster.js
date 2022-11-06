@@ -94,4 +94,15 @@ describe("TribePoolMaster", function () {
         expect(wrapperTraderBal).to.eq(parseEther("100"));
         expect(totalStaked).to.eq(parseEther("100"));
     });
+    it("Should withdraw czf from lrt pool with fee", async function () {
+        await lrtPoolWrapperSc.connect(trader).withdrawTo(trader.address, parseEther("100"));
+        const wrapperTraderBal = await lrtPoolWrapperSc.balanceOf(trader.address);
+        const stakedTraderBal = await lrtPoolSc.stakedBal(trader.address);
+        const czfTraderBal = await czfSc.balanceOf(trader.address);
+        const totalStaked = await lrtPoolSc.totalStaked();
+        expect(czfTraderBal).to.eq(parseEther("85.02"));
+        expect(stakedTraderBal).to.eq(0);
+        expect(wrapperTraderBal).to.eq(0);
+        expect(totalStaked).to.eq(0);
+    });
 });
