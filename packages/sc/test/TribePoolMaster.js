@@ -64,16 +64,13 @@ describe("TribePoolMaster", function () {
         expect(masterCzusd).to.eq(czusd);
     });
     it("Should create lrt pool", async function () {
-        console.log("adding pool");
         await tribePoolMasterSc.addTribePool(
             lrtSc.address,//IERC20Metadata _tribeToken,
             false,//bool _isLrtWhitelist,
             1000,//uint256 _weight,
             owner.address//address _owner
         );
-        console.log("getting pool info");
         const lrtPoolAddress = await tribePoolMasterSc.getTribePoolAddress(0);
-        console.log("lrtPoolAddress", lrtPoolAddress);
         lrtPoolSc = await ethers.getContractAt("TribePool", lrtPoolAddress);
         const lrtPoolWrapperAddress = await lrtPoolSc.stakeWrapperToken();
         lrtPoolWrapperSc = await ethers.getContractAt("TribePoolStakeWrapperToken", lrtPoolWrapperAddress);
@@ -83,5 +80,18 @@ describe("TribePoolMaster", function () {
         expect(whitelistWad).to.eq(0);
         expect(withdrawFeeBasis).to.eq(1498);
         expect(tribeToken).to.eq(lrtSc.address);
+    });
+    it("Should deposit czf into lrt pool", async function () {
+        await czfSc.connect(czusdAdmin).mint(trader.address, parseEther("100"));
+        await czfSc.connect(trader).approve(lrtPoolWrapperSc.address, parseEther("100"));
+        await lrtPoolWrapperSc.connect(trader).depositFor(trader.address, parseEther("100"));
+        const wrapperTraderBal = await lrtPoolWrapperSc.balanceOf(trader.address);
+        const stakedTraderBal = await lrtPoolSc.stakedBal(trader.address);
+        const czfTraderBal = await czfSc.balanceOf(trader.address);
+        const totalStaked = await lrtPoolSc.totalStaked();
+        expect(czfTraderBal).to.eq(0);
+        expect(stakedTraderBal).to.eq(parseEther("100"));
+        expect(wrapperTraderBal).to.eq(parseEther("100"));
+        expect(totalStaked).to.eq(parseEther("100"));
     });
 });

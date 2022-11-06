@@ -120,7 +120,10 @@ contract TribePoolStakeWrapperToken is
             .timestamp != 0)
             ? 0
             : ((_amount * withdrawFeeBasis) / 10000);
-        if (withdrawFee > 0) czf.burn(withdrawFee);
+        if (withdrawFee > 0) {
+            _burn(msg.sender, withdrawFee);
+            czf.burn(withdrawFee);
+        }
         super.withdrawTo(_account, _amount - withdrawFee);
         return true;
     }
