@@ -56,6 +56,8 @@ describe("TribePoolMaster", function () {
         tribePoolMasterSc = await TribePoolMaster.deploy();
         await tribePoolMasterSc.deployed();
         await czusdSc.connect(czusdAdmin).grantRole(ethers.utils.id("MINTER_ROLE"), tribePoolMasterSc.address);
+        await czusdSc.connect(czusdAdmin).grantRole(ethers.utils.id("SAFE_GRANTER_ROLE"), tribePoolMasterSc.address);
+        await czfSc.connect(czusdAdmin).grantRole(ethers.utils.id("SAFE_GRANTER_ROLE"), tribePoolMasterSc.address);
         await tribePoolMasterSc.grantRole(ethers.utils.id("MANAGER_SETTINGS"), owner.address);
         await tribePoolMasterSc.grantRole(ethers.utils.id("MANAGER_POOLS"), owner.address);
         const masterCzusd = await tribePoolMasterSc.czusd();
@@ -104,5 +106,32 @@ describe("TribePoolMaster", function () {
         expect(stakedTraderBal).to.eq(0);
         expect(wrapperTraderBal).to.eq(0);
         expect(totalStaked).to.eq(0);
+    });
+    it("Should set czusd per second", async function () {
+        await tribePoolMasterSc.setCzusdPerSecond(parseEther("250").div(86400));
+        const now = (await time.latest()).toNumber();
+        const lastUpdate = await tribePoolMasterSc.lastUpdate();
+        const czusdPerSecond = await tribePoolMasterSc.czusdPerSecond();
+        expect(lastUpdate).to.eq(now);
+        expect(parseEther("250").div(86400)).to.eq(czusdPerSecond);
+    });
+    it("Should send czusd to tribepool to buy lrt", async function () {
+        const czusdPerSecond = await tribePoolMasterSc.czusdPerSecond();
+        const lastUpdate_initial = await tribePoolMasterSc.lastUpdate();
+        const czusdTotalSupply_initial = await czusdSc.totalSupply();
+        await time.increase(time.duration.days(1));
+        await time.advanceBlock();
+        await tribePoolMasterSc.updatePools();
+        const lastUpdate_final = await tribePoolMasterSc.lastUpdate();
+        const czusdTotalSupply_final = await czusdSc.totalSupply();
+        const lrtBal = await lrtSc.balanceOf(lrtPoolSc.address);
+
+        const czusdDelta = czusdTotalSupply_final.sub(czusdTotalSupply_initial);
+        const secondsDelta = lastUpdate_final.sub(lastUpdate_initial);
+
+        expect(czusdPerSecond.mul(secondsDelta)).to.eq(czusdDelta);
+        expect(czusdDelta).to.be.closeTo(parseEther("250"), parseEther("1"));
+        expect(lrtBal).to.be.above(parseEther("10"));
+        expect(lrtBal).to.be.below(parseEther("100"));
     });
 });

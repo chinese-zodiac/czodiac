@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IAmmRouter02.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
+//import "hardhat/console.sol";
+
 contract TribePool is Ownable {
     using IterableArrayWithoutDuplicateKeys for IterableArrayWithoutDuplicateKeys.Map;
 
@@ -44,8 +46,7 @@ contract TribePool is Ownable {
     IERC20 public tribeToken;
 
     // Token used to purchase rewards (CZUSD)
-    IERC20 public purchasingToken =
-        IERC20(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
+    IERC20 public czusd = IERC20(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
 
     address public stakeWrapperToken;
 
@@ -175,18 +176,18 @@ contract TribePool is Ownable {
         totalStaked -= _amount;
     }
 
-    function addPendingRewards() public {
-        uint256 purchasingWad = purchasingToken.balanceOf(address(this));
+    function addRewards(uint256 _czusdWad) public {
+        czusd.transferFrom(msg.sender, address(this), _czusdWad);
 
-        address[] memory purchasingToTribePath = new address[](2);
-        purchasingToTribePath[0] = address(purchasingToken);
-        purchasingToTribePath[1] = address(tribeToken);
+        address[] memory path = new address[](2);
+        path[0] = address(czusd);
+        path[1] = address(tribeToken);
 
-        purchasingToken.approve(address(ammRouter), purchasingWad);
+        czusd.approve(address(ammRouter), _czusdWad);
         ammRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-            purchasingWad,
+            _czusdWad,
             0,
-            purchasingToTribePath,
+            path,
             address(this),
             block.timestamp
         );
@@ -228,8 +229,8 @@ contract TribePool is Ownable {
         ammRouter = _to;
     }
 
-    function setPurchasingToken(IERC20 _to) external onlyOwner {
-        purchasingToken = _to;
+    function setCzusd(IERC20 _to) external onlyOwner {
+        czusd = _to;
     }
 
     /*
