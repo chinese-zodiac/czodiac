@@ -134,4 +134,31 @@ describe("TribePoolMaster", function () {
         expect(lrtBal).to.be.above(parseEther("10"));
         expect(lrtBal).to.be.below(parseEther("100"));
     });
+    it("Should deposit czf into lrt pool second time and earn lrt", async function () {
+        await czfSc.connect(czusdAdmin).mint(trader.address, parseEther("100"));
+        await czfSc.connect(trader).approve(lrtPoolWrapperSc.address, parseEther("100"));
+        await lrtPoolWrapperSc.connect(trader).depositFor(trader.address, parseEther("100"));
+        const lrtRewardPerSecond = await lrtPoolSc.rewardPerSecond();
+        const timeInitial = (await time.latest()).toNumber();
+        const wrapperTraderBal = await lrtPoolWrapperSc.balanceOf(trader.address);
+        const stakedTraderBal = await lrtPoolSc.stakedBal(trader.address);
+        const czfTraderBal = await czfSc.balanceOf(trader.address);
+        const totalStaked = await lrtPoolSc.totalStaked();
+        await time.increase(time.duration.days(1));
+        const pendingReward = await lrtPoolSc.pendingReward(trader.address);
+        await lrtPoolSc.connect(trader).claim();
+        const timefinal = (await time.latest()).toNumber();
+        const lrtBal = await lrtSc.balanceOf(trader.address);
+        const timeDelta = timefinal - timeInitial;
+
+        expect(czfTraderBal).to.eq(parseEther("85.02"));
+        expect(stakedTraderBal).to.eq(parseEther("100"));
+        expect(wrapperTraderBal).to.eq(parseEther("100"));
+        expect(totalStaked).to.eq(parseEther("100"));
+
+        expect(pendingReward).to.be.closeTo(lrtRewardPerSecond.mul(timeDelta), parseEther("0.01"));
+        expect(lrtBal).to.be.closeTo(pendingReward, parseEther("1"));
+        expect(lrtBal).to.be.above(parseEther("1"));
+        expect(lrtBal).to.be.below(parseEther("10"));
+    });
 });

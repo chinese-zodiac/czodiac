@@ -55,7 +55,6 @@ contract TribePool is Ownable {
 
     // Info of each user that stakes tokens (stakedToken)
     mapping(address => uint256) public userRewardDebt;
-    event NewRewardPerSecond(uint256 rewardPerSecpmd);
 
     //do not receive rewards
     mapping(address => bool) isRewardExempt;
@@ -264,16 +263,13 @@ contract TribePool is Ownable {
             return;
         }
 
-        if (totalStaked == 0) {
-            timestampLast = block.timestamp;
-            return;
+        if (totalStaked != 0) {
+            accTokenPerShare =
+                accTokenPerShare +
+                ((rewardPerSecond *
+                    _getMultiplier(timestampLast, block.timestamp) *
+                    PRECISION_FACTOR) / totalStaked);
         }
-
-        accTokenPerShare =
-            accTokenPerShare +
-            ((rewardPerSecond *
-                _getMultiplier(timestampLast, block.timestamp) *
-                PRECISION_FACTOR) / totalStaked);
 
         uint256 totalRewardsToDistribute = tribeToken.balanceOf(address(this)) +
             globalRewardDebt -
