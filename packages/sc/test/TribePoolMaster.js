@@ -161,4 +161,45 @@ describe("TribePoolMaster", function () {
         expect(lrtBal).to.be.above(parseEther("1"));
         expect(lrtBal).to.be.below(parseEther("10"));
     });
+    it("Should create new lsdt pool", async function () {
+        await tribePoolMasterSc.addTribePool(
+            lsdtSc.address,//IERC20Metadata _tribeToken,
+            true,//bool _isLrtWhitelist,
+            2000,//uint256 _weight,
+            owner.address//address _owner
+        );
+        const lsdtPoolAddress = await tribePoolMasterSc.getTribePoolAddress(1);
+        lsdtPoolSc = await ethers.getContractAt("TribePool", lsdtPoolAddress);
+        const lsdtPoolWrapperAddress = await lsdtPoolSc.stakeWrapperToken();
+        lsdtPoolWrapperSc = await ethers.getContractAt("TribePoolStakeWrapperToken", lsdtPoolWrapperAddress);
+        const whitelistWad = await lsdtPoolWrapperSc.whitelistWad();
+        const withdrawFeeBasis = await lsdtPoolWrapperSc.withdrawFeeBasis();
+        const tribeToken = await lsdtPoolSc.tribeToken();
+        expect(whitelistWad).to.eq(parseEther("50"));
+        expect(withdrawFeeBasis).to.eq(998);
+        expect(tribeToken).to.eq(lsdtSc.address);
+    });
+    it("Should send czusd to tribepool to buy lrt and lsdt", async function () {
+        await tribePoolMasterSc.updatePools();
+        const czusdPerSecond = await tribePoolMasterSc.czusdPerSecond();
+        const lastUpdate_initial = await tribePoolMasterSc.lastUpdate();
+        const czusdTotalSupply_initial = await czusdSc.totalSupply();
+        await time.increase(time.duration.days(1));
+        await time.advanceBlock();
+        await tribePoolMasterSc.updatePools();
+        const lastUpdate_final = await tribePoolMasterSc.lastUpdate();
+        const czusdTotalSupply_final = await czusdSc.totalSupply();
+        const lrtBal = await lrtSc.balanceOf(lrtPoolSc.address);
+        const lsdtBal = await lsdtSc.balanceOf(lsdtPoolSc.address);
+
+        const czusdDelta = czusdTotalSupply_final.sub(czusdTotalSupply_initial);
+        const secondsDelta = lastUpdate_final.sub(lastUpdate_initial);
+
+        expect(czusdPerSecond.mul(secondsDelta)).to.eq(czusdDelta);
+        expect(czusdDelta).to.be.closeTo(parseEther("250"), parseEther("1"));
+        expect(lrtBal).to.be.above(parseEther("10"));
+        expect(lrtBal).to.be.below(parseEther("100"));
+        expect(lsdtBal).to.be.above(parseEther("5"));
+        expect(lsdtBal).to.be.below(parseEther("25"));
+    });
 });
