@@ -116,8 +116,9 @@ contract TribePoolStakeWrapperToken is
         onlyWhitelist
         returns (bool)
     {
-        uint256 withdrawFee = (accountSlottedNfts[_account][slottableNftTaxFree]
-            .timestamp != 0)
+        uint256 withdrawFee = (accountSlottedNfts[msg.sender][
+            slottableNftTaxFree
+        ].timestamp != 0)
             ? 0
             : ((_amount * withdrawFeeBasis) / 10000);
         if (withdrawFee > 0) {
