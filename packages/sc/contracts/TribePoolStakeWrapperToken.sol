@@ -85,7 +85,7 @@ contract TribePoolStakeWrapperToken is
             setWithdrawFeeBasis(1498);
         }
         TribePool newPool = new TribePool();
-        newPool.initialize(_tribeToken, address(this), owner());
+        newPool.initialize(_tribeToken, address(this), _owner);
         setPool(newPool);
         transferOwnership(_owner);
     }

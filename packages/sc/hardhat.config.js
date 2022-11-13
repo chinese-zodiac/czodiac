@@ -30,7 +30,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://bsc.getblock.io/mainnet/?api_key=${networkConfig.noderealRpcKey}`
+        url: `https://rpc.ankr.com/bsc`//`https://bsc.getblock.io/mainnet/?api_key=${networkConfig.noderealRpcKey}`
       }
     },
     rinkeby: {
