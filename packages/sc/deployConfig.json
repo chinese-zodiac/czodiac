@@ -66,5 +66,6 @@
     "czodiacGnosis":"0x745A676C5c472b50B50e18D4b59e9AeEEc597046",
     "tribePoolMaster":"0x36C06d5078eAEdC0AF2Ca7079a9CAC3753033Bb8",
     "czusdUnpauser":"0x6ddC966b6d97ddeb4cdA1224dC941d1a7E09bdEa",
-    "TribePoolRescueCzf":"0x1E27Ab6ebEcD38011273a67e368040Ebf2786305"
+    "TribePoolRescueCzf":"0x1E27Ab6ebEcD38011273a67e368040Ebf2786305",
+    "czred":"0x5cd0c2C744caF04cda258Efc6558A3Ed3defE97b"
 }
