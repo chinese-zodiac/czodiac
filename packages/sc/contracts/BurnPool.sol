@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+//import "hardhat/console.sol";
+
 contract BurnPool is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -42,6 +44,8 @@ contract BurnPool is Ownable, ReentrancyGuard {
 
     uint256 public boostBps = 50000;
 
+    uint256 public claimSanityLimit = 5000 ether;
+
     mapping(address => bool) public isBoostEligible;
 
     // Info of each user that stakes tokens (stakedToken)
@@ -65,12 +69,11 @@ contract BurnPool is Ownable, ReentrancyGuard {
         PRECISION_FACTOR = uint256(
             10 **
                 (uint256(30) -
-                    (IERC20Metadata(address(rewardToken)).decimals()))
+                    (IERC20Metadata(address(_rewardToken)).decimals()))
         );
 
         stakedToken = _stakedToken;
         rewardToken = _rewardToken;
-
         _rewardToken.transferFrom(msg.sender, address(this), _rewardsWad);
 
         burnpoolSetStartAndDuration(_timestampStart, _durationSeconds);
@@ -115,6 +118,31 @@ contract BurnPool is Ownable, ReentrancyGuard {
         }
 
         user.rewardDebt = (user.shares * accTokenPerShare) / PRECISION_FACTOR;
+    }
+
+    /*
+     * @notice Claim staked tokens and collect reward tokens
+     * @param _amount: amount to withdraw (in rewardToken)
+     */
+    function claim() external nonReentrant {
+        UserInfo storage user = userInfo[msg.sender];
+
+        _updatePool();
+
+        uint256 pending = (user.shares * accTokenPerShare) /
+            PRECISION_FACTOR -
+            user.rewardDebt;
+
+        if (pending > 0) {
+            rewardToken.safeTransfer(address(msg.sender), pending);
+        }
+
+        user.rewardDebt = (user.shares * accTokenPerShare) / PRECISION_FACTOR;
+
+        require(
+            pending < claimSanityLimit,
+            "CZR: Sanity check failed. Request limit raise."
+        );
     }
 
     /*
@@ -166,6 +194,11 @@ contract BurnPool is Ownable, ReentrancyGuard {
         }
 
         user.rewardDebt = (user.shares * accTokenPerShare) / PRECISION_FACTOR;
+
+        require(
+            pending < claimSanityLimit,
+            "CZR: Sanity check failed. Request limit raise."
+        );
     }
 
     /*
@@ -243,5 +276,9 @@ contract BurnPool is Ownable, ReentrancyGuard {
 
     function setBoostBps(uint256 _to) external onlyOwner {
         boostBps = _to;
+    }
+
+    function setSanityLimit(uint256 _to) external onlyOwner {
+        claimSanityLimit = _to;
     }
 }
