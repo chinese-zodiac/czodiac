@@ -67,5 +67,7 @@
     "tribePoolMaster":"0x36C06d5078eAEdC0AF2Ca7079a9CAC3753033Bb8",
     "czusdUnpauser":"0x6ddC966b6d97ddeb4cdA1224dC941d1a7E09bdEa",
     "TribePoolRescueCzf":"0x1E27Ab6ebEcD38011273a67e368040Ebf2786305",
-    "czred":"0x5cd0c2C744caF04cda258Efc6558A3Ed3defE97b"
+    "czred":"0x5cd0c2C744caF04cda258Efc6558A3Ed3defE97b",
+    "burnPoolCzusdCzred": "0xD53760b58c3F4ADAbe947E379D19cc28f1246742",
+    "burnPoolCzfCzred": "0xa34b2d12dd2426cA93bA2C3bBA86BF24a2FAAAEf"
 }

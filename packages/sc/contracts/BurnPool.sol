@@ -100,7 +100,7 @@ contract BurnPool is Ownable, ReentrancyGuard {
                 PRECISION_FACTOR -
                 user.rewardDebt;
             if (pending > 0) {
-                rewardToken.safeTransfer(address(msg.sender), pending);
+                rewardToken.safeTransfer(_for, pending);
             }
         }
 
@@ -186,7 +186,6 @@ contract BurnPool is Ownable, ReentrancyGuard {
         if (_amount > 0) {
             user.shares -= _amount;
             totalShares -= _amount;
-            stakedToken.safeTransfer(address(msg.sender), _amount);
         }
 
         if (pending > 0) {
