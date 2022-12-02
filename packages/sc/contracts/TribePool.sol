@@ -175,7 +175,7 @@ contract TribePool is Ownable {
         totalStaked -= _amount;
     }
 
-    function addRewards(uint256 _czusdWad) public {
+    function addRewardsWithCzusd(uint256 _czusdWad) public {
         czusd.transferFrom(msg.sender, address(this), _czusdWad);
 
         address[] memory path = new address[](2);
@@ -190,6 +190,11 @@ contract TribePool is Ownable {
             address(this),
             block.timestamp
         );
+        _updatePool();
+    }
+
+    function addRewardsWithTribeToken(uint256 _tribeTokenWad) public {
+        tribeToken.transferFrom(msg.sender, address(this), _tribeTokenWad);
         _updatePool();
     }
 
