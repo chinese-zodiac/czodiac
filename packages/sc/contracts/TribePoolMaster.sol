@@ -93,4 +93,17 @@ contract TribePoolMaster is AccessControlEnumerable {
         weights[_pool] = _weight;
         totalWeight += _weight;
     }
+
+    /**
+     * @notice It allows the admin to recover wrong tokens sent to the contract
+     * @param _tokenAddress: the address of the token to withdraw
+     * @param _tokenAmount: the number of tokens to withdraw
+     * @dev This function is only callable by admin.
+     */
+    function recoverWrongTokens(address _tokenAddress, uint256 _tokenAmount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        IERC20(_tokenAddress).safeTransfer(address(msg.sender), _tokenAmount);
+    }
 }
