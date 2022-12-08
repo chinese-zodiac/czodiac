@@ -7,13 +7,14 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./TribePool.sol";
 import "./TribePoolStakeWrapperToken.sol";
+import "./interfaces/IBlacklist.sol";
 import "./CZUsd.sol";
 import "./CZRed.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
 //import "hardhat/console.sol";
 
-contract TribePoolMaster is AccessControlEnumerable {
+contract TribePoolMaster is AccessControlEnumerable, IBlacklist {
     using IterableArrayWithoutDuplicateKeys for IterableArrayWithoutDuplicateKeys.Map;
     using SafeERC20 for IERC20;
 
@@ -27,8 +28,15 @@ contract TribePoolMaster is AccessControlEnumerable {
     mapping(address => uint256) public weights;
     uint256 public totalWeight;
 
+    IBlacklist public blacklistChecker =
+        IBlacklist(0x8D82235e48Eeb0c5Deb41988864d14928B485bac);
+
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function isBlacklisted(address _for) external returns (bool) {
+        return blacklistChecker.isBlacklisted(_for);
     }
 
     function addRewardsWithCzusd(uint256 _czusdWad) external {
@@ -92,6 +100,13 @@ contract TribePoolMaster is AccessControlEnumerable {
         totalWeight -= weights[_pool];
         weights[_pool] = _weight;
         totalWeight += _weight;
+    }
+
+    function setBlacklistChecker(IBlacklist _to)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        blacklistChecker = _to;
     }
 
     /**

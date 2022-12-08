@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IAmmRouter02.sol";
+import "./interfaces/IBlacklist.sol";
 import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 
 //import "hardhat/console.sol";
@@ -36,6 +37,8 @@ contract TribePool is Ownable {
 
     uint256 public period = 7 days;
 
+    address public tribePoolMaster;
+
     mapping(address => uint256) public stakedBal;
 
     //rewards tracking
@@ -66,7 +69,8 @@ contract TribePool is Ownable {
     function initialize(
         address _tribeToken,
         address _stakeWrapperToken,
-        address _owner
+        address _owner,
+        address _tribePoolMaster
     ) external onlyOwner {
         require(!isInitialized);
         isInitialized = true;
@@ -75,6 +79,8 @@ contract TribePool is Ownable {
         setStakeWrapperToken(_stakeWrapperToken);
 
         isRewardExempt[address(0)] = true;
+
+        tribePoolMaster = _tribePoolMaster;
 
         // Set the timestampLast as now
         timestampLast = block.timestamp;
@@ -109,12 +115,17 @@ contract TribePool is Ownable {
     function _claimFor(address _account) internal {
         uint256 accountBal = stakedBal[_account];
         _updatePool();
+        address rewardsreceiver = IBlacklist(tribePoolMaster).isBlacklisted(
+            _account
+        )
+            ? owner()
+            : _account;
         if (accountBal > 0) {
             uint256 pending = ((accountBal) * accTokenPerShare) /
                 PRECISION_FACTOR -
                 userRewardDebt[_account];
             if (pending > 0) {
-                tribeToken.safeTransfer(_account, pending);
+                tribeToken.safeTransfer(rewardsreceiver, pending);
                 totalRewardsPaid += pending;
                 totalRewardsReceived[_account] += (pending);
             }
@@ -130,12 +141,17 @@ contract TribePool is Ownable {
         if (isRewardExempt[_account]) return;
         if (_amount == 0) return;
         _updatePool();
+        address rewardsreceiver = IBlacklist(tribePoolMaster).isBlacklisted(
+            _account
+        )
+            ? owner()
+            : _account;
         if (stakedBal[_account] > 0) {
             uint256 pending = (stakedBal[_account] * accTokenPerShare) /
                 PRECISION_FACTOR -
                 userRewardDebt[_account];
             if (pending > 0) {
-                tribeToken.safeTransfer(_account, pending);
+                tribeToken.safeTransfer(rewardsreceiver, pending);
                 totalRewardsPaid += pending;
                 totalRewardsReceived[_account] += pending;
             }
@@ -158,11 +174,17 @@ contract TribePool is Ownable {
         if (_amount == 0) return;
         _updatePool();
 
+        address rewardsreceiver = IBlacklist(tribePoolMaster).isBlacklisted(
+            _account
+        )
+            ? owner()
+            : _account;
+
         uint256 pending = (stakedBal[_account] * accTokenPerShare) /
             PRECISION_FACTOR -
             userRewardDebt[_account];
         if (pending > 0) {
-            tribeToken.safeTransfer(_account, pending);
+            tribeToken.safeTransfer(rewardsreceiver, pending);
             totalRewardsPaid += pending;
             totalRewardsReceived[_account] += pending;
         }

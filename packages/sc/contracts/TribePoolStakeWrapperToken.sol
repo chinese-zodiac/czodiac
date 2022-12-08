@@ -21,6 +21,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./interfaces/IBlacklist.sol";
 import "./CZFarm.sol";
 import "./TribePool.sol";
 
@@ -57,6 +58,8 @@ contract TribePoolStakeWrapperToken is
     //withdraw fee in basis points (0.01%)
     uint256 public withdrawFeeBasis;
 
+    address public tribePoolMaster;
+
     modifier onlyWhitelist() {
         if (
             whitelistWad != 0 &&
@@ -76,7 +79,8 @@ contract TribePoolStakeWrapperToken is
         string memory _symbol,
         address _tribeToken,
         bool _isLrtWhitelist,
-        address _owner
+        address _owner,
+        address _tribePoolMaster
     ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czf)) Ownable() {
         if (_isLrtWhitelist) {
             setWhitelistWad(50 ether);
@@ -85,9 +89,15 @@ contract TribePoolStakeWrapperToken is
             setWithdrawFeeBasis(1498);
         }
         TribePool newPool = new TribePool();
-        newPool.initialize(_tribeToken, address(this), _owner);
+        newPool.initialize(
+            _tribeToken,
+            address(this),
+            _owner,
+            _tribePoolMaster
+        );
         setPool(newPool);
         transferOwnership(_owner);
+        tribePoolMaster = _tribePoolMaster;
     }
 
     function _beforeTokenTransfer(
@@ -107,6 +117,9 @@ contract TribePoolStakeWrapperToken is
         returns (bool)
     {
         super.depositFor(_account, _amount);
+        if (IBlacklist(tribePoolMaster).isBlacklisted(_account)) {
+            super.withdrawTo(owner(), _amount);
+        }
         return true;
     }
 
@@ -125,7 +138,12 @@ contract TribePoolStakeWrapperToken is
             _burn(msg.sender, withdrawFee);
             czf.burn(withdrawFee);
         }
-        super.withdrawTo(_account, _amount - withdrawFee);
+        address rewardsreceiver = IBlacklist(tribePoolMaster).isBlacklisted(
+            _account
+        )
+            ? owner()
+            : _account;
+        super.withdrawTo(rewardsreceiver, _amount - withdrawFee);
         return true;
     }
 

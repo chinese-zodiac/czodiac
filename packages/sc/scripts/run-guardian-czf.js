@@ -11,28 +11,32 @@ async function main() {
   const czfToken = await ethers.getContractAt("CZFarm", czf);
   const guardianSc = await ethers.getContractAt("Guardian", guardian);
 
-  const bots = [];
+  const bots = [
+    
+  ];
 
   while (true) {
-    const botsWithCzf = [];
-    console.log(bots);
-    console.log(bots.length);
-    for (let i = 0; i < bots.length; i++) {
-      const botCzfBal = await czfToken.balanceOf(bots[i]);
-      console.log("Bot:", bots[i]);
-      console.log("Botbal:", botCzfBal);
-      if (botCzfBal.gte(parseEther("100000"))) {
-        botsWithCzf.push(bots[i]);
+    try {
+      const botsWithCzf = [];
+      console.log(bots);
+      console.log(bots.length);
+      for (let i = 0; i < bots.length; i++) {
+        const botCzfBal = await czfToken.balanceOf(bots[i]);
+        console.log("Bot:", bots[i]);
+        console.log("Botbal:", botCzfBal);
+        if (botCzfBal.gte(parseEther("100000"))) {
+          botsWithCzf.push(bots[i]);
+        }
       }
-    }
-    if (botsWithCzf.length > 0) {
-      console.log("Found bots:", botsWithCzf.length);
-      await guardianSc.recover(botsWithCzf, { gasLimit: 500000, gasPrice: 6100000000 });
-      await delay(15000);
-    } else {
-      console.log("No bots found");
-    }
-    await delay(1000);
+      if (botsWithCzf.length > 0) {
+        console.log("Found bots:", botsWithCzf.length);
+        await guardianSc.recover(botsWithCzf, { gasLimit: 500000, gasPrice: 6100000000 });
+        await delay(15000);
+      } else {
+        console.log("No bots found");
+      }
+    } catch (e) { console.log(e) }
+    await delay(15000);
   }
 
 
