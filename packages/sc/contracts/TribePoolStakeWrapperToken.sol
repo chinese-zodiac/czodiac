@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Authored by Plastic Digits
 
-/*
-CZUSD consists of three core smart contracts: 
-CZUsd for the BEP20 stablecoin; 
-CZUsdBorrow for depositing collateral, minting new CZUSD against that collateral, 
-and repaying CZUSD to release collateral; 
-and CZUsdStablization which mints/burns CZUSD and CZF from the CZUSD/CZF pool 
-in an economically neutral way to maintain the CZUSD peg within set bounds.
-Additionally CZUSD integrates with several peripheral contracts; 
-CZF, the equity token for the algorithmic stabilization; 
-IERC20 collalteral tokens, 
-and Pancakeswap TWAP oracles for determining both CZUSD and collateral prices.
-*/
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -22,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./interfaces/IBlacklist.sol";
-import "./CZFarm.sol";
+import "./CZRed.sol";
 import "./TribePool.sol";
 
 //import "hardhat/console.sol";
@@ -40,7 +28,7 @@ contract TribePoolStakeWrapperToken is
         uint256 timestamp;
     }
 
-    CZFarm public czf = CZFarm(0x7c1608C004F20c3520f70b924E2BfeF092dA0043);
+    CZRed public czr = CZRed(0x5cd0c2C744caF04cda258Efc6558A3Ed3defE97b);
 
     TribePool public pool;
     mapping(address => mapping(IERC721 => SlottedNft)) accountSlottedNfts;
@@ -67,8 +55,7 @@ contract TribePoolStakeWrapperToken is
             msg.sender != owner()
         ) {
             require(
-                whitelistToken.balanceOf(msg.sender) >= whitelistWad,
-                "Not enough whitelist token to deposit"
+                whitelistToken.balanceOf(msg.sender) >= whitelistWad
             );
         }
         _;
@@ -81,7 +68,7 @@ contract TribePoolStakeWrapperToken is
         bool _isLrtWhitelist,
         address _owner,
         address _tribePoolMaster
-    ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czf)) Ownable() {
+    ) ERC20(_name, _symbol) ERC20Wrapper(IERC20(czr)) Ownable() {
         if (_isLrtWhitelist) {
             setWhitelistWad(50 ether);
             setWithdrawFeeBasis(998);
@@ -136,7 +123,7 @@ contract TribePoolStakeWrapperToken is
             : ((_amount * withdrawFeeBasis) / 10000);
         if (withdrawFee > 0) {
             _burn(msg.sender, withdrawFee);
-            czf.burn(withdrawFee);
+            czr.burn(withdrawFee);
         }
         address rewardsreceiver = IBlacklist(tribePoolMaster).isBlacklisted(
             _account
@@ -163,7 +150,7 @@ contract TribePoolStakeWrapperToken is
 
     function slotNft(IERC721 _nftSc, uint256 _nftId) public nonReentrant {
         SlottedNft storage slottedNft = accountSlottedNfts[msg.sender][_nftSc];
-        require(slottedNft.timestamp == 0, "CZ: NFT already slotted");
+        require(slottedNft.timestamp == 0);
         slottedNft.id = _nftId;
         slottedNft.timestamp = block.timestamp;
         _nftSc.transferFrom(msg.sender, address(this), _nftId);
@@ -171,11 +158,9 @@ contract TribePoolStakeWrapperToken is
 
     function unslotNft(IERC721 _nftSc) public nonReentrant {
         SlottedNft storage slottedNft = accountSlottedNfts[msg.sender][_nftSc];
-        require(slottedNft.timestamp != 0, "CZ: No NFT Slotted");
+        require(slottedNft.timestamp != 0);
         require(
-            block.timestamp > slottedNft.timestamp + nftLockPeriod,
-            "CZ: NFT Locked"
-        );
+            block.timestamp > slottedNft.timestamp + nftLockPeriod);
         _nftSc.transferFrom(address(this), msg.sender, slottedNft.id);
         delete slottedNft.id;
         delete slottedNft.timestamp;
@@ -210,7 +195,7 @@ contract TribePoolStakeWrapperToken is
         uint256 _tokenAmount,
         address _to
     ) external onlyOwner {
-        require(_tokenAddress != address(underlying), "Cannot be underlying");
+        require(_tokenAddress != address(underlying));
 
         IERC20(_tokenAddress).safeTransfer(_to, _tokenAmount);
     }

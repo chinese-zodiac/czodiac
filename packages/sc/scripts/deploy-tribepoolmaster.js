@@ -4,7 +4,7 @@ const loadJsonFile = require("load-json-file");
 const { ethers } = hre;
 const { parseEther } = ethers.utils;
 
-const { zeroAddress, czf, czusd, lrt, lsdt, oneBadRabbit, dgod, czodiacGnosis, deployer
+const { zeroAddress, czr, czusd, lrt, lsdt, oneBadRabbit, dgod, czodiacGnosis, deployer
 } = loadJsonFile.sync("./deployConfig.json");
 
 const ITERABLE_ARRAY = "0x4222FFCf286610476B7b5101d55E72436e4a6065";
@@ -27,9 +27,8 @@ async function main() {
     await tribePoolMasterSc.grantRole(ethers.utils.id("MANAGER_POOLS"), czodiacGnosis);
 
     //czodiacGnosis needs to assign below
-    //await czusdSc.connect(czusdAdmin).grantRole(ethers.utils.id("MINTER_ROLE"), tribePoolMasterSc.address);
     //await czusdSc.connect(czusdAdmin).grantRole(ethers.utils.id("SAFE_GRANTER_ROLE"), tribePoolMasterSc.address);
-    //await czfSc.connect(czusdAdmin).grantRole(ethers.utils.id("SAFE_GRANTER_ROLE"), tribePoolMasterSc.address);
+    //await czrSc.connect(czusdAdmin).grantRole(ethers.utils.id("SAFE_GRANTER_ROLE"), tribePoolMasterSc.address);
 
     //To add a pool, the manager needs to do below (should be czodiacGnosis)
     /*

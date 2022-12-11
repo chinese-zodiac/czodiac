@@ -89,18 +89,12 @@ contract TribePool is Ownable {
     }
 
     function deposit(address _for, uint256 _amount) external {
-        require(
-            msg.sender == stakeWrapperToken,
-            "TribePool: Only call deposit from stake wrapper token"
-        );
+        require(msg.sender == stakeWrapperToken);
         _deposit(_for, _amount);
     }
 
     function withdraw(address _for, uint256 _amount) external {
-        require(
-            msg.sender == stakeWrapperToken,
-            "TribePool: Only call withdraw from stake wrapper token"
-        );
+        require(msg.sender == stakeWrapperToken);
         _withdraw(_for, _amount);
     }
 

@@ -5,6 +5,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./TribePool.sol";
 import "./TribePoolStakeWrapperToken.sol";
 import "./interfaces/IBlacklist.sol";
@@ -17,8 +18,8 @@ import "./libs/IterableArrayWithoutDuplicateKeys.sol";
 contract TribePoolMaster is AccessControlEnumerable, IBlacklist {
     using IterableArrayWithoutDuplicateKeys for IterableArrayWithoutDuplicateKeys.Map;
     using SafeERC20 for IERC20;
+    using Strings for uint256;
 
-    bytes32 public constant MANAGER_SETTINGS = keccak256("MANAGER_SETTINGS");
     bytes32 public constant MANAGER_POOLS = keccak256("MANAGER_POOLS");
 
     CZUsd public czusd = CZUsd(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
@@ -35,7 +36,7 @@ contract TribePoolMaster is AccessControlEnumerable, IBlacklist {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function isBlacklisted(address _for) external returns (bool) {
+    function isBlacklisted(address _for) external override returns (bool) {
         return blacklistChecker.isBlacklisted(_for);
     }
 
@@ -68,12 +69,21 @@ contract TribePoolMaster is AccessControlEnumerable, IBlacklist {
         uint256 _weight,
         address _owner
     ) public onlyRole(MANAGER_POOLS) {
+        string memory poolWrapperName = string(
+            abi.encodePacked(
+                "wCZR-",
+                tribePools.size().toString(),
+                "-",
+                _tribeToken.symbol()
+            )
+        );
         TribePoolStakeWrapperToken poolWrapper = new TribePoolStakeWrapperToken(
-            string(abi.encodePacked("CZF Staked in ", _tribeToken.name())), //string memory _name,
-            string(abi.encodePacked("cz-", _tribeToken.symbol())), //string memory _symbol,
+            poolWrapperName, //string memory _name,
+            poolWrapperName, //string memory _symbol,
             address(_tribeToken), //address _tribeToken,
             _isLrtWhitelist, //bool _isLrtWhitelist
-            _owner
+            _owner,
+            address(this)
         );
         address newPool = address(poolWrapper.pool());
         czr.setContractSafe(address(poolWrapper));
@@ -93,10 +103,7 @@ contract TribePoolMaster is AccessControlEnumerable, IBlacklist {
         public
         onlyRole(MANAGER_POOLS)
     {
-        require(
-            getIsTribePool(_pool) == true,
-            "TribePoolMaster: Not tribe pool"
-        );
+        require(getIsTribePool(_pool) == true);
         totalWeight -= weights[_pool];
         weights[_pool] = _weight;
         totalWeight += _weight;
