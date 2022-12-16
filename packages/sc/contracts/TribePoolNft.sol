@@ -75,6 +75,14 @@ contract TribePoolNft is Ownable {
         timestampLast = block.timestamp;
     }
 
+    function getDepositedIdForAccountAtIndex(address _for, uint256 _index)
+        external
+        view
+        returns (uint256 id)
+    {
+        return ownedIds[_for].getKeyAtIndex(_index);
+    }
+
     function deposit(uint256[] calldata _nftIds) external {
         uint256 countToDeposit = _nftIds.length;
         for (uint256 i = 0; i < countToDeposit; i++) {
