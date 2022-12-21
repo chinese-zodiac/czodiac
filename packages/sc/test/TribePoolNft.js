@@ -70,4 +70,29 @@ describe("TribePoolNft", function () {
         expect(stakedNft).to.eq(czodiacNft);
         expect(tribeToken).to.eq(czred);
     });
+    it("Should stake Nft", async function () {
+        await czodiacNftSc.connect(deployer).setApprovalForAll(tribePoolNftSc.address, true);
+        await tribePoolNftSc.connect(deployer).deposit([1, 3]);
+        const totalStaked = await tribePoolNftSc.totalStaked();
+        const stakedBal = await tribePoolNftSc.stakedBal(deployer.address);
+        const idOwner = await tribePoolNftSc.idOwner(3);
+        const depositedIdForAccountAtIndex = await tribePoolNftSc.getDepositedIdForAccountAtIndex(deployer.address, 1);
+        expect(totalStaked).to.eq(2);
+        expect(stakedBal).to.eq(2);
+        expect(idOwner).to.eq(deployer.address);
+        expect(depositedIdForAccountAtIndex).to.eq(3);
+    });
+    it("Should withdraw Nft", async function () {
+        console.log("Attempting withdraw")
+        await tribePoolNftSc.connect(deployer).withdraw([1]);
+        console.log("withdraw success")
+        const totalStaked = await tribePoolNftSc.totalStaked();
+        const stakedBal = await tribePoolNftSc.stakedBal(deployer.address);
+        const idOwner = await tribePoolNftSc.idOwner(3);
+        const depositedIdForAccountAtIndex0 = await tribePoolNftSc.getDepositedIdForAccountAtIndex(deployer.address, 0);
+        expect(totalStaked).to.eq(1);
+        expect(stakedBal).to.eq(1);
+        expect(idOwner).to.eq(deployer.address);
+        expect(depositedIdForAccountAtIndex0).to.eq(3);
+    });
 });
