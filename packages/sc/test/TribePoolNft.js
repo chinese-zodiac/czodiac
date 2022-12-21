@@ -11,7 +11,6 @@ const { toNum, toBN } = require("./utils/bignumberConverter");
 
 const loadJsonFile = require("load-json-file");
 const { zeroAddress, czodiacNft, czred, czodiacGnosis, czDeployer, czusd
-
 } = loadJsonFile.sync("./deployConfig.json");
 
 const { expect } = chai;
