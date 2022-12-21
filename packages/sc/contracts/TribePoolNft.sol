@@ -67,8 +67,6 @@ contract TribePoolNft is Ownable {
     //do not receive rewards
     mapping(address => bool) isRewardExempt;
 
-    bool isInitialized;
-
     constructor() Ownable() {
         isRewardExempt[address(0)] = true;
         // Set the timestampLast as now
