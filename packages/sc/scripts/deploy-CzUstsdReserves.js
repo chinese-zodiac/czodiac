@@ -1,26 +1,26 @@
 const hre = require("hardhat");
 const loadJsonFile = require("load-json-file");
 const {
-    czDeployer,
-    ellipsisCzusd3psPool,
-    czvPegV2,
-    busd,
-    czusd,
-    SilverDollarTypePriceSheet,
-    SilverDollarNfts
+  czDeployer,
+  ellipsisCzusd3psPool,
+  czvPegV2,
+  busd,
+  czusd,
+  SilverDollarTypePriceSheet,
+  SilverDollarNfts
 } = require("../deployConfig.json");
 
-const {ethers} = hre;
-const {parseEther} = ethers.utils;
+const { ethers } = hre;
+const { parseEther } = ethers.utils;
 
 async function main() {
   let czusdSc = await ethers.getContractAt("CZUsd", czusd);
 
   console.log("Deploying...");
 
-  const CzUstsdReserves = await ethers.getContractFactory("CzUstsdReserves");
+  const CzUstsdReserves = await ethers.getContractFactory("CzUstsdReservesWithBlacklist");
   const czUstsdReservesSc = await CzUstsdReserves.deploy();
-  console.log("czUstsdReservesSc",czUstsdReservesSc.address);
+  console.log("czUstsdReservesSc", czUstsdReservesSc.address);
 
   console.log("Completed deployment");
 
