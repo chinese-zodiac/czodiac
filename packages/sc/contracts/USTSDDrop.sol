@@ -12,7 +12,7 @@ contract UstsdDrop is AccessControlEnumerable {
     bytes32 public constant DROPSENDER_ROLE = keccak256("DROPSENDER_ROLE");
 
     CzUstsdReserves public reserves =
-        CzUstsdReserves(0x099Cd01DBA50C29727852c47E36772fc82462b52);
+        CzUstsdReserves(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
     LSDT public lsdt = LSDT(0xD9A255F79d7970A3Ed4d81eef82b054B0a21eCF8);
     CZUsd public czusd = CZUsd(0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70);
     JsonNftTemplate public ustsdNft =
@@ -97,6 +97,13 @@ contract UstsdDrop is AccessControlEnumerable {
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         ustsdRewardPeriod = _to;
+    }
+
+    function ADMIN_setReserves(CzUstsdReserves _to)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        reserves = _to;
     }
 
     function ADMIN_recoverWrongTokens(address _tokenAddress)
