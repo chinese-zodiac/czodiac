@@ -191,7 +191,7 @@ contract Cashback_Registry is AccessControlEnumerable {
         uint64 prevParentNodeId = account.levelNodeIds[uint8(account.level)];
 
         addCzusdToReferrerChain(prevParentNodeId, levelFees[newLevel]);
-        
+
         Node storage prevParent = nodes[prevParentNodeId];
         account.levelNodeIds[newLevel] = nodeIdNonce;
         nodes[nodeIdNonce] = Node(
@@ -240,7 +240,7 @@ contract Cashback_Registry is AccessControlEnumerable {
             Node storage node = nodes[nodeIdProcessing];
             pendingRewards[accounts[node.accountId].signer] +=
                 (totalWeightAtLevel[levelProcessing] -
-                    totalWeightAtLevel[levelProcessing - 1]) *
+                    totalWeightAtLevel[levelProcessing + 1]) *
                 feesPerWeight;
             nodeIdProcessing = node.parentNodeId;
             levelProcessing++;
