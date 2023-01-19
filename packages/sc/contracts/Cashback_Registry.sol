@@ -19,7 +19,7 @@ contract Cashback_Registry is AccessControlEnumerable {
     }
 
     uint256[6] public levelFees = [
-        0 ether, //Treasury, cannot upgrade to this level
+        type(uint256).max, //Treasury, cannot upgrade to this level
         2500 ether,
         750 ether,
         125 ether,
@@ -40,7 +40,7 @@ contract Cashback_Registry is AccessControlEnumerable {
     struct Account {
         LEVEL level;
         address signer;
-        uint64[5] levelNodeIds;
+        uint64[6] levelNodeIds;
         uint64 referrerAccountId;
         string code;
         uint64[] referralAccountIds;
@@ -73,24 +73,28 @@ contract Cashback_Registry is AccessControlEnumerable {
 
         nodes[nodeIdNonce] = Node(LEVEL.TREASURY, accountIdNonce, 0);
         treasuryAccount.levelNodeIds[uint256(LEVEL.TREASURY)] = nodeIdNonce;
+
         nodes[nodeIdNonce + 1] = Node(
             LEVEL.DIAMOND,
             accountIdNonce,
             nodeIdNonce
         );
         treasuryAccount.levelNodeIds[uint256(LEVEL.DIAMOND)] = nodeIdNonce + 1;
+
         nodes[nodeIdNonce + 2] = Node(
             LEVEL.GOLD,
             accountIdNonce,
             nodeIdNonce + 1
         );
         treasuryAccount.levelNodeIds[uint256(LEVEL.GOLD)] = nodeIdNonce + 2;
+
         nodes[nodeIdNonce + 3] = Node(
             LEVEL.SILVER,
             accountIdNonce,
             nodeIdNonce + 2
         );
         treasuryAccount.levelNodeIds[uint256(LEVEL.SILVER)] = nodeIdNonce + 3;
+
         nodes[nodeIdNonce + 4] = Node(
             LEVEL.BRONZE,
             accountIdNonce,
@@ -147,6 +151,7 @@ contract Cashback_Registry is AccessControlEnumerable {
         newAccount.level = LEVEL.MEMBER;
         newAccount.signer = msg.sender;
         newAccount.referrerAccountId = codeToAccountId[_referralCode];
+        newAccount.levelNodeIds[uint256(LEVEL.MEMBER)] = nodeIdNonce;
         signerToAccountId[msg.sender] = accountIdNonce;
 
         Account storage referrerAccount = accounts[
@@ -154,52 +159,50 @@ contract Cashback_Registry is AccessControlEnumerable {
         ];
         referrerAccount.referralAccountIds.push(accountIdNonce);
 
+        nodes[nodeIdNonce] = Node(
+            LEVEL.MEMBER,
+            accountIdNonce,
+            referrerAccount.levelNodeIds[uint256(LEVEL.BRONZE)]
+        );
+
+        nodeIdNonce++;
         accountIdNonce++;
     }
 
-    function upgradeToBronze(string calldata _code) external {
-        uint64 accountId = signerToAccountId[msg.sender];
-        Account storage account = accounts[accountId];
-        require(account.level == LEVEL.MEMBER, "CBR: Not LEVEL.MEMBER");
-        require(!isCodeRegistered(_code), "CBR: Code Registered");
-
-        uint64 memberParentNodeId = accounts[account.referrerAccountId]
-            .levelNodeIds[uint256(LEVEL.BRONZE)];
-
-        addCzusdToReferrerChain(
-            memberParentNodeId,
-            levelFees[uint256(LEVEL.BRONZE)]
-        );
-
-        account.level = LEVEL.BRONZE;
-        codeToAccountId[_code] = accountId;
-        nodes[nodeIdNonce] = Node(
-            LEVEL.BRONZE,
-            accountId,
-            nodes[memberParentNodeId].parentNodeId
-        );
-        account.levelNodeIds[uint256(LEVEL.BRONZE)] = nodeIdNonce;
-        nodeIdNonce++;
+    function upgradeTierAndSetCode(string calldata _code) external {
+        _upgradeTier();
+        setCodeTo(_code);
     }
 
     function upgradeTier() external {
+        _upgradeTier();
+    }
+
+    function _upgradeTier() internal {
         uint64 accountId = signerToAccountId[msg.sender];
         Account storage account = accounts[accountId];
-        require(account.level < LEVEL.BRONZE, "CBR: Not Bronze or Higher");
-        require(account.level != LEVEL.DIAMOND, "CBR: Cannot Upgrade Diamond");
-        uint8 newLevel = uint8(account.level) - 1;
-        uint64 prevParentNodeId = account.levelNodeIds[uint8(account.level)];
+        require(accountId != 0, "CBR: Not Registered");
+        require(account.level != LEVEL.DIAMOND, "CBR: Max Tier");
+        uint8 prevLevel = uint8(account.level);
+        uint8 newLevel = prevLevel - 1;
+
+        uint64 prevParentNodeId = nodes[account.levelNodeIds[prevLevel]]
+            .parentNodeId;
 
         addCzusdToReferrerChain(prevParentNodeId, levelFees[newLevel]);
 
-        Node storage prevParent = nodes[prevParentNodeId];
+        //Create new node for upgraded level
         account.levelNodeIds[newLevel] = nodeIdNonce;
         nodes[nodeIdNonce] = Node(
             LEVEL(newLevel),
             accountId,
-            prevParent.parentNodeId
+            nodes[prevParentNodeId].parentNodeId
         );
         account.level = LEVEL(newLevel);
+        //Set old level's node parent to new node
+        nodes[account.levelNodeIds[prevLevel]].parentNodeId = nodeIdNonce;
+
+        nodeIdNonce++;
     }
 
     function addCzusdToReferrerChain(uint64 _referrerNodeId, uint256 _wad)
@@ -216,11 +219,11 @@ contract Cashback_Registry is AccessControlEnumerable {
         account.signer = _newSigner;
     }
 
-    function setCodeTo(string calldata _code) external {
+    function setCodeTo(string calldata _code) public {
         require(!isCodeRegistered(_code), "CBR: Code Registered");
         uint64 accountId = signerToAccountId[msg.sender];
-        require(accountId != 0, "CBR: Account not registered");
         Account storage account = accounts[accountId];
+        require(accountId != 0, "CBR: Account not registered");
         require(account.level != LEVEL.MEMBER, "CBR: Members Cannot Set Code");
         delete codeToAccountId[account.code];
         account.code = _code;
@@ -231,19 +234,17 @@ contract Cashback_Registry is AccessControlEnumerable {
         internal
     {
         uint64 nodeIdProcessing = _referrerNodeId;
-        uint8 levelProcessing = uint8(nodes[_referrerNodeId].depth);
-        uint16 combinedReferrerWeight = totalWeightAtLevel[
-            uint8(LEVEL.TREASURY)
-        ] - totalWeightAtLevel[levelProcessing];
+        uint8 minLevel = uint8(nodes[_referrerNodeId].depth);
+        uint16 combinedReferrerWeight = totalWeightAtLevel[0] -
+            totalWeightAtLevel[minLevel];
         uint256 feesPerWeight = _wad / combinedReferrerWeight;
-        while (levelProcessing >= uint8(LEVEL.TREASURY)) {
+        for (uint8 level = 0; level <= minLevel; level++) {
             Node storage node = nodes[nodeIdProcessing];
             pendingRewards[accounts[node.accountId].signer] +=
-                (totalWeightAtLevel[levelProcessing] -
-                    totalWeightAtLevel[levelProcessing + 1]) *
+                (totalWeightAtLevel[level] - totalWeightAtLevel[level + 1]) *
                 feesPerWeight;
             nodeIdProcessing = node.parentNodeId;
-            levelProcessing++;
+            level++;
         }
     }
 
@@ -278,7 +279,7 @@ contract Cashback_Registry is AccessControlEnumerable {
         returns (
             LEVEL level_,
             address signer_,
-            uint64[5] memory levelNodeIds_,
+            uint64[6] memory levelNodeIds_,
             uint64 referrerAccountId_,
             string memory code_,
             uint256 totalReferrals_
@@ -348,7 +349,7 @@ contract Cashback_Registry is AccessControlEnumerable {
             require(referredAccountId != 0, "CBR: Referred Not Member");
             require(
                 uint8(referredAccount.level) > uint8(account.level),
-                "CBR: Referred Must Be Higher Than Referrer"
+                "CBR: Referred Must Be Below Referrer"
             );
             nodes[referredAccount.levelNodeIds[uint256(referredAccount.level)]]
                 .parentNodeId = account.levelNodeIds[
