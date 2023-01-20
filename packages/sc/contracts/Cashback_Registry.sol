@@ -102,8 +102,15 @@ contract Cashback_Registry is AccessControlEnumerable {
         );
         treasuryAccount.levelNodeIds[uint256(LEVEL.BRONZE)] = nodeIdNonce + 4;
 
+        nodes[nodeIdNonce + 5] = Node(
+            LEVEL.MEMBER,
+            accountIdNonce,
+            nodeIdNonce + 4
+        );
+        treasuryAccount.levelNodeIds[uint256(LEVEL.MEMBER)] = nodeIdNonce + 5;
+
         accountIdNonce++;
-        nodeIdNonce += 5;
+        nodeIdNonce += 6;
     }
 
     function isValidNewCode(string calldata _code) public view returns (bool) {
