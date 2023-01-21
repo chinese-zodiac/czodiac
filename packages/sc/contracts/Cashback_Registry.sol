@@ -114,7 +114,10 @@ contract Cashback_Registry is AccessControlEnumerable {
     }
 
     function isValidNewCode(string calldata _code) public view returns (bool) {
-        return !isCodeRegistered(_code);
+        return
+            !isCodeRegistered(_code) &&
+            keccak256(abi.encodePacked(_code)) !=
+            keccak256(abi.encodePacked(""));
     }
 
     function isCodeRegistered(string calldata _code)
@@ -189,7 +192,7 @@ contract Cashback_Registry is AccessControlEnumerable {
         uint64 accountId = signerToAccountId[msg.sender];
         Account storage account = accounts[accountId];
         require(accountId != 0, "CBR: Not Registered");
-        require(account.level != LEVEL.DIAMOND, "CBR: Max Tier");
+        require(account.level > LEVEL.DIAMOND, "CBR: Max Tier");
         uint8 prevLevel = uint8(account.level);
         uint8 newLevel = prevLevel - 1;
 
@@ -227,7 +230,7 @@ contract Cashback_Registry is AccessControlEnumerable {
     }
 
     function setCodeTo(string calldata _code) public {
-        require(!isCodeRegistered(_code), "CBR: Code Registered");
+        require(isValidNewCode(_code), "CBR: Code Invalid");
         uint64 accountId = signerToAccountId[msg.sender];
         Account storage account = accounts[accountId];
         require(accountId != 0, "CBR: Account not registered");

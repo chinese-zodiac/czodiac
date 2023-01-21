@@ -117,7 +117,23 @@ describe("Cashback_Registry", function () {
 
         expect(treasuryCodeAccountId).to.eq(1);
         expect(ownerAccountId).to.eq(1);
-
-    })
+    });
+    it("Should revert tx without proper access", async function () {
+        await expect(cashbackRegistrySc.claimCashback(trader1.address)).to.be.revertedWith("CBR: Not Member");
+        await expect(cashbackRegistrySc.addCzusdToDistribute(trader1.address, parseEther("1"))).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).becomeMember("")).to.be.revertedWith("CBR: Code Not Registered");
+        await expect(cashbackRegistrySc.becomeMember("")).to.be.revertedWith("CBR: Already Registered");
+        await expect(cashbackRegistrySc.connect(trader1).upgradeTier()).to.be.revertedWith("CBR: Not Registered");
+        await expect(cashbackRegistrySc.upgradeTier()).to.be.revertedWith("CBR: Max Tier");
+        await expect(cashbackRegistrySc.connect(trader1).addCzusdToReferrerChain(3, parseEther("1"))).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).setCodeTo("TREASURY")).to.be.revertedWith("CBR: Code Invalid");
+        await expect(cashbackRegistrySc.setCodeTo("")).to.be.revertedWith("CBR: Code Invalid");
+        await expect(cashbackRegistrySc.connect(trader1).setCodeTo("ABC")).to.be.revertedWith("CBR: Account not registered");
+        await expect(cashbackRegistrySc.connect(trader1).setLevelFee(0, 1)).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).setTotalWeightAtLevel(0, 1)).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).setCzusd(trader1.address)).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).setBlacklist(trader1.address)).to.be.reverted;
+        await expect(cashbackRegistrySc.connect(trader1).recaptureAccounts([1])).to.be.revertedWith("CBR: Not Member");
+    });
 
 });
