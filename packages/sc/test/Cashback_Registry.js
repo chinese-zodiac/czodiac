@@ -293,5 +293,61 @@ describe("Cashback_Registry", function () {
         expect(pendingUpgradeRewardsToTrader1).to.be.closeTo(parseEther("1.1111"), parseEther("0.00002"));
         expect(pendingUpgradeRewardsToOwner).to.be.closeTo(parseEther("133.8888"), parseEther("0.0001"));
 
+
+    });
+    it("Should fail recapture if BRONZE or MEMBER", async function () {
+        await expect(cashbackRegistrySc.connect(trader1).recaptureAccounts([0])).to.be.revertedWith("Must Be Higher Than Bronze");
+    });
+    it("Should fail recapture second account when same level", async function () {
+        await cashbackRegistrySc.connect(trader1).upgradeTier(); //silver
+        await expect(cashbackRegistrySc.recaptureAccounts([0])).to.be.revertedWith("CBR: Already parented");
+        await expect(cashbackRegistrySc.connect(trader1).recaptureAccounts([0])).to.be.revertedWith("CBR: Referred Must Be Below Referrer");
+    });
+    it("Should recapture", async function () {
+        await cashbackRegistrySc.connect(trader1).upgradeTier(); //gold
+        await cashbackRegistrySc.connect(trader1).recaptureAccounts([0]);
+
+        const accountIdNonce = await cashbackRegistrySc.accountIdNonce();
+        const nodeIdNonce = await cashbackRegistrySc.nodeIdNonce();
+
+        //new trader 1 nodes
+        const account2 = await cashbackRegistrySc.getAccountInfo(2);
+        const node12 = await cashbackRegistrySc.getNodeInfo(12);
+        const node13 = await cashbackRegistrySc.getNodeInfo(13);
+
+        //old trader 2 silver node that was recapture
+        const account3 = await cashbackRegistrySc.getAccountInfo(3);
+        const trader2SilverNode = await cashbackRegistrySc.getNodeInfo(account2.levelNodeIds_[3]);
+
+        expect(accountIdNonce).to.eq(4);
+        expect(nodeIdNonce).to.eq(14);
+
+        expect(account2.level_).to.eq(2);
+        expect(account2.signer_).to.eq(trader1.address);
+        expect(account2.referrerAccountId_).to.eq(1);
+        expect(account2.code_).to.eq("TRADER1");
+        expect(account2.levelNodeIds_[0]).to.eq(0);
+        expect(account2.levelNodeIds_[1]).to.eq(0);
+        expect(account2.levelNodeIds_[2]).to.eq(13);
+        expect(account2.levelNodeIds_[3]).to.eq(12);
+        expect(account2.levelNodeIds_[4]).to.eq(8);
+        expect(account2.levelNodeIds_[5]).to.eq(7);
+        expect(account2.totalReferrals_).to.eq(1);
+
+        expect(account3.level_).to.eq(3);
+        expect(account3.signer_).to.eq(trader2.address);
+        expect(account3.referrerAccountId_).to.eq(2);
+        expect(account3.code_).to.eq("TRADER2");
+        expect(account3.levelNodeIds_[0]).to.eq(0);
+        expect(account3.levelNodeIds_[1]).to.eq(0);
+        expect(account3.levelNodeIds_[2]).to.eq(0);
+        expect(account3.levelNodeIds_[3]).to.eq(11);
+        expect(account3.levelNodeIds_[4]).to.eq(10);
+        expect(account3.levelNodeIds_[5]).to.eq(9);
+        expect(account3.totalReferrals_).to.eq(0);
+
+        expect(trader2SilverNode.depth_).to.eq(3);
+        expect(trader2SilverNode.accountId_).to.eq(2);
+        expect(trader2SilverNode.parentNodeId_).to.eq(13); //trader1 gold node
     });
 });

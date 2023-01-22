@@ -364,10 +364,17 @@ contract Cashback_Registry is AccessControlEnumerable {
                 uint8(referredAccount.level) > uint8(account.level),
                 "CBR: Referred Must Be Below Referrer"
             );
-            nodes[referredAccount.levelNodeIds[uint256(referredAccount.level)]]
-                .parentNodeId = account.levelNodeIds[
+            uint64 newParentNodeId = account.levelNodeIds[
                 uint256(referredAccount.level) - 1
             ];
+            Node storage referredNode = nodes[
+                referredAccount.levelNodeIds[uint256(referredAccount.level)]
+            ];
+            require(
+                referredNode.parentNodeId != newParentNodeId,
+                "CBR: Already parented"
+            );
+            referredNode.parentNodeId = newParentNodeId;
         }
     }
 }
