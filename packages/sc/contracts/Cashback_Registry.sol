@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./interfaces/IBlacklist.sol";
 import "./CZUsd.sol";
 
+//import "hardhat/console.sol";
+
 contract Cashback_Registry is AccessControlEnumerable {
     bytes32 public constant MANAGER_REGISTRY = keccak256("MANAGER_REGISTRY");
 
@@ -246,15 +248,17 @@ contract Cashback_Registry is AccessControlEnumerable {
         uint64 nodeIdProcessing = _referrerNodeId;
         uint8 minLevel = uint8(nodes[_referrerNodeId].depth);
         uint16 combinedReferrerWeight = totalWeightAtLevel[0] -
-            totalWeightAtLevel[minLevel];
+            totalWeightAtLevel[minLevel + 1];
         uint256 feesPerWeight = _wad / combinedReferrerWeight;
-        for (uint8 level = 0; level <= minLevel; level++) {
+
+        console.log("Starting loop");
+        for (uint8 prevLevel = minLevel + 1; prevLevel > 0; prevLevel--) {
+            uint8 level = prevLevel - 1;
             Node storage node = nodes[nodeIdProcessing];
             pendingRewards[accounts[node.accountId].signer] +=
-                (totalWeightAtLevel[level] - totalWeightAtLevel[level + 1]) *
+                (totalWeightAtLevel[level] - totalWeightAtLevel[prevLevel]) *
                 feesPerWeight;
             nodeIdProcessing = node.parentNodeId;
-            level++;
         }
     }
 

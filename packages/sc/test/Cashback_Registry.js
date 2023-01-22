@@ -135,5 +135,92 @@ describe("Cashback_Registry", function () {
         await expect(cashbackRegistrySc.connect(trader1).setBlacklist(trader1.address)).to.be.reverted;
         await expect(cashbackRegistrySc.connect(trader1).recaptureAccounts([1])).to.be.revertedWith("CBR: Not Member");
     });
+    it("Should register new member", async function () {
+        await cashbackRegistrySc.connect(trader1).becomeMember("TREASURY");
 
+        const accountIdNonce = await cashbackRegistrySc.accountIdNonce();
+        const nodeIdNonce = await cashbackRegistrySc.nodeIdNonce();
+        const trader1AccountId = await cashbackRegistrySc.signerToAccountId(trader1.address);
+
+        const account2 = await cashbackRegistrySc.getAccountInfo(2);
+        const node7 = await cashbackRegistrySc.getNodeInfo(7);
+
+        const treasuryRefferals = await cashbackRegistrySc.getAccountReferrals(1, 0, 1);
+
+        expect(accountIdNonce).to.eq(3);
+        expect(nodeIdNonce).to.eq(8);
+        expect(trader1AccountId).to.eq(2);
+
+        expect(account2.level_).to.eq(5);
+        expect(account2.signer_).to.eq(trader1.address);
+        expect(account2.referrerAccountId_).to.eq(1);
+        expect(account2.code_).to.eq("");
+        expect(account2.levelNodeIds_[0]).to.eq(0);
+        expect(account2.levelNodeIds_[1]).to.eq(0);
+        expect(account2.levelNodeIds_[2]).to.eq(0);
+        expect(account2.levelNodeIds_[3]).to.eq(0);
+        expect(account2.levelNodeIds_[4]).to.eq(0);
+        expect(account2.levelNodeIds_[5]).to.eq(7);
+
+        expect(node7.depth_).to.eq(5);
+        expect(node7.accountId_).to.eq(2);
+        expect(node7.parentNodeId_).to.eq(5); //treasury bronze node id
+
+        expect(treasuryRefferals[0]).to.eq(2);
+    });
+    it("Should fail upgrade if not enough funds for tier", async function () {
+        await expect(cashbackRegistrySc.connect(trader1).upgradeTier()).to.be.reverted;
+    });
+    it("Should upgrade tier", async function () {
+        await czusdSc.connect(czusdAdmin).mint(trader1.address, parseEther("10"));
+        await czusdSc.connect(trader1).approve(cashbackRegistrySc.address, ethers.constants.MaxUint256);
+
+        const initialCBRCzusdBal = await czusdSc.balanceOf(cashbackRegistrySc.address);
+        const initialTrader1CzusdBal = await czusdSc.balanceOf(trader1.address);
+
+        await cashbackRegistrySc.connect(trader1).upgradeTierAndSetCode("TRADER1");
+
+        const accountIdNonce = await cashbackRegistrySc.accountIdNonce();
+        const nodeIdNonce = await cashbackRegistrySc.nodeIdNonce();
+
+        const account2 = await cashbackRegistrySc.getAccountInfo(2);
+        const node7 = await cashbackRegistrySc.getNodeInfo(7);
+        const node8 = await cashbackRegistrySc.getNodeInfo(8);
+
+        const treasuryRefferals = await cashbackRegistrySc.getAccountReferrals(1, 0, 1);
+
+        const finalCBRCzusdBal = await czusdSc.balanceOf(cashbackRegistrySc.address);
+        const finalTrader1CzusdBal = await czusdSc.balanceOf(trader1.address);
+
+        const pendingUpgradeRewardsToOwner = await cashbackRegistrySc.pendingRewards(owner.address);
+
+        expect(accountIdNonce).to.eq(3);
+        expect(nodeIdNonce).to.eq(9);
+
+        expect(account2.level_).to.eq(4);
+        expect(account2.signer_).to.eq(trader1.address);
+        expect(account2.referrerAccountId_).to.eq(1);
+        expect(account2.code_).to.eq("TRADER1");
+        expect(account2.levelNodeIds_[0]).to.eq(0);
+        expect(account2.levelNodeIds_[1]).to.eq(0);
+        expect(account2.levelNodeIds_[2]).to.eq(0);
+        expect(account2.levelNodeIds_[3]).to.eq(0);
+        expect(account2.levelNodeIds_[4]).to.eq(8);
+        expect(account2.levelNodeIds_[5]).to.eq(7);
+
+        expect(node7.depth_).to.eq(5);
+        expect(node7.accountId_).to.eq(2);
+        expect(node7.parentNodeId_).to.eq(8); //trader1 bronze node id
+
+        expect(node8.depth_).to.eq(4);
+        expect(node8.accountId_).to.eq(2);
+        expect(node8.parentNodeId_).to.eq(4); //treasury silver node id
+
+        expect(treasuryRefferals[0]).to.eq(2);
+
+        expect(finalCBRCzusdBal.sub(initialCBRCzusdBal)).to.eq(parseEther("5"));
+        expect(initialTrader1CzusdBal.sub(finalTrader1CzusdBal)).to.eq(parseEther("5"));
+        expect(pendingUpgradeRewardsToOwner).to.be.closeTo(parseEther("5"),parseEther("0.0001"));
+
+    });
 });
