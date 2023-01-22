@@ -251,7 +251,6 @@ contract Cashback_Registry is AccessControlEnumerable {
             totalWeightAtLevel[minLevel + 1];
         uint256 feesPerWeight = _wad / combinedReferrerWeight;
 
-        console.log("Starting loop");
         for (uint8 prevLevel = minLevel + 1; prevLevel > 0; prevLevel--) {
             uint8 level = prevLevel - 1;
             Node storage node = nodes[nodeIdProcessing];
