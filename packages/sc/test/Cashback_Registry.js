@@ -350,4 +350,38 @@ describe("Cashback_Registry", function () {
         expect(trader2SilverNode.accountId_).to.eq(2);
         expect(trader2SilverNode.parentNodeId_).to.eq(13); //trader1 gold node
     });
+    it("Should pay cashback and rewards", async function () {
+        await cashbackRegistrySc.claimRewards(trader1.address);
+        await cashbackRegistrySc.claimRewards(owner.address);
+        await czusdSc.approve(cashbackRegistrySc.address, ethers.constants.MaxUint256);
+        await cashbackRegistrySc.addCzusdToDistribute(trader2.address, parseEther("100"));
+
+        const initialCashbackPending = await cashbackRegistrySc.pendingCzusdToDistribute(trader2.address);
+        const initialTrader2Bal = await czusdSc.balanceOf(trader2.address);
+        await cashbackRegistrySc.claimCashback(trader2.address);
+
+        const initialTrader1Bal = await czusdSc.balanceOf(trader1.address);
+        const initialOwnerBal = await czusdSc.balanceOf(owner.address);
+
+        await cashbackRegistrySc.connect(trader1).claimRewards(trader1.address);
+        await cashbackRegistrySc.connect(trader1).claimRewards(owner.address);
+
+        const finalTrader1Bal = await czusdSc.balanceOf(trader1.address);
+        const finalOwnerBal = await czusdSc.balanceOf(owner.address);
+        const finalTrader2Bal = await czusdSc.balanceOf(trader2.address);
+
+        const trader1Delta = finalTrader1Bal.sub(initialTrader1Bal);
+        const ownerDelta = finalOwnerBal.sub(initialOwnerBal);
+        const trader2Delta = finalTrader2Bal.sub(initialTrader2Bal);
+
+        const finalCashbackPending = await cashbackRegistrySc.pendingCzusdToDistribute(trader2.address);
+
+        expect(initialCashbackPending).to.eq(parseEther("100"));
+        expect(finalCashbackPending).to.eq(0);
+        expect(trader1Delta.add(ownerDelta).add(trader2Delta)).to.be.closeTo(parseEther("100"), parseEther("0.01"));
+        expect(trader2Delta).to.be.closeTo(parseEther("100").mul(50).div(100), parseEther("0.01"));
+        expect(trader1Delta).to.be.closeTo(parseEther("100").mul(20).div(100), parseEther("0.01"));
+        expect(ownerDelta).to.be.closeTo(parseEther("100").mul(30).div(100), parseEther("0.01"));
+
+    });
 });
