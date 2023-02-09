@@ -286,6 +286,31 @@ contract Cashback_Registry is AccessControlEnumerable {
         parentNodeId_ = node.parentNodeId;
     }
 
+    function getSignerInfo(address _signer)
+        external
+        view
+        returns (
+            LEVEL level_,
+            uint64 accoundId_,
+            uint64[6] memory levelNodeIds_,
+            uint64 referrerAccountId_,
+            string memory code_,
+            uint256 totalReferrals_,
+            uint256 pendingCzusdToDistribute_,
+            uint256 pendingRewards_
+        )
+    {
+        accoundId_ = signerToAccountId[_signer];
+        Account storage account = accounts[accoundId_];
+        level_ = account.level;
+        levelNodeIds_ = account.levelNodeIds;
+        referrerAccountId_ = account.referrerAccountId;
+        code_ = account.code;
+        totalReferrals_ = account.referralAccountIds.length;
+        pendingCzusdToDistribute_ = pendingCzusdToDistribute[_signer];
+        pendingRewards_ = pendingRewards[_signer];
+    }
+
     function getAccountInfo(uint64 _accountId)
         external
         view
@@ -295,7 +320,9 @@ contract Cashback_Registry is AccessControlEnumerable {
             uint64[6] memory levelNodeIds_,
             uint64 referrerAccountId_,
             string memory code_,
-            uint256 totalReferrals_
+            uint256 totalReferrals_,
+            uint256 pendingCzusdToDistribute_,
+            uint256 pendingRewards_
         )
     {
         Account storage account = accounts[_accountId];
@@ -305,6 +332,8 @@ contract Cashback_Registry is AccessControlEnumerable {
         referrerAccountId_ = account.referrerAccountId;
         code_ = account.code;
         totalReferrals_ = account.referralAccountIds.length;
+        pendingCzusdToDistribute_ = pendingCzusdToDistribute[signer_];
+        pendingRewards_ = pendingRewards[signer_];
     }
 
     function getAccountReferrals(
