@@ -77,5 +77,6 @@
   "iterableUintArrayWithoutDuplicateKeys": "0xA356d44312f6e0E9ddfF0AF524fA0946418f0E05",
   "tribePoolNft": "0xD28F8c0C70B373F3Cb902980BBB97D03DeE9fC47",
   "cashbackRegistry": "0xe32a6BF04d6Aaf34F3c29af991a6584C5D8faB5C",
-  "cashbackRegistryReferralLevels": "0x71EEBE846625048C092D9BA08Ecd6a2B9a0C0f55"
+  "cashbackRegistryReferralLevels": "0x71EEBE846625048C092D9BA08Ecd6a2B9a0C0f55",
+  "scorchPegV5": "0xC46F3922FFe3D21057788c0A134AE39B09C1dd3B"
 }
