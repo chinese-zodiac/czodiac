@@ -48,19 +48,30 @@ contract ScorchPegV5 is
 
     uint256 public maxWbnbHolding = 30 ether;
 
+    uint256 public maxUpkeepDelta = 10 ether;
+
     function checkUpkeep(bytes calldata)
         external
         view
         override
-        returns (bool upkeepNeeded, bytes memory)
+        returns (bool upkeepNeeded, bytes memory performData)
     {
         PEG_STATUS pancakeswapPegStatus = getPancakeswapPegStatus();
         upkeepNeeded =
             pancakeswapPegStatus == PEG_STATUS.under ||
             pancakeswapPegStatus == PEG_STATUS.over;
+        performData = abi.encode(getUsdDeltaWad());
     }
 
-    function performUpkeep(bytes calldata) external override {
+    function performUpkeep(bytes calldata performData) external override {
+        int256 upkeepUsdDeltaChange = abi.decode(performData, (int256)) +
+            (-1 * getUsdDeltaWad());
+        require(
+            upkeepUsdDeltaChange > -1 * int256(maxUpkeepDelta) &&
+                upkeepUsdDeltaChange < int256(maxUpkeepDelta),
+            "ScorchPegV5: maxUpkeepDelta"
+        );
+
         _repeg();
     }
 
@@ -98,47 +109,47 @@ contract ScorchPegV5 is
         if (block.timestamp < lastUpkeepEpoch + upkeepPeriod) {
             pegStatus_ = PEG_STATUS.asleep;
         } else {
-            (
-                uint256 reservesCzusdWad,
-                uint256 reservesBnbWadUsdVal
-            ) = getLpReserves();
-            if (
-                _getFeeAdjustedLp(reservesBnbWadUsdVal) + minPcsDelta <
-                reservesCzusdWad
-            ) {
-                pegStatus_ = PEG_STATUS.under;
-            } else if (
-                _getFeeAdjustedLp(reservesCzusdWad) + minPcsDelta <
-                reservesBnbWadUsdVal
-            ) {
+            int256 usdWad = getUsdDeltaWad();
+            if (usdWad > int256(minPcsDelta)) {
                 pegStatus_ = PEG_STATUS.over;
+            } else if (usdWad < -1 * int256(minPcsDelta)) {
+                pegStatus_ = PEG_STATUS.under;
             } else {
                 pegStatus_ = PEG_STATUS.on;
             }
         }
     }
 
-    function getUsdRepegWad() public view returns (uint256 usdWad_) {
-        PEG_STATUS pegStatus = getPancakeswapPegStatus();
-        if (pegStatus == PEG_STATUS.on) {
-            return (0);
-        }
+    function getUsdDeltaWad() public view returns (int256 usdWad_) {
         (
             uint256 reservesCzusdWad,
             uint256 reservesBnbWadUsdVal
         ) = getLpReserves();
-        if (pegStatus == PEG_STATUS.over) {
-            usdWad_ = ((reservesBnbWadUsdVal -
-                _getFeeAdjustedLp(reservesCzusdWad)) / 2);
+        uint256 feeAdjustedCzusdWad = _getFeeAdjustedLp(reservesCzusdWad);
+        uint256 feeAdjustedBnbWadUsd = _getFeeAdjustedLp(reservesBnbWadUsdVal);
+        if (reservesCzusdWad > feeAdjustedBnbWadUsd) {
+            usdWad_ =
+                (int256(feeAdjustedBnbWadUsd) - int256(reservesCzusdWad)) /
+                2;
+        } else if (reservesBnbWadUsdVal > feeAdjustedCzusdWad) {
+            usdWad_ =
+                (int256(reservesBnbWadUsdVal) - int256(feeAdjustedCzusdWad)) /
+                2;
+        } else {
+            usdWad_ = 0;
         }
-        if (pegStatus == PEG_STATUS.under) {
-            usdWad_ = ((reservesCzusdWad -
-                _getFeeAdjustedLp(reservesBnbWadUsdVal)) / 2);
+    }
+
+    function getUsdRepegWad() public view returns (uint256 usdWad_) {
+        PEG_STATUS pegStatus = getPancakeswapPegStatus();
+        if (pegStatus == PEG_STATUS.over) {
+            usdWad_ = uint256(getUsdDeltaWad());
+        } else if (pegStatus == PEG_STATUS.under) {
+            usdWad_ = uint256(-1 * getUsdDeltaWad());
         }
         if (usdWad_ > maxPcsDelta) {
             usdWad_ = maxPcsDelta;
         }
-        return usdWad_;
     }
 
     function getBnbUsdPriceWad() public view returns (uint256 bnbPrice_) {
@@ -205,6 +216,10 @@ contract ScorchPegV5 is
 
     function setminPcsDelta(uint256 _to) external onlyOwner {
         minPcsDelta = _to;
+    }
+
+    function setmaxPcsDelta(uint256 _to) external onlyOwner {
+        maxPcsDelta = _to;
     }
 
     function setmaxWbnbHolding(uint256 _to) external onlyOwner {
