@@ -57,6 +57,7 @@ module.exports = {
       url: `https://rpc.ankr.com/bsc`,
       accounts: [networkConfig.ethKey],
       gasMultiplier: 1,
+      timeout: 5000000
     },
     bscTestnet: {
       url: `https://data-seed-prebsc-1-s2.binance.org:8545`,
