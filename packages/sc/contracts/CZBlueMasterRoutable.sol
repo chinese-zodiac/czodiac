@@ -6,7 +6,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./interfaces/IBlacklist.sol";
 import "./CZBlue.sol";
+
+//import "hardhat/console.sol";
 
 contract CZBlueMasterRoutable is Ownable {
     using SafeMath for uint256;
@@ -22,17 +25,22 @@ contract CZBlueMasterRoutable is Ownable {
         uint16 depositTaxBasis;
         uint16 withdrawTaxBasis;
         uint32 allocPoint;
-        uint256 lastRewardBlock;
+        uint256 lastRewardTimestamp;
         uint256 accCzbPerShare;
+        uint256 totalDeposit;
     }
 
-    CZBlue public czb;
-    uint256 public czbPerBlock;
+    CZBlue public czb = CZBlue(0xD963b2236D227a0302E19F2f9595F424950dc186);
+    uint256 public czbPerSecond;
 
     PoolInfo[] public poolInfo;
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     uint32 public totalAllocPoint = 0;
-    uint256 public startBlock;
+    uint256 public startTimestamp;
+    uint256 public baseAprBasis = 25000; //250%
+
+    IBlacklist public blacklistChecker =
+        IBlacklist(0x0207bb6B0EAab9211A4249F5a00513eB5C16C2AF);
 
     address public router;
     address public treasury =
@@ -46,15 +54,10 @@ contract CZBlueMasterRoutable is Ownable {
         uint256 indexed pid,
         uint256 amount
     );
+    event UpdateCzbPerSecond(uint256 amount);
 
-    constructor(
-        CZBlue _czb,
-        uint256 _czbPerBlock,
-        uint256 _startBlock
-    ) {
-        czb = _czb;
-        czbPerBlock = _czbPerBlock;
-        startBlock = _startBlock;
+    constructor(uint256 _startTimestamp) {
+        startTimestamp = _startTimestamp;
     }
 
     function poolLength() external view returns (uint256) {
@@ -79,9 +82,9 @@ contract CZBlueMasterRoutable is Ownable {
         if (_withUpdate) {
             massUpdatePools();
         }
-        uint256 lastRewardBlock = block.number > startBlock
-            ? block.number
-            : startBlock;
+        uint256 lastRewardTimestamp = block.timestamp > startTimestamp
+            ? block.timestamp
+            : startTimestamp;
         totalAllocPoint = totalAllocPoint + _allocPoint;
         poolInfo.push(
             PoolInfo({
@@ -89,8 +92,9 @@ contract CZBlueMasterRoutable is Ownable {
                 depositTaxBasis: _depositTaxBasis,
                 withdrawTaxBasis: _withdrawTaxBasis,
                 allocPoint: _allocPoint,
-                lastRewardBlock: lastRewardBlock,
-                accCzbPerShare: 0
+                lastRewardTimestamp: lastRewardTimestamp,
+                accCzbPerShare: 0,
+                totalDeposit: 0
             })
         );
     }
@@ -122,20 +126,22 @@ contract CZBlueMasterRoutable is Ownable {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accCzbPerShare = pool.accCzbPerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (block.number > pool.lastRewardBlock && lpSupply != 0) {
+        uint256 totalDeposit = pool.totalDeposit;
+        if (block.timestamp > pool.lastRewardTimestamp && totalDeposit != 0) {
             uint256 multiplier = getMultiplier(
-                pool.lastRewardBlock,
-                block.number
+                pool.lastRewardTimestamp,
+                block.timestamp
             );
-            uint256 czbReward = (multiplier * czbPerBlock * pool.allocPoint) /
+            uint256 czbReward = (multiplier * czbPerSecond * pool.allocPoint) /
                 totalAllocPoint;
-            accCzbPerShare = (accCzbPerShare + czbReward * 1e12) / lpSupply;
+            accCzbPerShare =
+                accCzbPerShare +
+                ((czbReward * 1e12) / totalDeposit);
         }
         return
-            ((user.amount * accCzbPerShare) / 1e12) -
-            user.rewardDebt +
-            user.pendingRewards;
+            ((user.amount * accCzbPerShare) / 1e12) +
+            user.pendingRewards -
+            user.rewardDebt;
     }
 
     function massUpdatePools() public {
@@ -147,24 +153,29 @@ contract CZBlueMasterRoutable is Ownable {
 
     function updatePool(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
-        if (block.number <= pool.lastRewardBlock) {
+
+        if (block.timestamp <= pool.lastRewardTimestamp) {
             return;
         }
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (lpSupply == 0) {
-            pool.lastRewardBlock = block.number;
+        uint256 totalDeposit = pool.totalDeposit;
+        if (totalDeposit == 0) {
+            pool.lastRewardTimestamp = block.timestamp;
             return;
         }
-        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 czbReward = (multiplier * czbPerBlock * pool.allocPoint) /
+        uint256 multiplier = getMultiplier(
+            pool.lastRewardTimestamp,
+            block.timestamp
+        );
+
+        uint256 czbReward = (multiplier * czbPerSecond * pool.allocPoint) /
             totalAllocPoint;
 
         czb.mint(address(this), czbReward);
 
         pool.accCzbPerShare =
-            (pool.accCzbPerShare + czbReward * 1e12) /
-            lpSupply;
-        pool.lastRewardBlock = block.number;
+            pool.accCzbPerShare +
+            ((czbReward * 1e12) / totalDeposit);
+        pool.lastRewardTimestamp = block.timestamp;
     }
 
     function deposit(
@@ -205,24 +216,39 @@ contract CZBlueMasterRoutable is Ownable {
                 user.pendingRewards = user.pendingRewards + pending;
 
                 if (_withdrawRewards) {
-                    safeCzbTransfer(_account, user.pendingRewards);
+                    address yieldReceiver = blacklistChecker.isBlacklisted(
+                        _account
+                    )
+                        ? owner()
+                        : _account;
+                    safeCzbTransfer(yieldReceiver, user.pendingRewards);
                     emit Claim(_account, _pid, user.pendingRewards);
                     user.pendingRewards = 0;
                 }
             }
         }
         if (_amount > 0) {
+            uint256 fee = (_amount * pool.depositTaxBasis) / 10000;
             require(
                 pool.lpToken.transferFrom(
                     address(_assetSender),
                     address(this),
-                    _amount
+                    _amount - fee
                 ),
-                "CZBlueMaster: Transfer failed"
+                "CBM: Transfer failed"
             );
-            user.amount = user.amount + _amount;
+            require(
+                pool.lpToken.transferFrom(address(_assetSender), treasury, fee),
+                "CBM: Transfer fee failed"
+            );
+
+            pool.totalDeposit = pool.totalDeposit + _amount - fee;
+            user.amount = user.amount + _amount - fee;
         }
         user.rewardDebt = (user.amount * pool.accCzbPerShare) / 1e12;
+        if (_pid == 0) {
+            _updateCzbPerSecond();
+        }
         emit Deposit(_account, _pid, _amount);
     }
 
@@ -254,8 +280,14 @@ contract CZBlueMasterRoutable is Ownable {
     ) internal {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_account];
+        address assetReceiver = blacklistChecker.isBlacklisted(_account)
+            ? treasury
+            : _assetReceiver;
+        address yieldReceiver = blacklistChecker.isBlacklisted(_account)
+            ? treasury
+            : _account;
 
-        require(user.amount >= _amount, "CZBlueMaster: balance too low");
+        require(user.amount >= _amount, "CBM: balance too low");
         updatePool(_pid);
         uint256 pending = ((user.amount * pool.accCzbPerShare) / 1e12) -
             user.rewardDebt;
@@ -263,33 +295,64 @@ contract CZBlueMasterRoutable is Ownable {
             user.pendingRewards = user.pendingRewards + pending;
 
             if (_withdrawRewards) {
-                safeCzbTransfer(_account, user.pendingRewards);
+                safeCzbTransfer(yieldReceiver, user.pendingRewards);
                 emit Claim(_account, _pid, user.pendingRewards);
                 user.pendingRewards = 0;
             }
         }
         if (_amount > 0) {
+            uint256 fee = (_amount * pool.withdrawTaxBasis) / 10000;
+            pool.totalDeposit = pool.totalDeposit - _amount;
             user.amount = user.amount - _amount;
             require(
-                pool.lpToken.transfer(_assetReceiver, _amount),
-                "CZBlueMaster: Transfer failed"
+                pool.lpToken.transfer(assetReceiver, _amount - fee),
+                "CBM: Transfer failed"
             );
+            require(
+                pool.lpToken.transfer(treasury, fee),
+                "CBM: Transfer fee failed"
+            );
+            if (_pid == 0) {
+                _updateCzbPerSecond();
+            }
         }
         user.rewardDebt = (user.amount * pool.accCzbPerShare) / 1e12;
         emit Withdraw(_account, _pid, _amount);
     }
 
+    function _updateCzbPerSecond() internal {
+        //Set czbPerSecond based on the first pool's CZB stake.
+        czbPerSecond =
+            (poolInfo[0].totalDeposit * baseAprBasis) /
+            10000 /
+            365.25 days;
+    }
+
     function emergencyWithdraw(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
+        address assetReceiver = blacklistChecker.isBlacklisted(
+            address(msg.sender)
+        )
+            ? treasury
+            : msg.sender;
+        uint256 fee = (user.amount * pool.withdrawTaxBasis) / 10000;
         require(
-            pool.lpToken.transfer(address(msg.sender), user.amount),
-            "CZBlueMaster: Transfer failed"
+            pool.lpToken.transfer(assetReceiver, user.amount - fee),
+            "CBM: Transfer failed"
+        );
+        require(
+            pool.lpToken.transfer(treasury, fee),
+            "CBM: Transfer fee failed"
         );
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
+        pool.totalDeposit = pool.totalDeposit - user.amount;
         user.amount = 0;
         user.rewardDebt = 0;
         user.pendingRewards = 0;
+        if (_pid == 0) {
+            _updateCzbPerSecond();
+        }
     }
 
     function claim(uint256 _pid) public {
@@ -326,12 +389,15 @@ contract CZBlueMasterRoutable is Ownable {
         }
     }
 
-    function setCzbPerBlock(uint256 _czbPerBlock) public onlyOwner {
-        require(_czbPerBlock > 0, "CZBlueMaster: czbPerBlock cannot be 0");
-        czbPerBlock = _czbPerBlock;
-    }
-
     function setRouter(address _router) public onlyOwner {
         router = _router;
+    }
+
+    function setBlacklistChecker(IBlacklist _to) public onlyOwner {
+        blacklistChecker = _to;
+    }
+
+    function setBaseAprBasis(uint256 _to) public onlyOwner {
+        baseAprBasis = _to;
     }
 }
