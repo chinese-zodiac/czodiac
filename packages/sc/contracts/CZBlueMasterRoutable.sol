@@ -323,7 +323,8 @@ contract CZBlueMasterRoutable is Ownable {
     function _updateCzbPerSecond() internal {
         //Set czbPerSecond based on the first pool's CZB stake.
         czbPerSecond =
-            (poolInfo[0].totalDeposit * baseAprBasis) /
+            (poolInfo[0].totalDeposit * baseAprBasis * totalAllocPoint) /
+            poolInfo[0].allocPoint /
             10000 /
             365.25 days;
     }
