@@ -97,7 +97,7 @@ contract OutlawsNft is
         nftToken[_nftId] = _token;
         nftGeneration[_nftId] = _gen;
         jsonIpfsHash[_nftId] = _jsonIpfsHash;
-    }
+    } 
 
     function setMulti(
         uint256[] calldata _nftId,
