@@ -14,8 +14,6 @@ async function main() {
   const erc721EnumberableSc = await ethers.getContractAt("EntityStoreERC721", EntityStoreERC721);
 
   const lsdtToAirdrop = await lsdtSc.balanceOf(lsdtAirdropAddr);
-  const ustsdSupply = Number(await ustsdSc.totalSupply());
-  console.log(ustsdSupply)
 
   const gangStats = [];
   let totalStrength = 0;
@@ -32,6 +30,7 @@ async function main() {
       cutoff,
       gangId: i
     });
+    console.log(i, gangOwner, gangUstsdCount, cutoff);
   }
 
   for (let i = 0; i < winnersToPick; i++) {
@@ -41,9 +40,10 @@ async function main() {
       if (gangStats[j].cutoff < roll) {
         winnerGangId = gangStats[j].gangId;
       } else {
+        console.log("found winner:", winnerGangId);
         winners.push(winnerGangId);
         await airdropSc.sendAirdrop(winnerGangId, parseEther("5"))
-        await delay(5000);
+        await delay(10000);
         break;
       }
     }
