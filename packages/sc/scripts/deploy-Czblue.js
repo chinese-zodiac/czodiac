@@ -8,8 +8,9 @@ const { parseEther } = ethers.utils;
 
 async function main() {
 
+
   const CZBlue = await ethers.getContractFactory("CZBlue");
-  const czblue = await CZBlue.deploy();
+  const czblue = await CZBlue.deploy({ nonce: 7198 });
   await czblue.deployed();
   console.log("CZBlue deployed to:", czblue.address);
 }
